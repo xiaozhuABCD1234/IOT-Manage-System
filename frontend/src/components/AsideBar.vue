@@ -59,17 +59,17 @@
         </el-icon>
         <span>工具</span>
       </template>
-      <el-menu-item index="1-1">
+      <el-menu-item index="/tools/distance">
         <el-icon>
-          <ChartArea />
+          <Calculator />
         </el-icon>
-        <span>仪表盘</span>
+        <span>距离计算</span>
       </el-menu-item>
     </el-sub-menu>
   </el-menu>
 </template>
 <script lang="ts" setup>
-import { House, Server, ChartArea, MapPinned, Wrench, Shell } from 'lucide-vue-next';
+import { House, Server, ChartArea, MapPinned, Wrench, Shell, Calculator } from 'lucide-vue-next';
 
 const handleOpen = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)

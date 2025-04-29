@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import MapView from '@/views/MapView.vue'
 import DashBoardView from '@/views/DashBoardView.vue'
+import DistanceToolView from '@/views/DistanceToolView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -28,6 +29,11 @@ const router = createRouter({
       name: 'devops_dashboard',
       component: DashBoardView,
     },
+    {
+      path: '/tools/distance',
+      name: 'distance_tool',
+      component: DistanceToolView,
+    }
   ],
 })
 
