@@ -38,7 +38,7 @@
         </el-icon>
         <span>运维管理</span>
       </template>
-      <el-menu-item index="1-1">
+      <el-menu-item index="/devops/dashboard">
         <el-icon>
           <ChartArea />
         </el-icon>

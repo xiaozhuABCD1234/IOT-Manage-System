@@ -5,7 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fastapi>=0.115.12",
+    "bcrypt>=4.3.0",
+    "fastapi[all,standard]>=0.115.12",
+    "jose>=1.0.0",
+    "passlib>=1.7.4",
     "psutil>=7.0.0",
+    "python-jose[cryptography]>=3.4.0",
     "requests>=2.32.3",
+    "tortoise-orm>=0.25.0",
 ]
