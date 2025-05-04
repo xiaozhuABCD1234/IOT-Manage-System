@@ -1,29 +1,12 @@
 <template>
-  <el-select
-    v-model="value"
-    multiple
-    clearable
-    collapse-tags
-    placeholder="选择点位"
-    popper-class="custom-header"
-    :max-collapse-tags="1"
-    style="width: 240px"
-  >
+  <el-select v-model="value" multiple=true clearable=true collapse-tags=true placeholder="选择设备id"
+    popper-class="custom-header" :max-collapse-tags="3" style="width: 240px">
     <template #header>
-      <el-checkbox
-        v-model="checkAll"
-        :indeterminate="indeterminate"
-        @change="handleCheckAll"
-      >
-        All
+      <el-checkbox v-model="checkAll" :indeterminate="indeterminate" @change="handleCheckAll">
+        全选
       </el-checkbox>
     </template>
-    <el-option
-      v-for="item in cities"
-      :key="item.value"
-      :label="item.label"
-      :value="item.value"
-    />
+    <el-option v-for="item in cities" :key="item.value" :value="item.value" />
   </el-select>
 </template>
 
@@ -36,28 +19,19 @@ const indeterminate = ref(false)
 const value = ref<CheckboxValueType[]>([])
 const cities = ref([
   {
-    value: 'Beijing',
-    label: 'Beijing',
+    value: "1",
   },
   {
-    value: 'Shanghai',
-    label: 'Shanghai',
+    value: 2,
   },
   {
-    value: 'Nanjing',
-    label: 'Nanjing',
+    value: 3,
   },
   {
-    value: 'Chengdu',
-    label: 'Chengdu',
+    value: 4,
   },
   {
-    value: 'Shenzhen',
-    label: 'Shenzhen',
-  },
-  {
-    value: 'Guangzhou',
-    label: 'Guangzhou',
+    value: 5,
   },
 ])
 

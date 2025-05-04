@@ -61,7 +61,7 @@ const displayValue = computed(() => {
 const computedPercentage = computed(() => {
   if (typeof props.total === 'number' && props.total > 0) {
     const percentage = ((props.value / props.total) * 100).toFixed(1)
-    return Math.min(percentage, 100)
+    return Math.min(Number(percentage), 100)
   }
   return props.value  // 无总量时直接使用value作为百分比
 })

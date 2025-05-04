@@ -73,9 +73,9 @@ async def websocket_endpoint(websocket: WebSocket):
         # 客户端主动断开时优雅退出
         pass
     
-    except Exception as e:
-        # 处理其他异常
-        print(f"Unexpected error: {e}")
+    # except Exception as e:
+    #     # 处理其他异常
+    #     print(f"Unexpected error: {e}")
     
     finally:
         # 确保连接关闭（忽略已关闭的情况）

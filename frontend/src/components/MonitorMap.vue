@@ -10,14 +10,9 @@ declare global {
 import { onMounted, onUnmounted, ref } from "vue";
 import AMapLoader from "@amap/amap-jsapi-loader";
 import mqtt from "mqtt";
+import { useConfigStore } from "@/stores/config";
 
-const props = defineProps({
-  url: { type: String, default: "" },
-  username: { type: String, default: "" },
-  password: { type: String, default: "" },
-  topic:{ type: String, default: "location/sensors/#" }
-})
-
+const ConfigStore = useConfigStore();
 
 interface Device {
   id: number;
@@ -33,15 +28,15 @@ let mqttClient: mqtt.MqttClient | null = null;
 
 // MQTT配置
 const MQTT_CONFIG = {
-  url: props.url || "ws://106.14.209.20:8083/mqtt",
+  url: ConfigStore.mqtturl,
   options: {
     clean: true,
     connectTimeout: 4000,
-    clientId: `emqx_vue_${Date.now()}_${Math.random().toString(16).substr(2, 8)}`,
-    username: props.username,
-    password: props.password,
+    clientId: ConfigStore.mqttclientid,
+    username: ConfigStore.mqttuser,
+    password: ConfigStore.mqttpwd,
   },
-  topic: props.topic,
+  topic: ConfigStore.mqtttopic,
 };
 
 // 解析MQTT消息

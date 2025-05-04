@@ -36,6 +36,9 @@
 <script setup lang="ts">
 import { ref, onBeforeUnmount } from 'vue'
 import DashBoard from '@/components/DashBoard.vue'
+import { useConfigStore } from "@/stores/config";
+
+const ConfigStore = useConfigStore();
 
 // 响应式数据
 const cpuUsage = ref(0)
@@ -55,7 +58,7 @@ const maxReconnectAttempts = 5
 let reconnectAttempts = 0
 
 function connect() {
-  ws.value = new WebSocket('ws://127.0.0.1:8000/ws/devops/status')
+  ws.value = new WebSocket(ConfigStore.serverUrl+ '/devops/status')
 
   ws.value.onopen = () => {
     console.log('WebSocket已连接')
