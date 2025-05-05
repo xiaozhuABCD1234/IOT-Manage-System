@@ -86,7 +86,10 @@ const createDevice = (AMap: any, id: number, lng: number, lat: number) => {
 };
 
 // 更新设备位置
-const updateDevicePosition = (AMap: any, msg: { id: number; lng: number; lat: number }) => {
+const updateDevicePosition = (
+  AMap: any,
+  msg: { id: number; lng: number; lat: number },
+) => {
   let device = devices.value.find((d) => d.id === msg.id);
 
   if (!device) {
@@ -97,7 +100,7 @@ const updateDevicePosition = (AMap: any, msg: { id: number; lng: number; lat: nu
     // 更新现有设备时添加类型断言
     const newPath = [
       ...device.path,
-      [msg.lng, msg.lat] as [number, number] // 确保每个点都是元组
+      [msg.lng, msg.lat] as [number, number], // 确保每个点都是元组
     ];
     device.path = newPath;
     device.polyline.setPath(newPath);
@@ -132,25 +135,23 @@ onMounted(async () => {
     });
 
     mqttClient.on("message", (topic, payload) => {
-
       const msg = parseMessage(topic, payload);
-      console.log(msg)
+      console.log(msg);
       updateDevicePosition(AMap, msg);
     });
-
   }).catch(console.error);
 });
 
 onUnmounted(() => {
   // 清理MQTT连接
   if (mqttClient) {
-    mqttClient.unsubscribe(MQTT_CONFIG.topic);  // 显式取消订阅
-    mqttClient.end(true);  // 强制立即关闭连接
+    mqttClient.unsubscribe(MQTT_CONFIG.topic); // 显式取消订阅
+    mqttClient.end(true); // 强制立即关闭连接
     mqttClient = null;
   }
 
   // 清理地图覆盖物
-  devices.value.forEach(device => {
+  devices.value.forEach((device) => {
     try {
       // 安全移除覆盖物（在map存在且未被销毁时）
       if (map && !map.isDestroyed()) {
@@ -160,14 +161,14 @@ onUnmounted(() => {
       device.polyline?.destroy();
       device.marker?.destroy();
     } catch (e) {
-      console.warn('Cleanup error:', e);
+      console.warn("Cleanup error:", e);
     } finally {
       // 清除引用
       device.polyline = null;
       device.marker = null;
     }
   });
-  devices.value = [];  // 清空设备数组
+  devices.value = []; // 清空设备数组
 
   // 销毁地图实例
   try {
@@ -176,13 +177,13 @@ onUnmounted(() => {
       map = null;
     }
   } catch (e) {
-    console.warn('Map destroy error:', e);
+    console.warn("Map destroy error:", e);
   }
 });
 </script>
 
 <template>
-  <div ref="mapRef" style="width: 100%; height: 100vh;"></div>
+  <div ref="mapRef" style="width: 100%; height: 100vh"></div>
 </template>
 
 <style>

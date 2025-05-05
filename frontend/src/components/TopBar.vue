@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { House, Layers, Info } from 'lucide-vue-next';
-import { ref } from 'vue'
+import { House, Info, Layers } from "lucide-vue-next";
+import { ref } from "vue";
 
-const activeIndex = ref('1')
+const activeIndex = ref("1");
 const handleSelect = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
-}
+  console.log(key, keyPath);
+};
 </script>
 
 <template>
@@ -20,8 +20,13 @@ const handleSelect = (key: string, keyPath: string[]) => {
     </el-col>
     <el-col :span="18">
       <div class="menu">
-        <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect"
-          router=true>
+        <el-menu
+          :default-active="activeIndex"
+          class="el-menu-demo"
+          mode="horizontal"
+          @select="handleSelect"
+          router="true"
+        >
           <el-menu-item index="/">
             <el-icon>
               <House />

@@ -1,8 +1,20 @@
 <template>
-  <el-select v-model="value" multiple=true clearable=true collapse-tags=true placeholder="选择设备id"
-    popper-class="custom-header" :max-collapse-tags="3" style="width: 240px">
+  <el-select
+    v-model="value"
+    multiple="true"
+    clearable="true"
+    collapse-tags="true"
+    placeholder="选择设备id"
+    popper-class="custom-header"
+    :max-collapse-tags="3"
+    style="width: 240px"
+  >
     <template #header>
-      <el-checkbox v-model="checkAll" :indeterminate="indeterminate" @change="handleCheckAll">
+      <el-checkbox
+        v-model="checkAll"
+        :indeterminate="indeterminate"
+        @change="handleCheckAll"
+      >
         全选
       </el-checkbox>
     </template>
@@ -11,12 +23,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
-import type { CheckboxValueType } from 'element-plus'
+import { ref, watch } from "vue";
+import type { CheckboxValueType } from "element-plus";
 
-const checkAll = ref(false)
-const indeterminate = ref(false)
-const value = ref<CheckboxValueType[]>([])
+const checkAll = ref(false);
+const indeterminate = ref(false);
+const value = ref<CheckboxValueType[]>([]);
 const cities = ref([
   {
     value: "1",
@@ -33,28 +45,28 @@ const cities = ref([
   {
     value: 5,
   },
-])
+]);
 
 watch(value, (val) => {
   if (val.length === 0) {
-    checkAll.value = false
-    indeterminate.value = false
+    checkAll.value = false;
+    indeterminate.value = false;
   } else if (val.length === cities.value.length) {
-    checkAll.value = true
-    indeterminate.value = false
+    checkAll.value = true;
+    indeterminate.value = false;
   } else {
-    indeterminate.value = true
+    indeterminate.value = true;
   }
-})
+});
 
 const handleCheckAll = (val: CheckboxValueType) => {
-  indeterminate.value = false
+  indeterminate.value = false;
   if (val) {
-    value.value = cities.value.map((_) => _.value)
+    value.value = cities.value.map((_) => _.value);
   } else {
-    value.value = []
+    value.value = [];
   }
-}
+};
 </script>
 
 <style>

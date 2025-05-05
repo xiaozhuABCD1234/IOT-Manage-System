@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, computed } from 'vue';
+import { computed, defineProps } from "vue";
 
 // 定义设备类型
 interface Device {
@@ -45,7 +45,12 @@ const props = defineProps<{
 }>();
 
 // 计算距离的函数
-const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+const calculateDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number => {
   const R = 6371000; // 地球半径（米）
   const radLat1 = (lat1 * Math.PI) / 180;
   const radLon1 = (lon1 * Math.PI) / 180;
@@ -55,8 +60,7 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
   const deltaLat = radLat2 - radLat1;
   const deltaLon = radLon2 - radLon1;
 
-  const a =
-    Math.sin(deltaLat / 2) ** 2 +
+  const a = Math.sin(deltaLat / 2) ** 2 +
     Math.cos(radLat1) * Math.cos(radLat2) * Math.sin(deltaLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
@@ -72,14 +76,14 @@ const distance = computed(() => {
     deviceA.lat,
     deviceA.lon,
     deviceB.lat,
-    deviceB.lon
+    deviceB.lon,
   ).toFixed(2);
 });
 </script>
 
 <style scoped>
 .distance-calculator {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   max-width: 600px;
   margin: 20px auto;
   padding: 20px;
@@ -130,7 +134,7 @@ const distance = computed(() => {
 }
 
 .coord-item::before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 6px;
   height: 6px;

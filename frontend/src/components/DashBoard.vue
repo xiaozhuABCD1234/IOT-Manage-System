@@ -6,7 +6,7 @@
         <span class="current-value">{{ displayValue }}</span>
 
         <!-- 仅当存在total时显示总量 -->
-        <template v-if="typeof props.total === 'number'">
+        <template v-if='typeof props.total === "number"'>
           <span class="separator">{{ props.separator }}</span>
           <span class="total-value">{{ props.total }}</span>
         </template>
@@ -26,59 +26,59 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = defineProps({
   value: {
     type: Number,
     required: true,
-    default: 0
+    default: 0,
   },
   total: {
     type: Number,
-    default: null  // 改为null表示可选
+    default: null, // 改为null表示可选
   },
   unit: {
     type: String,
-    default: ''
+    default: "",
   },
   separator: {
     type: String,
-    default: '/'
+    default: "/",
   },
   colorThreshold: {
     type: Number,
-    default: 80
-  }
-})
+    default: 80,
+  },
+});
 
 // 计算显示值（保留1位小数）
 const displayValue = computed(() => {
-  return Number.isInteger(props.value) ? props.value : props.value.toFixed(1)
-})
+  return Number.isInteger(props.value) ? props.value : props.value.toFixed(1);
+});
 
 // 智能百分比计算
 const computedPercentage = computed(() => {
-  if (typeof props.total === 'number' && props.total > 0) {
-    const percentage = ((props.value / props.total) * 100).toFixed(1)
-    return Math.min(Number(percentage), 100)
+  if (typeof props.total === "number" && props.total > 0) {
+    const percentage = ((props.value / props.total) * 100).toFixed(1);
+    return Math.min(Number(percentage), 100);
   }
-  return props.value  // 无总量时直接使用value作为百分比
-})
+  return props.value; // 无总量时直接使用value作为百分比
+});
 
 // 动态颜色计算
 const progressColor = computed(() => {
-  const percentage = computedPercentage.value
+  const percentage = computedPercentage.value;
 
   // 颜色分段逻辑
   if (percentage < 50) {
-    return '#409eff' // 蓝色 (Element Plus primary color)
+    return "#409eff"; // 蓝色 (Element Plus primary color)
   } else if (percentage < 80) {
-    return '#FFEB3B' // 黄色 (Element Plus warning color)
+    return "#FFEB3B"; // 黄色 (Element Plus warning color)
   } else {
-    return '#f56c6c' // 红色 (Element Plus danger color)
+    return "#f56c6c"; // 红色 (Element Plus danger color)
   }
-})
+});
 </script>
 
 <style scoped>
@@ -90,7 +90,7 @@ const progressColor = computed(() => {
   padding: 20px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .value-display {

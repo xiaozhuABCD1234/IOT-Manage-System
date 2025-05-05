@@ -1,5 +1,11 @@
 <template>
-  <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" router=true>
+  <el-menu
+    default-active="2"
+    class="el-menu-vertical-demo"
+    @open="handleOpen"
+    @close="handleClose"
+    router="true"
+  >
     <el-menu-item index="/">
       <el-icon>
         <House />
@@ -69,12 +75,20 @@
   </el-menu>
 </template>
 <script lang="ts" setup>
-import { House, Server, ChartArea, MapPinned, Wrench, Shell, Calculator } from 'lucide-vue-next';
+import {
+  Calculator,
+  ChartArea,
+  House,
+  MapPinned,
+  Server,
+  Shell,
+  Wrench,
+} from "lucide-vue-next";
 
 const handleOpen = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
-}
+  console.log(key, keyPath);
+};
 const handleClose = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath)
-}
+  console.log(key, keyPath);
+};
 </script>
