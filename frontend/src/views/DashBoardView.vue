@@ -42,25 +42,24 @@ const ConfigStore = useConfigStore();
 
 // 响应式数据
 const cpuUsage = ref(0);
-const memory = ref({
-  used: 0,
-  total: 0,
-});
-const disk = ref({
-  used: 0,
-  total: 0,
-});
+const memory = ref({ used: 0, total: 0 });
+const disk = ref({ used: 0, total: 0 });
 
 // WebSocket处理
 const ws = ref<WebSocket | null>(null);
 const reconnectInterval = ref(5000);
 const maxReconnectAttempts = 5;
 let reconnectAttempts = 0;
+const isMounted = ref(true); // 新增挂载状态跟踪
+const reconnectTimer = ref<ReturnType<typeof setTimeout> | null>(null); // 新增重连定时器引用
 
 function connect() {
+  if (!isMounted.value) return; // 组件已卸载不再连接
+
   ws.value = new WebSocket(ConfigStore.serverUrl + "/devops/status");
 
   ws.value.onopen = () => {
+    if (!isMounted.value) return; // 组件已卸载不处理
     console.log("WebSocket已连接");
     reconnectAttempts = 0;
   };
@@ -87,22 +86,24 @@ function connect() {
         total: parseFloat(formatGB(data.disk_total)),
       };
 
-      console.log("转换后数据:", {
-        cpuUsage: cpuUsage.value,
-        memory: memory.value,
-        disk: disk.value,
-      });
+      // console.log("转换后数据:", {
+      //   cpuUsage: cpuUsage.value,
+      //   memory: memory.value,
+      //   disk: disk.value,
+      // });
     } catch (error) {
       console.error("数据解析错误:", error);
     }
   };
 
   ws.value.onerror = (error) => {
+    if (!isMounted.value) return;
     console.error("WebSocket错误:", error);
     reconnect();
   };
 
   ws.value.onclose = () => {
+    if (!isMounted.value) return;
     console.log("WebSocket连接关闭");
     reconnect();
   };
@@ -113,22 +114,31 @@ function formatGB(bytes: number) {
 }
 
 function reconnect() {
-  if (reconnectAttempts < maxReconnectAttempts) {
-    setTimeout(() => {
-      console.log(
-        `尝试重新连接 (${reconnectAttempts + 1}/${maxReconnectAttempts})`,
-      );
-      reconnectAttempts++;
-      connect();
-    }, reconnectInterval.value);
-  } else {
-    console.error("达到最大重连次数，停止尝试");
-  }
+  if (!isMounted.value || reconnectAttempts >= maxReconnectAttempts) return;
+
+  reconnectTimer.value = setTimeout(() => {
+    console.log(`尝试重新连接 (${reconnectAttempts + 1}/${maxReconnectAttempts})`);
+    reconnectAttempts++;
+    connect();
+  }, reconnectInterval.value);
 }
 
 onBeforeUnmount(() => {
+  // 标记组件已卸载
+  isMounted.value = false;
+
+  // 清理WebSocket
   if (ws.value) {
+    ws.value.onclose = null; // 移除关闭回调
+    ws.value.onerror = null; // 移除错误回调
     ws.value.close();
+    ws.value = null;
+  }
+
+  // 清理重连定时器
+  if (reconnectTimer.value) {
+    clearTimeout(reconnectTimer.value);
+    reconnectTimer.value = null;
   }
 });
 
