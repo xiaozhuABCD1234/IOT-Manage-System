@@ -10,22 +10,14 @@
 
       <!-- 内存使用 -->
       <el-col :span="8">
-        <DashBoard
-          :value="memory.used"
-          :total="memory.total"
-          unit="GB"
-        >
+        <DashBoard :value="memory.used" :total="memory.total" unit="GB">
           <h3 class="metric-title">内存使用</h3>
         </DashBoard>
       </el-col>
 
       <!-- 磁盘存储 -->
       <el-col :span="8">
-        <DashBoard
-          :value="disk.used"
-          :total="disk.total"
-          unit="GB"
-        >
+        <DashBoard :value="disk.used" :total="disk.total" unit="GB">
           <h3 class="metric-title">磁盘存储</h3>
         </DashBoard>
       </el-col>
@@ -56,7 +48,7 @@ const reconnectTimer = ref<ReturnType<typeof setTimeout> | null>(null); // 新�
 function connect() {
   if (!isMounted.value) return; // 组件已卸载不再连接
 
-  ws.value = new WebSocket(ConfigStore.serverUrl + "/devops/status");
+  ws.value = new WebSocket(ConfigStore.effectiveServerUrl + "/devops/status");
 
   ws.value.onopen = () => {
     if (!isMounted.value) return; // 组件已卸载不处理
@@ -67,7 +59,8 @@ function connect() {
   ws.value.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-      console.log("接收到原始数据:", data);
+
+      //console.log("接收到原始数据:", data);
 
       // 处理CPU数据
       if (typeof data.cpu_used === "number") {
@@ -117,7 +110,9 @@ function reconnect() {
   if (!isMounted.value || reconnectAttempts >= maxReconnectAttempts) return;
 
   reconnectTimer.value = setTimeout(() => {
-    console.log(`尝试重新连接 (${reconnectAttempts + 1}/${maxReconnectAttempts})`);
+    console.log(
+      `尝试重新连接 (${reconnectAttempts + 1}/${maxReconnectAttempts})`,
+    );
     reconnectAttempts++;
     connect();
   }, reconnectInterval.value);
