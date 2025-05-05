@@ -7,6 +7,7 @@
 ```bash
 cd ./frontend
 npm install
+<<<<<<< HEAD
 npm run build
 ```
 
@@ -15,6 +16,9 @@ npm run build
 #### 使用 pip
 
 ```bash
+=======
+node run build
+>>>>>>> 03adc705bda5f856763f5d544e36474b2cf15048
 cd ../backend
 # 安装依赖
 python3 -m venv venv
