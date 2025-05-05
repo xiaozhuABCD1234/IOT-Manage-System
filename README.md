@@ -5,6 +5,7 @@
 ```bash
 cd ./frontend
 npm install
+node run build
 cd ../backend
 python3 -m venv venv
 source venv/bin/activate
