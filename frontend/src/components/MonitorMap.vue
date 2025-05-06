@@ -111,12 +111,12 @@ const updateDevicePosition = (
 onMounted(async () => {
   // 高德地图安全配置
   window._AMapSecurityConfig = {
-    securityJsCode: "f8444fa686115a25ea60c937cd6a6ab9",
+    securityJsCode: ConfigStore.securityJsCode,
   };
 
   // 初始化地图
   AMapLoader.load({
-    key: "d345dbe66fd01f5c41ce3cf7e063597b",
+    key: ConfigStore.key,
     version: "2.0",
     plugins: ["AMap.Polyline", "AMap.Marker"],
   }).then((AMap) => {

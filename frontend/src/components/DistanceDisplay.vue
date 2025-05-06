@@ -1,29 +1,39 @@
 <template>
   <div class="distance-calculator">
-    <div class="device-info">
-      <div class="device-card">
-        <div class="device-content">
+    <div class="content-wrapper">
+      <div class="devices-container">
+        <div class="device-card">
           <div class="device-id">ID: {{ deviceA.id }}</div>
           <div class="device-coords">
-            <div class="coord-item">纬度: {{ deviceA.lat }}</div>
-            <div class="coord-item">经度: {{ deviceA.lon }}</div>
+            <div class="coord-item">
+              <span class="coord-label">纬度</span>
+              <span class="coord-value">{{ deviceA.lat }}</span>
+            </div>
+            <div class="coord-item">
+              <span class="coord-label">经度</span>
+              <span class="coord-value">{{ deviceA.lon }}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="device-card">
-        <div class="device-content">
+        <div class="separator">
+          <div class="distance-value">{{ distance }}m</div>
+        </div>
+
+        <div class="device-card">
           <div class="device-id">ID: {{ deviceB.id }}</div>
           <div class="device-coords">
-            <div class="coord-item">纬度: {{ deviceB.lat }}</div>
-            <div class="coord-item">经度: {{ deviceB.lon }}</div>
+            <div class="coord-item">
+              <span class="coord-label">纬度</span>
+              <span class="coord-value">{{ deviceB.lat }}</span>
+            </div>
+            <div class="coord-item">
+              <span class="coord-label">经度</span>
+              <span class="coord-value">{{ deviceB.lon }}</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="distance-container">
-      <div class="distance-value">{{ distance }} m</div>
     </div>
   </div>
 </template>
@@ -33,7 +43,7 @@ import { computed, defineProps } from "vue";
 
 // 定义设备类型
 interface Device {
-  id: string;
+  id: string|number;
   lat: number;
   lon: number;
 }
@@ -83,100 +93,86 @@ const distance = computed(() => {
 
 <style scoped>
 .distance-calculator {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  border-radius: 12px;
-  background-color: #f5f7fa;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+  /* 移除背景色和阴影 */
 }
 
-.device-info {
+.devices-container {
   display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
 .device-card {
-  flex: 1;
-  background-color: white;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  flex: 1 1 250px;
   padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-}
-
-.device-card:hover {
-  transform: translateY(-3px);
-}
-
-.device-header {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #eee;
+  min-width: 180px;
+  border: 1px solid #e9ecef; /* 保留浅灰色边框 */
+  /* 移除背景色 */
+  border-radius: 8px;
 }
 
 .device-id {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.coord-item {
-  font-size: 14px;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-}
-
-.coord-item::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background-color: #4a90e2;
-  border-radius: 50%;
-  margin-right: 8px;
+  flex: 0 0 auto;
+  font-size: 16px;
+  color: #212529;
+  font-weight: 700;
 }
 
 .device-coords {
   display: flex;
+  flex-direction: row;
+  gap: 16px;
+  flex-wrap: wrap;
+  opacity: 0.75;
+  font-size: 12px;
+}
+
+.coord-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coord-label {
+  width: 40px;
+  text-align: right;
+  margin-right: 8px;
+}
+
+.coord-value {
+  color: #2b8a3e; /* 保留绿色强调色 */
+  font-weight: 500;
+}
+
+.separator {
+  display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.distance-container {
-  text-align: center;
-  padding: 20px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.distance-label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
+  align-items: center;
+  gap: 8px;
 }
 
 .distance-value {
-  font-size: 32px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 8px 24px;
+  /* 移除渐变背景，改为纯色 */
+
+  color: #228be6;
+  border-radius: 4px; /* 减小圆角 */
 }
 
-@media (max-width: 600px) {
-  .device-info {
-    flex-direction: column;
-  }
-
-  .distance-value {
-    font-size: 28px;
-  }
+.distance-value:hover {
+  /* 移除缩放动画 */
+  background-color: #e9ecef; /* 简单的悬停反馈 */
 }
 </style>

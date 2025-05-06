@@ -7,19 +7,18 @@
 ```bash
 cd ./frontend
 npm install
-<<<<<<< HEAD
 npm run build
 ```
 
 ### 启动后端
 
+```bash
+cd ../backend
+```
+
 #### 使用 pip
 
 ```bash
-=======
-node run build
->>>>>>> 03adc705bda5f856763f5d544e36474b2cf15048
-cd ../backend
 # 安装依赖
 python3 -m venv venv
 source venv/bin/activate
@@ -31,7 +30,6 @@ fastapi run main.py --port 8000 --host 0.0.0.0
 #### 使用 uv
 
 ```bash
-cd ../backend
 # 安装依赖
 uv add requests
 # 启动

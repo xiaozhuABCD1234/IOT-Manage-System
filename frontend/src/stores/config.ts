@@ -1,4 +1,4 @@
-import { ref, computed } from "vue";
+import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 
 /**
@@ -47,6 +47,9 @@ export const useConfigStore = defineStore("config", () => {
    */
   const mqtttopic = ref("location/sensors/#");
 
+  const securityJsCode = ref("f8444fa686115a25ea60c937cd6a6ab9");
+  const key = ref("d345dbe66fd01f5c41ce3cf7e063597b");
+
   // ================= 服务器配置 ================= //
   /**
    * 后端服务器地址
@@ -85,7 +88,7 @@ export const useConfigStore = defineStore("config", () => {
     }
 
     // 协议转换：http->ws，https->wss
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 
     // 获取域名（不含端口和路径）
     const hostname = window.location.hostname;
@@ -94,7 +97,7 @@ export const useConfigStore = defineStore("config", () => {
     const port = serverPort.value || window.location.port;
 
     // 端口存在时添加冒号和端口号
-    const portPart = port ? `:${port}` : '';
+    const portPart = port ? `:${port}` : "";
 
     // 组装最终URL
     return `${protocol}//${hostname}${portPart}/ws`;
@@ -108,7 +111,10 @@ export const useConfigStore = defineStore("config", () => {
     mqttclientid,
     mqtttopic,
 
+    securityJsCode,
+    key,
+
     // 服务器配置项
-    effectiveServerUrl
+    effectiveServerUrl,
   };
 });
