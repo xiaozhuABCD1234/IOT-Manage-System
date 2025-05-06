@@ -4,7 +4,7 @@
     class="el-menu-vertical-demo"
     @open="handleOpen"
     @close="handleClose"
-    router="true"
+    :router="true"
   >
     <el-menu-item index="/">
       <el-icon>
@@ -12,32 +12,33 @@
       </el-icon>
       <span>首页</span>
     </el-menu-item>
-    <!-- <el-sub-menu index="1">
+    <el-sub-menu index="/map">
       <template #title>
         <el-icon>
-          <location />
+          <Map />
         </el-icon>
-        <span>Navigator One</span>
+        <span>地图</span>
       </template>
-<el-menu-item-group title="Group One">
-  <el-menu-item index="1-1">item one</el-menu-item>
-  <el-menu-item index="1-2">item two</el-menu-item>
-</el-menu-item-group>
-<el-menu-item-group title="Group Two">
-  <el-menu-item index="1-3">item three</el-menu-item>
-</el-menu-item-group>
-<el-sub-menu index="1-4">
-  <template #title>item four</template>
-  <el-menu-item index="1-4-1">item one</el-menu-item>
-</el-sub-menu>
-</el-sub-menu> -->
-    <el-menu-item index="/map">
-      <el-icon>
-        <MapPinned />
-      </el-icon>
-      <span>地图</span>
-    </el-menu-item>
-    <el-sub-menu>
+      <el-menu-item index="/map/real-time">
+        <el-icon>
+          <MapPinned />
+        </el-icon>
+        <span>实时位置</span>
+      </el-menu-item>
+      <el-menu-item index="/map/UWB">
+        <el-icon>
+          <MapPinHouse />
+        </el-icon>
+        <span>UWB室内定位</span>
+      </el-menu-item>
+      <el-menu-item index="/map/history">
+        <el-icon>
+          <History />
+        </el-icon>
+        <span>历史轨迹</span>
+      </el-menu-item>
+    </el-sub-menu>
+    <el-sub-menu index="/devops">
       <template #title>
         <el-icon>
           <Server />
@@ -50,15 +51,14 @@
         </el-icon>
         <span>仪表盘</span>
       </el-menu-item>
-      <el-menu-item index="1-2">
+      <el-menu-item index="/devops/logs">
         <el-icon>
           <Shell />
         </el-icon>
         <span>日志</span>
       </el-menu-item>
-      <el-menu-item index="1-3">item three</el-menu-item>
     </el-sub-menu>
-    <el-sub-menu index="4">
+    <el-sub-menu index="/tools">
       <template #title>
         <el-icon>
           <Wrench />
@@ -80,6 +80,9 @@ import {
   ChartArea,
   House,
   MapPinned,
+  Map,
+  MapPinHouse,
+  History,
   Server,
   Shell,
   Wrench,

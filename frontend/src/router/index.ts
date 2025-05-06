@@ -14,8 +14,8 @@ const router = createRouter({
       component: () => import("@/views/AboutView.vue"),
     },
     {
-      path: "/map",
-      name: "map",
+      path: "/map/real-time",
+      name: "map/real-time",
       component: () => import("@/views/MapView.vue"),
     },
     {

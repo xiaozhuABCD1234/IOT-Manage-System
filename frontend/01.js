@@ -115,9 +115,3 @@ client.on("reconnect", () => {
   console.log("Attempting to reconnect...");
   sendingActive = true;
 });
-
-// 安全关闭连接的示例（根据需要调用）
-// process.on('SIGINT', () => {
-//   sendingActive = false;
-//   client.end();
-// });
