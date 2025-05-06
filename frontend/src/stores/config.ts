@@ -64,7 +64,7 @@ export const useConfigStore = defineStore("config", () => {
    * 当serverUrl为空时生效
    * 示例："3000" 或 "8080"
    */
-  const serverPort = ref("8000");
+  const serverPort = ref("");
 
   // ================= 计算属性 ================= //
   /**

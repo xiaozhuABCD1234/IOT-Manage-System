@@ -1,49 +1,90 @@
 <template>
   <div class="distance-calculator">
-    <div class="content-wrapper">
-      <div class="devices-container">
-        <div class="device-card">
-          <div class="device-id">ID: {{ deviceA.id }}</div>
-          <div class="device-coords">
-            <div class="coord-item">
-              <span class="coord-label">纬度</span>
-              <span class="coord-value">{{ deviceA.lat }}</span>
-            </div>
-            <div class="coord-item">
-              <span class="coord-label">经度</span>
-              <span class="coord-value">{{ deviceA.lon }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="separator">
-          <div class="distance-value">{{ distance }}m</div>
-        </div>
-
-        <div class="device-card">
-          <div class="device-id">ID: {{ deviceB.id }}</div>
-          <div class="device-coords">
-            <div class="coord-item">
-              <span class="coord-label">纬度</span>
-              <span class="coord-value">{{ deviceB.lat }}</span>
-            </div>
-            <div class="coord-item">
-              <span class="coord-label">经度</span>
-              <span class="coord-value">{{ deviceB.lon }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <el-row>
+      <el-col :span="9">
+        <el-row>
+          <el-col :span="8" class="id-column">
+            <el-text type="primary" size="large" tag="b">
+              <el-icon>
+                <MapPin />
+              </el-icon>
+              ID: {{
+                deviceA.id
+              }}</el-text>
+          </el-col>
+          <el-col :span="16">
+            <el-row>
+              <el-col :span="6">
+                <el-text class="coord-label" type="info" size="small">纬度</el-text>
+              </el-col>
+              <el-col :span="18">
+                <el-text class="coord-value" type="info">{{
+                  deviceA.lat
+                  }}</el-text>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="6">
+                <el-text class="coord-label" type="info" size="small">经度</el-text>
+              </el-col>
+              <el-col :span="18">
+                <el-text class="coord-value" type="info">{{
+                  deviceA.lon
+                  }}</el-text>
+              </el-col>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-col>
+      <el-col :span="6">
+        <div class="distance-value">{{ distance }}m</div>
+      </el-col>
+      <el-col :span="9">
+        <el-row>
+          <el-col :span="8" class="id-column">
+            <el-text type="primary" size="large" tag="b">
+              <el-icon>
+                <MapPin />
+              </el-icon>
+              ID: {{
+                deviceB.id
+              }}</el-text>
+          </el-col>
+          <el-col :span="16">
+            <el-row>
+              <el-col :span="6">
+                <el-text class="coord-label" type="info" size="small">纬度</el-text>
+              </el-col>
+              <el-col :span="18">
+                <el-text class="coord-value" type="info">{{
+                  deviceB.lat
+                  }}</el-text>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="6">
+                <el-text class="coord-label" type="info" size="small">经度</el-text>
+              </el-col>
+              <el-col :span="18">
+                <el-text class="coord-value" type="info">{{
+                  deviceB.lon
+                  }}</el-text>
+              </el-col>
+            </el-row>
+          </el-col>
+        </el-row>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, defineProps } from "vue";
+import { MapPin } from "lucide-vue-next";
 
 // 定义设备类型
 interface Device {
-  id: string|number;
+  id: string | number;
   lat: number;
   lon: number;
 }
@@ -92,54 +133,26 @@ const distance = computed(() => {
 </script>
 
 <style scoped>
+.id-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .distance-calculator {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
-  width: 100%;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
   margin: 0 auto;
   padding: 16px;
-  /* 移除背景色和阴影 */
-}
-
-.devices-container {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.device-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 16px;
-  flex: 1 1 250px;
-  padding: 16px;
-  min-width: 180px;
-  border: 1px solid #e9ecef; /* 保留浅灰色边框 */
-  /* 移除背景色 */
-  border-radius: 8px;
-}
-
-.device-id {
-  flex: 0 0 auto;
-  font-size: 16px;
-  color: #212529;
-  font-weight: 700;
-}
-
-.device-coords {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  flex-wrap: wrap;
-  opacity: 0.75;
-  font-size: 12px;
-}
-
-.coord-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .coord-label {
@@ -149,15 +162,8 @@ const distance = computed(() => {
 }
 
 .coord-value {
-  color: #2b8a3e; /* 保留绿色强调色 */
+  color: #2b8a3e;
   font-weight: 500;
-}
-
-.separator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
 }
 
 .distance-value {
@@ -165,14 +171,7 @@ const distance = computed(() => {
   font-weight: 700;
   white-space: nowrap;
   padding: 8px 24px;
-  /* 移除渐变背景，改为纯色 */
-
   color: #228be6;
-  border-radius: 4px; /* 减小圆角 */
-}
-
-.distance-value:hover {
-  /* 移除缩放动画 */
-  background-color: #e9ecef; /* 简单的悬停反馈 */
+  border-radius: 4px;
 }
 </style>

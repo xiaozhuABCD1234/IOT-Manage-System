@@ -1,29 +1,32 @@
 <template>
-  <el-select
-    v-model="value"
-    multiple="true"
-    clearable="true"
-    collapse-tags="true"
-    placeholder="选择设备id"
-    popper-class="custom-header"
-    :max-collapse-tags="3"
-    style="width: 240px"
-  >
-    <template #header>
-      <el-checkbox
-        v-model="checkAll"
-        :indeterminate="indeterminate"
-        @change="handleCheckAll"
-      >
-        全选
-      </el-checkbox>
-    </template>
-    <el-option v-for="item in cities" :key="item.value" :value="item.value" />
-  </el-select>
-  <DistanceDisplay
-      :device-a="deviceA"
-      :device-b="deviceB"
-    />
+  <el-row :gutter="20" class="row-spacing">
+    <el-col :span="12">
+      <DistanceDisplay
+        :device-a="deviceA"
+        :device-b="deviceB"
+      />
+    </el-col>
+    <el-col :span="12">
+      <DistanceDisplay
+        :device-a="deviceA"
+        :device-b="deviceB"
+      />
+    </el-col>
+  </el-row>
+  <el-row :gutter="20" class="row-spacing">
+    <el-col :span="12">
+      <DistanceDisplay
+        :device-a="deviceA"
+        :device-b="deviceB"
+      />
+    </el-col>
+    <el-col :span="12">
+      <DistanceDisplay
+        :device-a="deviceA"
+        :device-b="deviceB"
+      />
+    </el-col>
+  </el-row>
 </template>
 
 <script lang="ts" setup>
@@ -64,17 +67,8 @@ watch(value, (val) => {
   }
 });
 
-const handleCheckAll = (val: CheckboxValueType) => {
-  indeterminate.value = false;
-  if (val) {
-    value.value = cities.value.map((_) => _.value);
-  } else {
-    value.value = [];
-  }
-};
-
 interface Device {
-  id: string|number;
+  id: string | number;
   lat: number;
   lon: number;
 }
@@ -83,21 +77,18 @@ interface Device {
 const deviceA = ref<Device>({
   id: 1,
   lat: 31.2304,
-  lon: 121.4737
-})
+  lon: 121.4737,
+});
 
 const deviceB = ref<Device>({
   id: 2,
   lat: 31.2345,
-  lon: 121.4789
-})
+  lon: 121.4789,
+});
 </script>
 
 <style>
-.custom-header {
-  .el-checkbox {
-    display: flex;
-    height: unset;
-  }
+.row-spacing {
+  margin-bottom: 20px; /* 设置行间距 */
 }
 </style>

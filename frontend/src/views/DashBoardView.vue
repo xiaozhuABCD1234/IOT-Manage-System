@@ -4,21 +4,36 @@
       <!-- CPU使用率 -->
       <el-col :span="8">
         <DashBoard :value="cpuUsage" unit="%">
-          <h3 class="metric-title">CPU 使用率</h3>
+          <h3 class="metric-title">
+            <el-icon>
+              <Cpu />
+            </el-icon>
+            CPU 使用率
+          </h3>
         </DashBoard>
       </el-col>
 
       <!-- 内存使用 -->
       <el-col :span="8">
         <DashBoard :value="memory.used" :total="memory.total" unit="GB">
-          <h3 class="metric-title">内存使用</h3>
+          <h3 class="metric-title">
+            <el-icon>
+              <MemoryStick />
+            </el-icon>
+            内存使用
+          </h3>
         </DashBoard>
       </el-col>
 
       <!-- 磁盘存储 -->
       <el-col :span="8">
         <DashBoard :value="disk.used" :total="disk.total" unit="GB">
-          <h3 class="metric-title">磁盘存储</h3>
+          <h3 class="metric-title">
+            <el-icon>
+              <HardDrive />
+            </el-icon>
+            磁盘存储
+          </h3>
         </DashBoard>
       </el-col>
     </el-row>
@@ -29,6 +44,7 @@
 import { onBeforeUnmount, ref } from "vue";
 import DashBoard from "@/components/DashBoard.vue";
 import { useConfigStore } from "@/stores/config";
+import { Cpu, MemoryStick, HardDrive } from "lucide-vue-next";
 
 const ConfigStore = useConfigStore();
 
