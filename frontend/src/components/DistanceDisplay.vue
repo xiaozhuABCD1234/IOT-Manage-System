@@ -8,29 +8,29 @@
               <el-icon>
                 <MapPin />
               </el-icon>
-              ID: {{
-                deviceA.id
-              }}</el-text>
+              ID: {{ deviceA.id }}</el-text>
           </el-col>
           <el-col :span="16">
             <el-row>
               <el-col :span="6">
-                <el-text class="coord-label" type="info" size="small">纬度</el-text>
+                <el-text class="coord-label" type="info" size="small"
+                >纬度</el-text>
               </el-col>
               <el-col :span="18">
                 <el-text class="coord-value" type="info">{{
-                  deviceA.lat
-                  }}</el-text>
+                  formatCoordinate(deviceA.lat)
+                }}</el-text>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-text class="coord-label" type="info" size="small">经度</el-text>
+                <el-text class="coord-label" type="info" size="small"
+                >经度</el-text>
               </el-col>
               <el-col :span="18">
                 <el-text class="coord-value" type="info">{{
-                  deviceA.lon
-                  }}</el-text>
+                  formatCoordinate(deviceA.lon)
+                }}</el-text>
               </el-col>
             </el-row>
           </el-col>
@@ -46,29 +46,29 @@
               <el-icon>
                 <MapPin />
               </el-icon>
-              ID: {{
-                deviceB.id
-              }}</el-text>
+              ID: {{ deviceB.id }}</el-text>
           </el-col>
           <el-col :span="16">
             <el-row>
               <el-col :span="6">
-                <el-text class="coord-label" type="info" size="small">纬度</el-text>
+                <el-text class="coord-label" type="info" size="small"
+                >纬度</el-text>
               </el-col>
               <el-col :span="18">
                 <el-text class="coord-value" type="info">{{
-                  deviceB.lat
-                  }}</el-text>
+                  formatCoordinate(deviceB.lat)
+                }}</el-text>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-text class="coord-label" type="info" size="small">经度</el-text>
+                <el-text class="coord-label" type="info" size="small"
+                >经度</el-text>
               </el-col>
               <el-col :span="18">
                 <el-text class="coord-value" type="info">{{
-                  deviceB.lon
-                  }}</el-text>
+                  formatCoordinate(deviceB.lon)
+                }}</el-text>
               </el-col>
             </el-row>
           </el-col>
@@ -82,6 +82,12 @@
 import { computed, defineProps } from "vue";
 import { MapPin } from "lucide-vue-next";
 
+const formatCoordinate = (coord: number): string => {
+  // 处理无效值情况
+  if (typeof coord !== "number" || isNaN(coord)) return "0.00000000";
+  // 固定显示8位小数
+  return coord.toFixed(8);
+};
 // 定义设备类型
 interface Device {
   id: string | number;

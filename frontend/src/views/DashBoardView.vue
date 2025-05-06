@@ -44,7 +44,7 @@
 import { onBeforeUnmount, ref } from "vue";
 import DashBoard from "@/components/DashBoard.vue";
 import { useConfigStore } from "@/stores/config";
-import { Cpu, MemoryStick, HardDrive } from "lucide-vue-next";
+import { Cpu, HardDrive, MemoryStick } from "lucide-vue-next";
 
 const ConfigStore = useConfigStore();
 
