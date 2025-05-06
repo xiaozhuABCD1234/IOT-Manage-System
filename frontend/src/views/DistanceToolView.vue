@@ -30,42 +30,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
-import type { CheckboxValueType } from "element-plus";
+import { ref} from "vue";
 import DistanceDisplay from "@/components/DistanceDisplay.vue";
 
-const checkAll = ref(false);
-const indeterminate = ref(false);
-const value = ref<CheckboxValueType[]>([]);
-const cities = ref([
-  {
-    value: "1",
-  },
-  {
-    value: 2,
-  },
-  {
-    value: 3,
-  },
-  {
-    value: 4,
-  },
-  {
-    value: 5,
-  },
-]);
-
-watch(value, (val) => {
-  if (val.length === 0) {
-    checkAll.value = false;
-    indeterminate.value = false;
-  } else if (val.length === cities.value.length) {
-    checkAll.value = true;
-    indeterminate.value = false;
-  } else {
-    indeterminate.value = true;
-  }
-});
 
 interface Device {
   id: string | number;
