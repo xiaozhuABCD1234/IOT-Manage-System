@@ -1,12 +1,18 @@
 <template>
-  <div class="common-layout">
+  <!-- 全屏布局（用于登录页等） -->
+  <div v-if="isFullScreenLayout" class="full-screen-layout">
+    <RouterView />
+  </div>
+
+  <!-- 常规布局（带顶部栏和侧边栏） -->
+  <div v-else class="common-layout">
     <el-container>
       <el-header>
-        <TopBar></TopBar>
+        <TopBar />
       </el-header>
       <el-container>
         <el-aside width="200px">
-          <AsideBar></AsideBar>
+          <AsideBar />
         </el-aside>
         <el-main class="main-content">
           <RouterView />
@@ -17,40 +23,60 @@
 </template>
 
 <script setup lang="ts">
-import TopBar from "./components/TopBar.vue";
-import AsideBar from "./components/AsideBar.vue";
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+import TopBar from "./components/menu/TopBar.vue";
+import AsideBar from "./components/menu/AsideBar.vue";
+
+const route = useRoute();
+
+// 根据路由元信息判断是否使用全屏布局
+const isFullScreenLayout = computed(() => {
+  return route.meta.fullScreen === true;
+});
 </script>
 
-<style>
-html, body, #app {
-  height: 100%;
-  margin: 0;
+<style scoped>
+/* 全屏布局样式 */
+.full-screen-layout {
+  height: 100vh;
+  width: 100vw;
 }
 
+/* 常规布局样式 */
 .common-layout {
-  height: 100vh; /* 或 height: 100% 根据父级情况 */
+  height: 100vh;
 }
 
 .el-container {
   height: 100%;
 }
 
-/* 如果使用 el-header/el-aside 需要明确它们的尺寸 */
 .el-header {
-  height: 60px; /* 根据实际 TopBar 高度设置 */
+  height: 60px;
 }
 
 .el-aside {
-  height: calc(100% - 60px); /* 扣除 header 高度 */
+  height: calc(100% - 60px);
 }
 
 .el-main {
-  height: calc(100% - 60px); /* 根据实际情况调整 */
+  height: calc(100% - 60px);
 }
+
 .main-content {
-  padding: 20px; /* 根据需要调整内边距 */
-  background-color: #f5f5f5; /* 可选背景色 */
-  overflow-y: auto; /* 如果内容过多，允许滚动 */
-  box-sizing: border-box; /* 包括内边距和边框在内的宽高计算 */
+  padding: 20px;
+  background-color: #f5f5f5;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+</style>
+
+<style>
+/* 全局样式 */
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 </style>

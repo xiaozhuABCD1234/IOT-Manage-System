@@ -78,11 +78,11 @@
 import {
   Calculator,
   ChartArea,
+  History,
   House,
-  MapPinned,
   Map,
   MapPinHouse,
-  History,
+  MapPinned,
   Server,
   Shell,
   Wrench,

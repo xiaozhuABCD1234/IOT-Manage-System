@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MonitorMap from "@/components/MonitorMap.vue";
+import MonitorMap from "@/components/map/MonitorMap.vue";
 </script>
 
 <template>
@@ -8,5 +8,4 @@ import MonitorMap from "@/components/MonitorMap.vue";
   </main>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

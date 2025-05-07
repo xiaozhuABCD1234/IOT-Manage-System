@@ -18,6 +18,7 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import mqtt from "mqtt";
 import DistanceDisplay from "@/components/DistanceDisplay.vue";
+import { useConfigStore } from "@/stores/config";
 
 interface Device {
   id: number;
@@ -26,8 +27,8 @@ interface Device {
   updated?: number;
 }
 
-const MQTT_URL = "ws://106.14.209.20:8083/mqtt";
-const MQTT_TOPIC = "location/sensors/#";
+const MQTT_URL = useConfigStore().mqtturl;
+const MQTT_TOPIC = useConfigStore().mqtttopic;
 
 // 响应式设备存储
 const devices = reactive<Record<number, Device>>({});
@@ -57,9 +58,10 @@ const initMqtt = () => {
   const options = {
     clean: true,
     connectTimeout: 4000,
-    clientId: `monitor_${Date.now()}_${
-      Math.random().toString(16).substr(2, 8)
-    }`,
+    clientId: useConfigStore().mqttclientid,
+    username: useConfigStore().mqttuser,
+    password: useConfigStore().mqttpwd,
+    reconnectPeriod: 1000,
   };
 
   mqttClient.value = mqtt.connect(MQTT_URL, options);

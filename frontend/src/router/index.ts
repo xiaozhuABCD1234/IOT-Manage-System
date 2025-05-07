@@ -7,6 +7,17 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: () => import("@/views/HomeView.vue"),
+      meta: {
+        fullScreen: false, // 常规布局
+      },
+    },
+    {
+      path: "/login",
+      name: "login",
+      component: () => import("@/views/LoginView.vue"),
+      meta: {
+        fullScreen: true, // 常规布局
+      },
     },
     {
       path: "/about",
@@ -16,7 +27,12 @@ const router = createRouter({
     {
       path: "/map/real-time",
       name: "map/real-time",
-      component: () => import("@/views/MapView.vue"),
+      component: () => import("@/views/map/MapView.vue"),
+    },
+    {
+      path: "/map/UWB",
+      name: "map/UWB",
+      component: () => import("@/views/map/uwbMapView.vue"),
     },
     {
       path: "/devops/dashboard",
