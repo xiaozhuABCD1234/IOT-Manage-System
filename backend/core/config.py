@@ -1,6 +1,5 @@
-# app/core/config.py
+# core/config.py
 from pydantic_settings import BaseSettings
-from typing import Dict, Any
 
 
 class Settings(BaseSettings):
@@ -14,7 +13,7 @@ class Settings(BaseSettings):
 
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    ACCESS_TOKEN_EXPIRE_DAYS: int = 180
+    ACCESS_TOKEN_EXPIRE_DAYS: int = 30
     # # 是否开启权限验证
     # close_verify_user_permissions = True
 
@@ -33,5 +32,3 @@ TORTOISE_ORM = {
     "use_tz": True,
     "timezone": "Asia/Shanghai",
 }
-
-

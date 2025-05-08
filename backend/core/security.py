@@ -1,10 +1,9 @@
-from fastapi import Depends, HTTPException, status
-from passlib.context import CryptContext
-from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi.security import OAuth2PasswordBearer
-
+from fastapi import Depends, HTTPException, status
+from passlib.context import CryptContext
+from jose import jwt, JWTError
 from models.models import User
 from core.config import settings
 
@@ -48,9 +47,7 @@ class Security:
         return Security.pwd_context.verify(plain_password, hashed_password)
 
     @staticmethod
-    def create_access_token(
-        data: dict, expires_delta: Optional[timedelta] = None
-    ) -> str:
+    def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
         """
         创建 JWT 令牌。
 
@@ -67,7 +64,9 @@ class Security:
             )
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(
-            to_encode, Security.SECRET_KEY, algorithm=Security.ALGORITHM
+            to_encode, 
+            Security.SECRET_KEY, 
+            algorithm=Security.ALGORITHM
         )
         return encoded_jwt
 
@@ -105,7 +104,7 @@ class Security:
 
     @staticmethod
     async def get_current_user(
-        token: str = Depends(OAuth2PasswordBearer(tokenUrl="token")),
+        token: str = Depends(OAuth2PasswordBearer(tokenUrl="/api/user/auth/token")),
     ) -> User:
         """
         获取当前认证用户。
@@ -120,7 +119,7 @@ class Security:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
             )
-        user_id = payload.get("sub")
+        user_id = int(payload.get("sub"))
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -160,7 +159,7 @@ class Security:
 
     @staticmethod
     async def get_user_permissions(
-        token: str = Depends(OAuth2PasswordBearer(tokenUrl="token")),
+        token: str = Depends(OAuth2PasswordBearer(tokenUrl="/api/user/auth/token")),
     ) -> str:
         """
         获取用户的权限级别。
@@ -169,9 +168,10 @@ class Security:
         :return: 用户的权限级别（"admin"、"user" 或 "visitor"）
         """
         payload = Security.decode_token(token)
+        print(payload)
         if not payload:
             return "visitor"
-        user_id = payload.get("sub")
+        user_id = int(payload.get("sub"))
         if not user_id:
             return "visitor"
         exp = payload.get("exp")

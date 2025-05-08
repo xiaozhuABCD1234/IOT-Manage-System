@@ -10,6 +10,7 @@ dependencies = [
     "jose>=1.0.0",
     "passlib>=1.7.4",
     "psutil>=7.0.0",
+    "pyjwt>=2.10.1",
     "python-jose[cryptography]>=3.4.0",
     "requests>=2.32.3",
     "tortoise-orm>=0.25.0",

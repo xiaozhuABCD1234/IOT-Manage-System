@@ -66,6 +66,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFoundView.vue'),
+      meta: {
+        fullScreen: true,
+        requiresAuth: false,
+      },
+    },
   ],
 })
 // Cookie操作函数
@@ -75,8 +84,6 @@ const getCookie = (name: string): string | null => {
   if (parts.length === 2) return parts.pop()?.split(';').shift() || null
   return null
 }
-
-
 
 // 路由守卫
 router.beforeEach((to, from, next) => {

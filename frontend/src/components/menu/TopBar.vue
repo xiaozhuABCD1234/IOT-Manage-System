@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { House, Info, Layers } from "lucide-vue-next";
 import { ref } from "vue";
+import UserInfo from "../UserInfo.vue";
 
 const activeIndex = ref("1");
 const handleSelect = (key: string, keyPath: string[]) => {
@@ -66,7 +67,7 @@ const handleSelect = (key: string, keyPath: string[]) => {
       </div>
     </el-col>
     <el-col :span="3">
-      <div class="grid-content ep-bg-purple" />
+      <UserInfo />
     </el-col>
   </el-row>
 </template>
