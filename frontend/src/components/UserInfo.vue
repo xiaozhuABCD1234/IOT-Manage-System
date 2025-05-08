@@ -41,10 +41,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
-import { ArrowDown, User, SwitchButton } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import axios, { AxiosError } from 'axios'
+import { onMounted, ref } from "vue";
+import { ArrowDown, SwitchButton, User } from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
+import axios, { AxiosError } from "axios";
 
 // 定义用户数据类型
 interface User {
@@ -61,111 +61,114 @@ interface ApiResponse<T> {
   status: number;
 }
 
-
 // 用户数据和加载状态
-const user = ref<User | null>(null)
-const loading = ref<boolean>(true)
-const avatarUrl = ref<string>('https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png')
+const user = ref<User | null>(null);
+const loading = ref<boolean>(true);
+const avatarUrl = ref<string>(
+  "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
+);
 
 // 权限标签颜色映射
 const permissionTagMap: Record<string, string> = {
-  admin: 'danger',
-  manager: 'warning',
-  user: 'success',
-  guest: 'info'
-}
+  admin: "danger",
+  manager: "warning",
+  user: "success",
+  guest: "info",
+};
 
 // 格式化权限显示
 const formatPermission = (permission: string): string => {
   const map: Record<string, string> = {
-    admin: '管理员',
-    manager: '经理',
-    user: '用户',
-    guest: '访客'
-  }
-  return map[permission] || permission
-}
+    admin: "管理员",
+    manager: "经理",
+    user: "用户",
+    guest: "访客",
+  };
+  return map[permission] || permission;
+};
 
 // 获取权限标签类型
 const getPermissionTagType = (permission: string): string => {
-  return permissionTagMap[permission] || ''
-}
+  return permissionTagMap[permission] || "";
+};
 
 // 获取用户信息
 const fetchUserInfo = async (): Promise<void> => {
   try {
-    loading.value = true
-    const token = localStorage.getItem('token')
+    loading.value = true;
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      user.value = null
-      return
+      user.value = null;
+      return;
     }
 
-    const response = await axios.get<ApiResponse<User>>('/api/user/auth/me', {
+    const response = await axios.get<ApiResponse<User>>("/api/user/auth/me", {
       headers: {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    })
+        "Accept": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+    });
 
     if (response.data.data) {
-      user.value = response.data.data
+      user.value = response.data.data;
     } else {
-      throw new Error(response.data.error || '获取用户信息失败')
+      throw new Error(response.data.error || "获取用户信息失败");
     }
   } catch (error) {
-    const axiosError = error as AxiosError<ApiResponse<User>>
+    const axiosError = error as AxiosError<ApiResponse<User>>;
     if (axiosError.response?.status === 401) {
       // 未认证，清空用户信息
-      user.value = null
-      localStorage.removeItem('token')
+      user.value = null;
+      localStorage.removeItem("token");
     } else {
-      ElMessage.error('获取用户信息失败: ' +
-        (axiosError.response?.data?.error || axiosError.message))
+      ElMessage.error(
+        "获取用户信息失败: " +
+          (axiosError.response?.data?.error || axiosError.message),
+      );
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 // 处理下拉菜单命令
 const handleCommand = (command: string): void => {
   switch (command) {
-    case 'profile':
+    case "profile":
       // 跳转到用户主页
-      window.location.href = '/profile'
-      break
-    case 'logout':
-      logout()
-      break
+      window.location.href = "/profile";
+      break;
+    case "logout":
+      logout();
+      break;
   }
-}
+};
 
 // 退出登录
 const logout = (): void => {
-  localStorage.removeItem('token')
-  user.value = null
-  ElMessage.success('已退出登录')
+  localStorage.removeItem("token");
+  user.value = null;
+  ElMessage.success("已退出登录");
   // 可以添加重定向到登录页的逻辑
   // window.location.href = '/login'
-}
+};
 
 // 登录
 const login = (): void => {
   // 跳转到登录页
-  window.location.href = '/login'
-}
+  window.location.href = "/login";
+};
 
 // 组件挂载时获取用户信息
 onMounted(() => {
-  fetchUserInfo()
-})
+  fetchUserInfo();
+});
 
 // 如果需要，可以暴露刷新方法
 defineExpose({
-  refresh: fetchUserInfo
-})
+  refresh: fetchUserInfo,
+});
 </script>
 
 <style scoped>

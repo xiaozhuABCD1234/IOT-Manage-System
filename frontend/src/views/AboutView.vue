@@ -7,15 +7,15 @@
       <p>ID: {{ user?.id }}</p>
       <p>姓名: {{ user?.name }}</p>
       <p>邮箱: {{ user?.email }}</p>
-      <p>权限: {{ user?.permissions}}</p>
+      <p>权限: {{ user?.permissions }}</p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
-import axios, { AxiosError } from 'axios';
-import Cookies from 'js-cookie';
+import { defineComponent, onMounted, ref } from "vue";
+import axios, { AxiosError } from "axios";
+import Cookies from "js-cookie";
 
 interface User {
   id: number;
@@ -33,16 +33,16 @@ export default defineComponent({
     const fetchUserData = async () => {
       try {
         // 从 Cookie 中获取 token
-        const token = Cookies.get('access_token');
+        const token = Cookies.get("access_token");
         if (!token) {
-          throw new Error('未找到有效的 Token');
+          throw new Error("未找到有效的 Token");
         }
 
-        const response = await axios.get<User>('http://127.0.0.1:8000/api/user/auth/me', {
+        const response = await axios.get<User>("/api/user/auth/me", {
           headers: {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+            "Accept": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
         });
         // console.log(response.data);
         if (response.status === 200) {
@@ -78,9 +78,9 @@ export default defineComponent({
     return {
       loading,
       user,
-      error
+      error,
     };
-  }
+  },
 });
 </script>
 

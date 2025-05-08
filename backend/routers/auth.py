@@ -4,7 +4,7 @@ from models.models import User
 from schemas.user import UserRegister, UserRead
 from core.security import Security
 from core.config import settings
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from crud.user import CRUDUser
 

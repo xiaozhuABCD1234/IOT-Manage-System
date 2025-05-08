@@ -1,3 +1,39 @@
+<script lang="ts" setup>
+import {
+  Calculator,
+  ChartArea,
+  History,
+  House,
+  Map,
+  MapPinHouse,
+  MapPinned,
+  Server,
+  Shell,
+  Wrench,
+} from "lucide-vue-next";
+import { useRoute } from "vue-router";
+import { useMenuStore } from "@/stores/useMenuStore";
+import { ref, watch } from "vue";
+
+const route = useRoute(); // 获取当前路由
+const menuStore = useMenuStore(); // 使用 Pinia store
+const activeIndex = ref(menuStore.activeIndex); // 初始值从 store 获取
+
+// 监听路由变化，动态更新 activeIndex
+watch(route, () => {
+  activeIndex.value = route.path; // 更新 activeIndex 为当前路由路径
+  menuStore.setActiveIndex(route.path); // 同步更新 Pinia store 中的值
+});
+
+const handleOpen = (key: string, keyPath: string[]) => {
+  console.log(key, keyPath);
+  menuStore.setActiveIndex(key); // 更新 store 中的选中页面路径
+};
+const handleClose = (key: string, keyPath: string[]) => {
+  console.log(key, keyPath);
+};
+</script>
+
 <template>
   <el-menu
     default-active="2"
@@ -74,24 +110,3 @@
     </el-sub-menu>
   </el-menu>
 </template>
-<script lang="ts" setup>
-import {
-  Calculator,
-  ChartArea,
-  History,
-  House,
-  Map,
-  MapPinHouse,
-  MapPinned,
-  Server,
-  Shell,
-  Wrench,
-} from "lucide-vue-next";
-
-const handleOpen = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
-};
-const handleClose = (key: string, keyPath: string[]) => {
-  console.log(key, keyPath);
-};
-</script>

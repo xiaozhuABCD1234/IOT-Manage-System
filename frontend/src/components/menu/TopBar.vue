@@ -1,11 +1,22 @@
 <script setup lang="ts">
 import { House, Info, Layers } from "lucide-vue-next";
-import { ref } from "vue";
-import UserInfo from "../UserInfo.vue";
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { useMenuStore } from "@/stores/useMenuStore";
 
-const activeIndex = ref("1");
+const route = useRoute(); // 获取当前路由
+const menuStore = useMenuStore(); // 使用 Pinia store
+const activeIndex = ref(menuStore.activeIndex); // 初始值从 store 获取
+
+// 监听路由变化，动态更新 activeIndex
+watch(route, () => {
+  activeIndex.value = route.path; // 更新 activeIndex 为当前路由路径
+  menuStore.setActiveIndex(route.path); // 同步更新 Pinia store 中的值
+});
+
 const handleSelect = (key: string, keyPath: string[]) => {
   console.log(key, keyPath);
+  menuStore.setActiveIndex(key); // 更新 store 中的选中页面路径
 };
 </script>
 
