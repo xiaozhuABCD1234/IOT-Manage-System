@@ -99,9 +99,9 @@ router.beforeEach((to, from, next) => {
       path: "/login",
       query: { redirect: to.fullPath },
     });
-  } else if (to.path === "/login" && isAuthenticated) {
-    // 已登录用户访问登录页，跳转到首页
-    next("/");
+  // } else if (to.path === "/login" && isAuthenticated) {
+  //   // 已登录用户访问登录页，跳转到首页
+  //   next("/");
   } else {
     // 其他情况直接放行
     next();

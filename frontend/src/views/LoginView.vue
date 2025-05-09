@@ -6,29 +6,13 @@
         <h2>用户登录</h2>
       </div>
 
-      <el-form
-        ref="loginFormRef"
-        :model="loginForm"
-        :rules="loginRules"
-        @keyup.enter="handleLogin"
-      >
+      <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" @keyup.enter="handleLogin">
         <el-form-item prop="username">
-          <el-input
-            v-model="loginForm.username"
-            placeholder="请输入用户名"
-            prefix-icon="User"
-            clearable
-          />
+          <el-input v-model="loginForm.username" placeholder="请输入用户名" prefix-icon="User" clearable />
         </el-form-item>
 
         <el-form-item prop="password">
-          <el-input
-            v-model="loginForm.password"
-            placeholder="请输入密码"
-            prefix-icon="Lock"
-            show-password
-            clearable
-          />
+          <el-input v-model="loginForm.password" placeholder="请输入密码" prefix-icon="Lock" show-password clearable />
         </el-form-item>
 
         <el-form-item prop="remember">
@@ -36,12 +20,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button
-            type="primary"
-            @click="handleLogin"
-            :loading="loading"
-            style="width: 100%"
-          >
+          <el-button type="primary" @click="handleLogin" :loading="loading" style="width: 100%">
             登录
           </el-button>
         </el-form-item>
@@ -51,15 +30,14 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { useConfigStore } from "@/stores/config";
-
+import { useAuthStore } from "@/stores/auth"
 const router = useRouter();
-const configStore = useConfigStore();
 
 // 登录表单引用
 const loginFormRef = ref<FormInstance>();
@@ -85,17 +63,6 @@ const loginRules = reactive<FormRules>({
     { min: 6, max: 20, message: "长度在 6 到 20 个字符", trigger: "blur" },
   ],
 });
-
-// 构建HTTP API基础URL
-const getHttpApiBaseUrl = () => {
-  // 从WebSocket URL转换为HTTP URL
-  const wsUrl = configStore.effectiveServerUrl;
-  if (wsUrl.startsWith("wss://")) {
-    return wsUrl.replace("wss://", "https://").replace("/ws", "");
-  } else {
-    return wsUrl.replace("ws://", "http://").replace("/ws", "");
-  }
-};
 
 // 设置Cookie的函数
 const setCookie = (name: string, value: string, days?: number) => {
@@ -126,7 +93,7 @@ const handleLogin = async () => {
     formData.append("client_secret", "");
 
     // 构建完整的API URL
-    const apiUrl = `${getHttpApiBaseUrl()}/api/user/auth/token`;
+    const apiUrl = `${useConfigStore().effectiveHttpUrl}/api/user/auth/token`;
 
     // 调用登录API
     const response = await axios.post(apiUrl, formData, {
@@ -137,7 +104,7 @@ const handleLogin = async () => {
       // 添加withCredentials以支持跨域Cookie
       withCredentials: true,
     });
-
+    console.log(response.data)
     // 处理登录成功
     const { access_token, token_type } = response.data;
 
@@ -158,7 +125,7 @@ const handleLogin = async () => {
     await router.push("/");
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      if (error.response?.status === 422) {
+      if (error.response?.status === 401) {
         ElMessage.error("用户名或密码错误");
       } else {
         ElMessage.error(`登录失败: ${error.message}`);
@@ -171,6 +138,10 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
+
+onMounted(() => {
+  useAuthStore().logout();
+});
 </script>
 
 <style scoped>

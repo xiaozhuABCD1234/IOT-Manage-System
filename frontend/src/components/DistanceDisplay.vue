@@ -86,7 +86,7 @@ const formatCoordinate = (coord: number): string => {
   // 处理无效值情况
   if (typeof coord !== "number" || isNaN(coord)) return "0.00000000";
   // 固定显示8位小数
-  return coord.toFixed(8);
+  return coord.toFixed(6);
 };
 // 定义设备类型
 interface Device {
@@ -159,6 +159,7 @@ const distance = computed(() => {
   padding: 16px;
   background-color: #ffffff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
 }
 
 .coord-label {

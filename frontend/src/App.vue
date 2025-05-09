@@ -66,7 +66,7 @@ const isFullScreenLayout = computed(() => {
 
 .main-content {
   padding: 20px;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   overflow-y: auto;
   box-sizing: border-box;
 }

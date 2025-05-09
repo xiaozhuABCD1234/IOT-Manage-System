@@ -19,7 +19,7 @@ export const useConfigStore = defineStore("config", () => {
 
   // ================= 服务器配置 ================= //
   const serverUrl = ref(""); // 后端服务器地址
-  const serverPort = ref(""); // 后端服务器端口，默认值为空
+  const serverPort = ref("8000"); // 后端服务器端口，默认值为空
 
   // ================= 计算属性 ================= //
   const effectiveWSUrl = computed(() => {
