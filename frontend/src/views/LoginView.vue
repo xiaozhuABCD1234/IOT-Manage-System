@@ -6,13 +6,29 @@
         <h2>用户登录</h2>
       </div>
 
-      <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" @keyup.enter="handleLogin">
+      <el-form
+        ref="loginFormRef"
+        :model="loginForm"
+        :rules="loginRules"
+        @keyup.enter="handleLogin"
+      >
         <el-form-item prop="username">
-          <el-input v-model="loginForm.username" placeholder="请输入用户名" prefix-icon="User" clearable />
+          <el-input
+            v-model="loginForm.username"
+            placeholder="请输入用户名"
+            prefix-icon="User"
+            clearable
+          />
         </el-form-item>
 
         <el-form-item prop="password">
-          <el-input v-model="loginForm.password" placeholder="请输入密码" prefix-icon="Lock" show-password clearable />
+          <el-input
+            v-model="loginForm.password"
+            placeholder="请输入密码"
+            prefix-icon="Lock"
+            show-password
+            clearable
+          />
         </el-form-item>
 
         <el-form-item prop="remember">
@@ -20,7 +36,12 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="handleLogin" :loading="loading" style="width: 100%">
+          <el-button
+            type="primary"
+            @click="handleLogin"
+            :loading="loading"
+            style="width: 100%"
+          >
             登录
           </el-button>
         </el-form-item>
@@ -35,8 +56,9 @@ import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import axios from "axios";
 import { useRouter } from "vue-router";
-import { useConfigStore } from "@/stores/config";
-import { useAuthStore } from "@/stores/auth"
+import { useAuthStore } from "@/stores/auth";
+import { authApi} from '@/api/auth'
+const authStore = useAuthStore();
 const router = useRouter();
 
 // 登录表单引用
@@ -82,32 +104,14 @@ const handleLogin = async () => {
     if (!valid) return;
 
     loading.value = true;
-
-    // 准备表单数据
-    const formData = new URLSearchParams();
-    formData.append("grant_type", "password");
-    formData.append("username", loginForm.username);
-    formData.append("password", loginForm.password);
-    formData.append("scope", "");
-    formData.append("client_id", "");
-    formData.append("client_secret", "");
-
-    // 构建完整的API URL
-    const apiUrl = `${useConfigStore().effectiveHttpUrl}/api/user/auth/token`;
-
     // 调用登录API
-    const response = await axios.post(apiUrl, formData, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept": "application/json",
-      },
-      // 添加withCredentials以支持跨域Cookie
-      withCredentials: true,
-    });
-    console.log(response.data)
+    const response = await authApi.login(loginForm.username, loginForm.password);
+    console.log("登录响应:", response);
     // 处理登录成功
     const { access_token, token_type } = response.data;
 
+
+    authStore.setToken(access_token);
     // 使用Cookie存储token（根据remember决定有效期）
     if (loginForm.remember) {
       // 记住我 - 设置30天有效期

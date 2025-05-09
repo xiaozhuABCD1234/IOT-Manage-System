@@ -1,4 +1,5 @@
 <template>
+  <!-- 模板部分保持不变 -->
   <div>
     <el-skeleton v-if="loading" :rows="4" animated />
     <div v-else-if="error" class="error">
@@ -22,12 +23,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
-import axios, { AxiosError } from "axios";
-import Cookies from "js-cookie";
-import { useRouter } from "vue-router";
-import { ElMessage } from "element-plus";
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { userApi } from "@/api/user"; // 导入封装好的 API
+import { AxiosError } from "axios"; // 修复 AxiosError 的导入方式
 
 interface User {
   id: number;
@@ -36,66 +35,40 @@ interface User {
   permissions: string[];
 }
 
-export default defineComponent({
-  setup() {
-    const loading = ref(true);
-    const user = ref<User | null>(null);
-    const error = ref<string>("");
-    const router = useRouter();
+const loading = ref(true);
+const user = ref<User | null>(null);
+const error = ref<string>("");
 
-    const fetchUserData = async () => {
-      try {
-        const token = Cookies.get("access_token");
-        if (!token) {
-          throw new Error("未找到有效的 Token");
-        }
+const fetchUserData = async () => {
+  try {
+    // 直接调用封装好的 API 方法
+    const response = await userApi.getCurrentUser();
+    console.log(response);
+    user.value = response.data; // 修复类型不匹配问题
+  } catch (err) {
+    handleError(err);
+  } finally {
+    loading.value = false;
+  }
+};
 
-        const response = await axios.get<User>("/api/user/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        user.value = response.data;
-      } catch (err) {
-        handleError(err);
-      } finally {
-        loading.value = false;
-      }
-    };
+const handleError = (err: unknown) => {
+  if (err instanceof AxiosError) {
+    // 适配后端错误响应格式
+    const errorResponse = err.response?.data;
+    error.value = errorResponse?.detail || `请求失败：${err.message}`;
+  } else {
+    error.value = (err as Error).message || "未知错误";
+  }
+};
 
-    const handleError = (err: unknown) => {
-      if (err instanceof AxiosError) {
-        const errorResponse = err.response;
-        if (errorResponse) {
-          const message = errorResponse.data?.message ||
-            `状态码：${errorResponse.status}`;
-          error.value = message;
-          if (errorResponse.status === 401) {
-            router.push("/login"); // 跳转登录页
-          }
-        } else {
-          error.value = "网络错误";
-        }
-      } else {
-        error.value = (err as Error).message || "未知错误";
-      }
-      ElMessage.error(error.value); // 可选：全局提示
-    };
-
-    onMounted(() => {
-      fetchUserData();
-    });
-
-    return {
-      loading,
-      user,
-      error,
-    };
-  },
+onMounted(() => {
+  fetchUserData();
 });
 </script>
 
 <style>
+/* 样式保持不变 */
 .error {
   color: red;
   font-weight: bold;

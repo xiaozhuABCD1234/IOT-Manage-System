@@ -64,7 +64,7 @@ const reconnectTimer = ref<ReturnType<typeof setTimeout> | null>(null); // 新�
 function connect() {
   if (!isMounted.value) return; // 组件已卸载不再连接
 
-  ws.value = new WebSocket(ConfigStore.effectiveServerUrl + "/devops/status");
+  ws.value = new WebSocket(ConfigStore.effectiveWSUrl + "/devops/status");
 
   ws.value.onopen = () => {
     if (!isMounted.value) return; // 组件已卸载不处理

@@ -4,6 +4,7 @@ import { useConfigStore } from "@/stores/config";
 import { ElMessage } from "element-plus";
 import { useAuthStore } from "@/stores/auth";
 
+
 const authStore = useAuthStore();
 // 创建一个 axios 实例
 const axiosInstance = axios.create({
@@ -34,7 +35,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     // 响应成功，返回响应数据
-    return response.data;
+    return response;
   },
   (error) => {
     // 响应失败，统一处理错误

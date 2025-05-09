@@ -9,7 +9,7 @@ export const useAuthStore = defineStore("auth", () => {
   const hadCheckToken = ref(false);
   const router = useRouter();
   // 登录成功后设置 tokens
-  const setTokens = (newAccess: string) => {
+  const setToken = (newAccess: string) => {
     accessToken.value = newAccess;
     Cookies.set("access_token", newAccess); // 不设置过期时间
   };
@@ -24,7 +24,7 @@ export const useAuthStore = defineStore("auth", () => {
   return {
     accessToken,
     hadCheckToken,
-    setTokens,
+    setToken,
     logout,
   };
 });
