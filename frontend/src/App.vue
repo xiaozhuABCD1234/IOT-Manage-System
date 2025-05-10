@@ -57,16 +57,16 @@ const isFullScreenLayout = computed(() => {
 }
 
 .el-aside {
-  height: calc(100% - 60px);
+  height: 100%;
 }
 
 .el-main {
-  height: calc(100% - 60px);
+  height: 100%;
 }
 
 .main-content {
   padding: 20px;
-  background-color: #ffffff;
+  background-color: #f0f0f0;
   overflow-y: auto;
   box-sizing: border-box;
 }
@@ -74,7 +74,9 @@ const isFullScreenLayout = computed(() => {
 
 <style>
 /* 全局样式 */
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
   padding: 0;

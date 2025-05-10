@@ -1,15 +1,39 @@
-<script setup lang="ts">
-import UWBMap from "@/components/map/UWBMap.vue";
-</script>
-
 <template>
-  <main class="map-container">
-    <UWBMap />
-    <div class="map-info">
-      <h1>UWB Map</h1>
-      <p>Map information and controls will go here.</p>
-    </div>
-  </main>
+  <div class="container">
+    <P5MultiTrail
+      :points="points"
+      :trail-length="80"
+      :grid-step="50"
+      :show-grid="true"
+    />
+  </div>
 </template>
 
-<style scoped></style>
+<script setup lang="ts">
+import { ref } from 'vue';
+import P5MultiTrail from '@/components/P5MultiTrail.vue';
+
+const points = ref([
+  { id: 'A', x: 0, y: 0 },          // 原点
+  { id: 'B', x: 100, y: 50 },      // 第一象限
+  { id: 'C', x: -80, y: 120 },     // 第二象限
+  { id: 'D', x: -60, y: -90 },     // 第三象限
+  { id: 'E', x: 150, y: -40 },     // 第四象限
+]);
+
+// 模拟坐标更新
+setInterval(() => {
+  points.value = points.value.map(p => ({
+    ...p,
+    x: p.x + Math.random() * 4 - 2,
+    y: p.y + Math.random() * 4 - 2
+  }));
+}, 100);
+</script>
+
+<style scoped>
+.container {
+  width: 100%;
+  height: 100%;
+}
+</style>

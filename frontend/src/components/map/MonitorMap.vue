@@ -183,8 +183,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div ref="mapRef" style="width: 100%; height: 100vh"></div>
+  <div class="map-container">
+    <div ref="mapRef" style="width: 100%; height: 100%"></div>
+  </div>
 </template>
+
+<style lang="css" scoped>
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.0);
+}
+</style>
+
 
 <style>
 .device-marker {
