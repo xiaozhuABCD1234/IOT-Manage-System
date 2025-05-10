@@ -200,7 +200,6 @@ onUnmounted(() => {
 }
 </style>
 
-
 <style>
 .device-marker {
   width: 24px;

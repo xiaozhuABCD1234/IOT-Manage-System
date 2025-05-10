@@ -4,7 +4,6 @@ import { useConfigStore } from "@/stores/config";
 import { ElMessage } from "element-plus";
 import { useAuthStore } from "@/stores/auth";
 
-
 const authStore = useAuthStore();
 // 创建一个 axios 实例
 const axiosInstance = axios.create({

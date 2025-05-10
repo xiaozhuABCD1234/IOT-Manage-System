@@ -57,7 +57,7 @@ import { ElMessage } from "element-plus";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
-import { authApi} from '@/api/auth'
+import { authApi } from "@/api/auth";
 const authStore = useAuthStore();
 const router = useRouter();
 
@@ -105,11 +105,13 @@ const handleLogin = async () => {
 
     loading.value = true;
     // 调用登录API
-    const response = await authApi.login(loginForm.username, loginForm.password);
+    const response = await authApi.login(
+      loginForm.username,
+      loginForm.password,
+    );
     console.log("登录响应:", response);
     // 处理登录成功
     const { access_token, token_type } = response.data;
-
 
     authStore.setToken(access_token);
     // 使用Cookie存储token（根据remember决定有效期）
