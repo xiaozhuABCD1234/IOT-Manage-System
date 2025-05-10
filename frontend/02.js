@@ -67,10 +67,15 @@ let currentIndex = 0;
 let sendingActive = true;
 
 const sendNextPoint = () => {
-  if (!sendingActive || currentIndex >= points.length) return;
+  if (!sendingActive || currentIndex >= points.length) {
+    clearInterval(intervalId); // 停止定时器
+    console.log("All points sent.");
+    return;
+  }
 
   var msg = {
     id: id,
+    "indoor": true,
     sensors: [
       {
         name: "RTK",
@@ -83,7 +88,7 @@ const sendNextPoint = () => {
         name: "UWB",
         data: {
           unit: "cm",
-          value: 1000,
+          value: [((points[currentIndex][0]-121.887496)/(121.897142-121.887496))*20, ((points[currentIndex][1]-30.899189)/(30.905237-30.899189))*20],
         },
       },
     ],
@@ -97,9 +102,10 @@ const sendNextPoint = () => {
     } else {
       console.log("Message published:", msg);
     }
-    setTimeout(sendNextPoint, 1000); // 保持1秒间隔
   });
 };
+
+let intervalId;
 
 client.on("connect", () => {
   console.log("Connected to MQTT broker");
@@ -108,7 +114,7 @@ client.on("connect", () => {
   client.subscribe("location/sensors/1", (err) => {
     if (err) return console.error("Subscription error:", err);
     console.log("Subscribed to topic: location/sensors/1");
-    sendNextPoint(); // 开始发送数据
+    intervalId = setInterval(sendNextPoint, 1000); // 使用 setInterval 定时发送数据
   });
 });
 
@@ -119,15 +125,10 @@ client.on("error", (err) => {
 client.on("close", () => {
   console.log("MQTT client disconnected");
   sendingActive = false;
+  clearInterval(intervalId); // 确保定时器被清除
 });
 
 client.on("reconnect", () => {
   console.log("Attempting to reconnect...");
   sendingActive = true;
 });
-
-// 安全关闭连接的示例（根据需要调用）
-// process.on('SIGINT', () => {
-//   sendingActive = false;
-//   client.end();
-// });

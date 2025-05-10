@@ -110,14 +110,18 @@ const hashCode = (str: string | number) => {
   let hash = 0;
   const s = String(str);
   for (let i = 0; i < s.length; i++) {
-    hash = s.charCodeAt(i) + ((hash << 5) - hash);
+    hash = (hash << 5) - hash + s.charCodeAt(i);
+    hash |= 0; // 转换为32位整数
   }
   return hash;
 };
 
 const idToColor = (id: string | number) => {
   const hash = hashCode(id);
-  return `hsl(${Math.abs(hash % 360)}, 70%, 50%)`;
+  const hue = ((hash % 360) + 360) % 360; // 确保正值
+  const saturation = 70 + (hash % 15); // 65-85% 饱和度
+  const lightness = 50 + (hash % 10) - 5; // 45-55% 亮度
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
 const drawGrid = (p: p5) => {
@@ -141,7 +145,7 @@ const drawGrid = (p: p5) => {
   ) * step;
   const startY = Math.floor(
     (-visibleHeight / 2 + transformState.offset.y / transformState.scale) /
-      step,
+    step,
   ) * step;
   const endY = Math.ceil(
     (visibleHeight / 2 + transformState.offset.y / transformState.scale) / step,
@@ -333,6 +337,16 @@ const sketch = (p: p5) => {
           currentPoint.y,
           props.pointSize / transformState.scale,
           props.pointSize / transformState.scale,
+        );
+        // 添加ID标签
+        p.fill(color);
+        p.scale(1, -1);
+        p.textSize(12 / transformState.scale);  // 根据缩放调整字号
+        p.textAlign(p.LEFT, p.CENTER);          // 左对齐，垂直居中
+        p.text(
+          String(id),
+          currentPoint.x + 8 / transformState.scale,  // X偏移
+          currentPoint.y                             // Y位置与点中心一致
         );
       }
     });

@@ -74,6 +74,7 @@ const sendNextPoint = () => {
 
   var msg = {
     id: id,
+    "indoor": true,
     sensors: [
       {
         name: "RTK",
@@ -86,7 +87,7 @@ const sendNextPoint = () => {
         name: "UWB",
         data: {
           unit: "cm",
-          value: 1000,
+          value: [((points[currentIndex][0]-121.887496)/(121.897142-121.887496))*20, ((points[currentIndex][1]-30.899189)/(30.905237-30.899189))*20],
         },
       },
     ],
@@ -130,10 +131,3 @@ client.on("reconnect", () => {
   console.log("Attempting to reconnect...");
   sendingActive = true;
 });
-
-// 安全关闭连接的示例（根据需要调用）
-// process.on('SIGINT', () => {
-//   sendingActive = false;
-//   clearInterval(intervalId); // 确保定时器被清除
-//   client.end();
-// });
