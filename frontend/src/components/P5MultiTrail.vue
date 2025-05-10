@@ -339,15 +339,18 @@ const sketch = (p: p5) => {
           props.pointSize / transformState.scale,
         );
         // 添加ID标签
+        p.push(); // 保存当前坐标系状态
+        p.translate(currentPoint.x, currentPoint.y); // 移动到点中心
+        p.scale(1, -1); // 局部反转Y轴（抵消全局反转）
         p.fill(color);
-        p.scale(1, -1);
-        p.textSize(12 / transformState.scale);  // 根据缩放调整字号
-        p.textAlign(p.LEFT, p.CENTER);          // 左对齐，垂直居中
+        p.textSize(12 / transformState.scale);
+        p.textAlign(p.LEFT, p.CENTER);
         p.text(
           String(id),
-          currentPoint.x + 8 / transformState.scale,  // X偏移
-          currentPoint.y                             // Y位置与点中心一致
+          8 / transformState.scale, // X偏移（基于局部坐标系）
+          0 // Y位置（已在点中心）
         );
+        p.pop(); // 恢复主坐标系
       }
     });
   };
