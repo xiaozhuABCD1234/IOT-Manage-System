@@ -42,7 +42,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from "vue";
-import DashBoard from "@/components/DashBoard.vue";
+import DashBoard from "@/components/DataDisplay/DataProgressDashboard.vue";
 import { useConfigStore } from "@/stores/config";
 import { Cpu, HardDrive, MemoryStick } from "lucide-vue-next";
 

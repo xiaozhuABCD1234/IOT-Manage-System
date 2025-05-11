@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import mqtt from "mqtt";
-import DistanceDisplay from "@/components/DistanceDisplay.vue";
+import DistanceDisplay from "@/components/DataDisplay/DistanceDisplay.vue";
 import { useConfigStore } from "@/stores/config";
 
 interface Device {

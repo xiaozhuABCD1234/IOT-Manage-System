@@ -11,11 +11,11 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
-import P5MultiTrail from "@/components/P5MultiTrail.vue";
+import P5MultiTrail from "@/components/DataDisplay/P5MultiTrail.vue";
 import mqtt from "mqtt";
 import { useConfigStore } from "@/stores/config";
+import { ElNotification } from "element-plus"; // 引入通知组件
 
-// 新增类型定义
 interface Sensor {
   name: string;
   data?: {
@@ -30,8 +30,9 @@ interface TrackingPoint {
 }
 
 const ConfigStore = useConfigStore();
-const points = ref<TrackingPoint[]>([]); // 明确定义数组类型
-// MQTT配置
+const points = ref<TrackingPoint[]>([]);
+const prevIndoorStates = ref(new Map<string, boolean>()); // 存储设备的上一次室内状态
+
 const mqttConfig = {
   url: ConfigStore.mqtturl,
   options: {
@@ -48,20 +49,38 @@ let client: mqtt.MqttClient | null = null;
 
 const handleMessage = (payload: Buffer) => {
   try {
-    const { id, indoor, sensors } = JSON.parse(payload.toString());
-    if (!indoor) return;
+    const data = JSON.parse(payload.toString());
+    const { id, indoor, sensors } = data;
 
-    // 添加类型注解
-    const uwb = sensors.find((s: Sensor) => s.name === "UWB");
-    if (uwb?.data?.value?.length === 2) {
-      const [x, y] = uwb.data.value;
+    if (!id) return; // 缺少设备ID时直接返回
 
-      // 使用类型断言确保操作安全
-      const index = points.value.findIndex((p: TrackingPoint) => p.id === id);
-      if (index > -1) {
-        points.value[index] = { ...points.value[index], x, y };
-      } else {
-        points.value = [...points.value, { id, x, y } as TrackingPoint];
+    // 处理室内状态变化
+    if (typeof indoor !== "undefined") {
+      const prevIndoor = prevIndoorStates.value.get(id);
+      // 当状态存在且发生变化时触发通知
+      if (prevIndoor !== undefined && prevIndoor !== indoor) {
+        ElNotification({
+          title: "状态变化",
+          message: `设备 ${id} ${indoor ? "进入" : "离开"}室内`,
+          type: "info",
+          duration: 3000,
+        });
+      }
+      prevIndoorStates.value.set(id, indoor); // 更新状态记录
+    }
+
+    // 仅在室内状态为true时处理定位数据
+    if (indoor) {
+      const uwb = sensors?.find((s: Sensor) => s.name === "UWB");
+      if (uwb?.data?.value?.length === 2) {
+        const [x, y] = uwb.data.value;
+        const index = points.value.findIndex((p) => p.id === id);
+
+        if (index > -1) {
+          points.value[index] = { ...points.value[index], x, y };
+        } else {
+          points.value = [...points.value, { id, x, y }];
+        }
       }
     }
   } catch (e) {
