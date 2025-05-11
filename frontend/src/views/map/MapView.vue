@@ -13,6 +13,5 @@ import MonitorMap from "@/components/map/MonitorMap.vue";
   position: relative;
   width: 100%;
   height: 100%;
-
 }
 </style>

@@ -75,7 +75,7 @@ const sendNextPoint = () => {
 
   var msg = {
     id: id,
-    "indoor": true,
+    indoor: true,
     sensors: [
       {
         name: "RTK",

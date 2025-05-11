@@ -145,7 +145,7 @@ const drawGrid = (p: p5) => {
   ) * step;
   const startY = Math.floor(
     (-visibleHeight / 2 + transformState.offset.y / transformState.scale) /
-    step,
+      step,
   ) * step;
   const endY = Math.ceil(
     (visibleHeight / 2 + transformState.offset.y / transformState.scale) / step,
@@ -290,23 +290,21 @@ const drawAxes = (p: p5) => {
   p.pop();
 };
 
-
 // 在setup函数中添加canvas事件监听
 const setupCanvasEvents = (canvas: HTMLCanvasElement) => {
   // 阻止所有默认的触摸行为
-  canvas.addEventListener('touchstart', (e) => {
-    if (e.target === canvas) e.preventDefault()
-  }, { passive: false })
-  canvas.addEventListener('touchmove', (e) => {
-    if (e.target === canvas) e.preventDefault()
-  }, { passive: false })
+  canvas.addEventListener("touchstart", (e) => {
+    if (e.target === canvas) e.preventDefault();
+  }, { passive: false });
+  canvas.addEventListener("touchmove", (e) => {
+    if (e.target === canvas) e.preventDefault();
+  }, { passive: false });
 
   // 阻止鼠标事件的冒泡
-  canvas.addEventListener('mousedown', (e) => {
-    e.stopPropagation()
-  })
+  canvas.addEventListener("mousedown", (e) => {
+    e.stopPropagation();
+  });
 };
-
 
 const sketch = (p: p5) => {
   p.setup = () => {
@@ -378,8 +376,14 @@ const sketch = (p: p5) => {
   p.mouseDragged = () => {
     // 添加边界检查
     const MAX_OFFSET = 1000; // 根据实际需求调整
-    transformState.offset.x = Math.min(Math.max(transformState.offset.x, -MAX_OFFSET), MAX_OFFSET);
-    transformState.offset.y = Math.min(Math.max(transformState.offset.y, -MAX_OFFSET), MAX_OFFSET);
+    transformState.offset.x = Math.min(
+      Math.max(transformState.offset.x, -MAX_OFFSET),
+      MAX_OFFSET,
+    );
+    transformState.offset.y = Math.min(
+      Math.max(transformState.offset.y, -MAX_OFFSET),
+      MAX_OFFSET,
+    );
 
     if (transformState.isDragging) {
       transformState.offset.x += p.mouseX - transformState.dragStart.x;
@@ -391,19 +395,22 @@ const sketch = (p: p5) => {
 
   p.mousePressed = () => {
     // 只在画布范围内响应
-    if (p.mouseX < 0 || p.mouseX > p.width || p.mouseY < 0 || p.mouseY > p.height) return;
+    if (
+      p.mouseX < 0 || p.mouseX > p.width || p.mouseY < 0 || p.mouseY > p.height
+    ) return;
     transformState.isDragging = true;
     transformState.dragStart.x = p.mouseX;
     transformState.dragStart.y = p.mouseY;
   };
-
 
   p.mouseReleased = () => {
     transformState.isDragging = false;
   };
 
   p.mouseWheel = (event: WheelEvent) => {
-    if (p.mouseX < 0 || p.mouseX > p.width || p.mouseY < 0 || p.mouseY > p.height) return;
+    if (
+      p.mouseX < 0 || p.mouseX > p.width || p.mouseY < 0 || p.mouseY > p.height
+    ) return;
     const zoomIntensity = 0.1;
     const delta = event.deltaY > 0 ? 1 : -1;
     const zoomFactor = delta > 0 ? 1 - zoomIntensity : 1 + zoomIntensity;

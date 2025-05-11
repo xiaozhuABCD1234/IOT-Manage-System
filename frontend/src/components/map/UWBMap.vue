@@ -14,7 +14,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 import P5MultiTrail from "@/components/DataDisplay/P5MultiTrail.vue";
 import mqtt from "mqtt";
 import { useConfigStore } from "@/stores/config";
-import { ElNotification } from "element-plus"; // 引入通知组件
+import { ElNotification } from "element-plus";
 
 interface Sensor {
   name: string;
@@ -31,14 +31,16 @@ interface TrackingPoint {
 
 const ConfigStore = useConfigStore();
 const points = ref<TrackingPoint[]>([]);
-const prevIndoorStates = ref(new Map<string, boolean>()); // 存储设备的上一次室内状态
+const prevIndoorStates = ref(new Map<string, boolean>());
 
 const mqttConfig = {
   url: ConfigStore.mqtturl,
   options: {
     clean: true,
     connectTimeout: 4000,
-    clientId: ConfigStore.mqttclientid,
+    clientId: `${ConfigStore.mqttclientid}-${
+      Math.random().toString(16).substr(2, 8)
+    }-uwb`,
     username: ConfigStore.mqttuser,
     password: ConfigStore.mqttpwd,
   },
@@ -52,12 +54,13 @@ const handleMessage = (payload: Buffer) => {
     const data = JSON.parse(payload.toString());
     const { id, indoor, sensors } = data;
 
-    if (!id) return; // 缺少设备ID时直接返回
+    if (!id) return;
 
     // 处理室内状态变化
     if (typeof indoor !== "undefined") {
       const prevIndoor = prevIndoorStates.value.get(id);
-      // 当状态存在且发生变化时触发通知
+
+      // 状态变化通知
       if (prevIndoor !== undefined && prevIndoor !== indoor) {
         ElNotification({
           title: "状态变化",
@@ -66,10 +69,16 @@ const handleMessage = (payload: Buffer) => {
           duration: 3000,
         });
       }
-      prevIndoorStates.value.set(id, indoor); // 更新状态记录
+
+      // 离开室内时清除轨迹
+      if (!indoor) {
+        points.value = points.value.filter((p) => p.id !== id);
+      }
+
+      prevIndoorStates.value.set(id, indoor);
     }
 
-    // 仅在室内状态为true时处理定位数据
+    // 仅在室内时处理坐标
     if (indoor) {
       const uwb = sensors?.find((s: Sensor) => s.name === "UWB");
       if (uwb?.data?.value?.length === 2) {
@@ -77,8 +86,10 @@ const handleMessage = (payload: Buffer) => {
         const index = points.value.findIndex((p) => p.id === id);
 
         if (index > -1) {
+          // 更新现有点
           points.value[index] = { ...points.value[index], x, y };
         } else {
+          // 添加新点
           points.value = [...points.value, { id, x, y }];
         }
       }
@@ -90,12 +101,15 @@ const handleMessage = (payload: Buffer) => {
 
 onMounted(() => {
   client = mqtt.connect(mqttConfig.url, mqttConfig.options);
-  client.on("connect", () => client?.subscribe(mqttConfig.topic));
+  client.on("connect", () => {
+    console.log("Connected to MQTT broker");
+    client?.subscribe(mqttConfig.topic);
+  });
   client.on("message", (_, payload) => handleMessage(payload));
 });
 
 onUnmounted(() => {
-  client?.end();
+  client?.end(true);
 });
 </script>
 
@@ -103,5 +117,7 @@ onUnmounted(() => {
 .container {
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  background: #f0f2f5;
 }
 </style>

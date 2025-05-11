@@ -75,7 +75,7 @@ const sendNextPoint = () => {
 
   var msg = {
     id: id,
-    "indoor": true,
+    indoor: Math.floor(currentIndex / 10) % 2 === 0,
     sensors: [
       {
         name: "RTK",

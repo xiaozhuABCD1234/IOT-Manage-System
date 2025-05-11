@@ -32,7 +32,8 @@ const MQTT_CONFIG = {
   options: {
     clean: true,
     connectTimeout: 4000,
-    clientId: ConfigStore.mqttclientid,
+    clientId: ConfigStore.mqttclientid +
+      Math.random().toString(16).substr(2, 8) + "map",
     username: ConfigStore.mqttuser,
     password: ConfigStore.mqttpwd,
   },
