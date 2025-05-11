@@ -91,27 +91,10 @@ onUnmounted(() => {
 .container {
   position: relative;
   width: 100%;
-  height: 100vh;
-  /* 改为视口高度确保地图容器有明确高度 */
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-.row-spacing {
-  height: calc(100vh - 20px);
-  /* 减去上下padding */
-}
-
-/* 调整地图容器的默认边距 */
-:deep(.el-col) {
   height: 100%;
 }
 
-/* 优化通知样式 */
-:global(.el-notification) {
-  max-width: 380px;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.15);
+.row-spacing {
+  height: 100%;
 }
 </style>
