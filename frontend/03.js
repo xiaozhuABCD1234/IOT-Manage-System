@@ -87,7 +87,12 @@ const sendNextPoint = () => {
         name: "UWB",
         data: {
           unit: "cm",
-          value: [((points[currentIndex][0]-121.887496)/(121.897142-121.887496))*20, ((points[currentIndex][1]-30.899189)/(30.905237-30.899189))*20],
+          value: [
+            ((points[currentIndex][0] - 121.887496) /
+              (121.897142 - 121.887496)) * 20,
+            ((points[currentIndex][1] - 30.899189) / (30.905237 - 30.899189)) *
+            20,
+          ],
         },
       },
     ],

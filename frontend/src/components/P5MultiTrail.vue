@@ -145,7 +145,7 @@ const drawGrid = (p: p5) => {
   ) * step;
   const startY = Math.floor(
     (-visibleHeight / 2 + transformState.offset.y / transformState.scale) /
-    step,
+      step,
   ) * step;
   const endY = Math.ceil(
     (visibleHeight / 2 + transformState.offset.y / transformState.scale) / step,
@@ -348,7 +348,7 @@ const sketch = (p: p5) => {
         p.text(
           String(id),
           8 / transformState.scale, // X偏移（基于局部坐标系）
-          0 // Y位置（已在点中心）
+          0, // Y位置（已在点中心）
         );
         p.pop(); // 恢复主坐标系
       }

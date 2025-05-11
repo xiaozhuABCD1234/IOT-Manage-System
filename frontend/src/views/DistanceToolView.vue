@@ -6,10 +6,7 @@
       :span="12"
       class="distance-col"
     >
-      <DistanceDisplay
-        :device-a="pair.a"
-        :device-b="pair.b"
-      />
+      <DistanceDisplay :device-a="pair.a" :device-b="pair.b" />
     </el-col>
   </el-row>
 </template>
@@ -25,6 +22,12 @@ interface Device {
   lat: number;
   lon: number;
   updated?: number;
+}
+interface Sensor {
+  name: string;
+  data?: {
+    value: number[];
+  };
 }
 
 const MQTT_URL = useConfigStore().mqtturl;
@@ -80,7 +83,7 @@ const initMqtt = () => {
 
       if (!selectedIds.value.has(deviceId)) return;
 
-      const rtkSensor = data.sensors.find((s: any) => s.name === "RTK");
+      const rtkSensor = data.sensors.find((s: Sensor) => s.name === "RTK");
       if (!rtkSensor || !Array.isArray(rtkSensor.data?.value)) return;
 
       const [lon, lat] = rtkSensor.data.value;
@@ -133,7 +136,8 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .el-col {
     width: 100%;
-    margin-bottom: 15px; /* 移动端垂直间距 */
+    margin-bottom: 15px;
+    /* 移动端垂直间距 */
   }
 }
 </style>

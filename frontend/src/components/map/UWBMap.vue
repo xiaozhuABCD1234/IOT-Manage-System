@@ -10,14 +10,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import P5MultiTrail from "@/components/P5MultiTrail.vue";
 import mqtt from "mqtt";
 import { useConfigStore } from "@/stores/config";
 
-const ConfigStore = useConfigStore();
-const points = ref([]);
+// 新增类型定义
+interface Sensor {
+  name: string;
+  data?: {
+    value: number[];
+  };
+}
 
+interface TrackingPoint {
+  id: string;
+  x: number;
+  y: number;
+}
+
+const ConfigStore = useConfigStore();
+const points = ref<TrackingPoint[]>([]); // 明确定义数组类型
 // MQTT配置
 const mqttConfig = {
   url: ConfigStore.mqtturl,
@@ -38,16 +51,17 @@ const handleMessage = (payload: Buffer) => {
     const { id, indoor, sensors } = JSON.parse(payload.toString());
     if (!indoor) return;
 
-    const uwb = sensors.find((s) => s.name === "UWB");
+    // 添加类型注解
+    const uwb = sensors.find((s: Sensor) => s.name === "UWB");
     if (uwb?.data?.value?.length === 2) {
       const [x, y] = uwb.data.value;
 
-      // 更新或添加点
-      const index = points.value.findIndex(p => p.id === id);
+      // 使用类型断言确保操作安全
+      const index = points.value.findIndex((p: TrackingPoint) => p.id === id);
       if (index > -1) {
         points.value[index] = { ...points.value[index], x, y };
       } else {
-        points.value = [...points.value, { id, x, y }];
+        points.value = [...points.value, { id, x, y } as TrackingPoint];
       }
     }
   } catch (e) {
