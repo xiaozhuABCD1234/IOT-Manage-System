@@ -85,7 +85,7 @@ const createDevice = (AMap: any, id: number, lng: number, lat: number) => {
     marker,
   };
 };
-
+import { wgs2gcj } from "@/TF.ts"
 // 更新设备位置
 const updateDevicePosition = (
   AMap: any,
@@ -95,17 +95,19 @@ const updateDevicePosition = (
 
   if (!device) {
     // 创建新设备
-    device = createDevice(AMap, msg.id, msg.lng, msg.lat);
+    const { lat: gcjLat, lng: gcjLng } = wgs2gcj(msg.lat, msg.lng); // 调用wgs2gcj进行坐标转换
+    device = createDevice(AMap, msg.id, gcjLng, gcjLat); // 用转换后的GCJ坐标创建设备
     devices.value.push(device);
   } else {
     // 更新现有设备时添加类型断言
+    const { lat: gcjLat, lng: gcjLng } = wgs2gcj(msg.lat, msg.lng); // 调用wgs2gcj进行坐标转换
     const newPath = [
       ...device.path,
-      [msg.lng, msg.lat] as [number, number], // 确保每个点都是元组
+      [gcjLng, gcjLat] as [number, number], // 确保每个点都是元组，使用转换后的GCJ坐标
     ];
     device.path = newPath;
     device.polyline.setPath(newPath);
-    device.marker.setPosition([msg.lng, msg.lat]);
+    device.marker.setPosition([gcjLng, gcjLat]); // 使用转换后的GCJ坐标更新位置
   }
 };
 
@@ -137,7 +139,7 @@ onMounted(async () => {
 
     mqttClient.on("message", (topic, payload) => {
       const msg = parseMessage(topic, payload);
-      console.log(msg);
+      // console.log(msg);
       updateDevicePosition(AMap, msg);
     });
   }).catch(console.error);
