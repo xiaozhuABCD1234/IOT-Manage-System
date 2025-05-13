@@ -35,3 +35,16 @@ uv add requests
 # 启动
 uv run fastapi run main.py --port 8000 --host 0.0.0.0
 ```
+
+---
+
+## TodoList
+
+- 增加历史位置功能
+- 写一个新的距离展示组件
+- 增加运维管理的网络监控功能
+- 对服务器高负载是报警
+- 把数据库从SQLite3迁移到MongoDB
+- 下面开始发癫
+- 尝试使用SSR，WSAM看是否提升前端计算性能
+- 尝试后端用GO语言重构
