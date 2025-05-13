@@ -1,0 +1,1 @@
+import{U as e}from"./UWBMap-BorjgGZX.js";import{d as a,c as o,a as t,o as p,_ as r}from"./index-DkkrOWQ5.js";import"./mqtt.esm-BKeQ4ejO.js";import"./config-DlXkem2Y.js";const c=a({__name:"uwbMapView",setup(s){return(_,n)=>(p(),o("div",null,[t(e)]))}}),u=r(c,[["__scopeId","data-v-7fc74e93"]]);export{u as default};
