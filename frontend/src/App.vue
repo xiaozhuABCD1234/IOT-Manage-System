@@ -69,7 +69,7 @@ const isFullScreenLayout = computed(() => {
   background-color: #f0f0f0;
   overflow-y: auto;
   box-sizing: border-box;
-  border-radius: 28px;
+  border-radius: 8px;
 }
 </style>
 

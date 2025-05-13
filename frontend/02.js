@@ -21,9 +21,8 @@ const options = {
   clean: true,
   connectTimeout: 10000, // 增加连接超时时间
   reconnectPeriod: 5000, // 启用自动重连，间隔5秒
-  clientId: `emqx_test_${Date.now()}_${
-    Math.random().toString(16).substr(2, 8)
-  }`, // 唯一客户端ID
+  clientId: `emqx_test_${Date.now()}_${Math.random().toString(16).substr(2, 8)
+    }`, // 唯一客户端ID
   username: "", // 根据服务器要求填写
   password: "",
 };
@@ -88,11 +87,7 @@ const sendNextPoint = () => {
         name: "UWB",
         data: {
           unit: "cm",
-          value: [
-            ((points[currentIndex][0] - 121.887496) /
-              (121.897142 - 121.887496)) * 20,
-            ((points[currentIndex][1] - 30.899189) / (30.905237 - 30.899189)) *
-            20,
+          value: [11.4, 12
           ],
         },
       },

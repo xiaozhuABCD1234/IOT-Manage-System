@@ -1,7 +1,6 @@
 # app/crud/user.py
 from fastapi import HTTPException
 # from sqlmodel import Session, select
-from typing import List, Optional
 from pydantic import EmailStr
 
 from models.models import User
@@ -139,7 +138,7 @@ class CRUDUser:
         return user
 
     @staticmethod
-    async def read_user_all() -> List[UserRead]:
+    async def read_user_all() -> list[UserRead]:
         """
         获取所有用户。
         1. 查询数据库中的所有用户。
