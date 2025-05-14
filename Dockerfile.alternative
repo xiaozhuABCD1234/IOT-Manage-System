@@ -1,3 +1,13 @@
+# 需要先编译前端代码
+### 编译前端代码
+
+# ```bash
+# cd ./frontend
+# npm install
+# npm run build
+# ```
+
+## 编译完成后再构建
 FROM ghcr.io/astral-sh/uv:python3.13-alpine
 
 WORKDIR /app
