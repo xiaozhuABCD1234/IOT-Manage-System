@@ -9,7 +9,6 @@ venv/
 env/
 .virtualenv/
 *.egg-info/
-dist/
 build/
 
 # Logs and databases

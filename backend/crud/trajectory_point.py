@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from datetime import datetime, timedelta
+from datetime import datetime
 from models.trajectory_point import TrajectoryPoint
 from schemas.trajectory_point import TrajectoryPointIn, TrajectoryPointOut
 
@@ -51,9 +51,35 @@ async def get_trajectory_points(
 
     if limit > 0:
         query = query.limit(limit)
-
-    # 3. 执行查询
     trajectory_points = await query
+
+    # 4. 处理 time_step 逻辑
+    if time_step is not None:
+        if time_step <= 0:
+            raise HTTPException(status_code=400, detail="Time step must be positive")
+
+        # 应用时间步长采样
+        sampled_points = []
+        current_time = start_dt
+        index = 0
+
+        while current_time <= end_dt and index < len(trajectory_points):
+            # 查找当前时间步长内的第一个点
+            while (
+                index < len(trajectory_points)
+                and trajectory_points[index].timestamp < current_time
+            ):
+                index += 1
+
+            if index < len(trajectory_points) and trajectory_points[
+                index
+            ].timestamp <= current_time + timedelta(seconds=time_step):
+                sampled_points.append(trajectory_points[index])
+                index += 1
+
+            current_time += timedelta(seconds=time_step)
+
+        trajectory_points = sampled_points
 
     # 5. 转换为输出模型
     return [TrajectoryPointOut.model_validate(point) for point in trajectory_points]
