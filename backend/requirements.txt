@@ -96,3 +96,4 @@ systemd-python==235
 typing_extensions==4.12.2
 urllib3==2.3.0
 xkbregistry==0.3
+bcrypt>=4.3.0
