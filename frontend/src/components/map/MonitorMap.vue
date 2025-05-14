@@ -85,7 +85,7 @@ const createDevice = (AMap: any, id: number, lng: number, lat: number) => {
     marker,
   };
 };
-import { wgs2gcj } from "@/TF.ts"
+import gcoord from 'gcoord';
 // 更新设备位置
 const updateDevicePosition = (
   AMap: any,
@@ -95,12 +95,16 @@ const updateDevicePosition = (
 
   if (!device) {
     // 创建新设备
-    const { lat: gcjLat, lng: gcjLng } = wgs2gcj(msg.lat, msg.lng); // 调用wgs2gcj进行坐标转换
+    const gcjCoord = gcoord.transform([msg.lng, msg.lat], gcoord.WGS84, gcoord.GCJ02);
+    const gcjLng = gcjCoord[0];
+    const gcjLat = gcjCoord[1];
     device = createDevice(AMap, msg.id, gcjLng, gcjLat); // 用转换后的GCJ坐标创建设备
     devices.value.push(device);
   } else {
     // 更新现有设备时添加类型断言
-    const { lat: gcjLat, lng: gcjLng } = wgs2gcj(msg.lat, msg.lng); // 调用wgs2gcj进行坐标转换
+    const gcjCoord = gcoord.transform([msg.lng, msg.lat], gcoord.WGS84, gcoord.GCJ02);
+    const gcjLng = gcjCoord[0];
+    const gcjLat = gcjCoord[1];
     const newPath = [
       ...device.path,
       [gcjLng, gcjLat] as [number, number], // 确保每个点都是元组，使用转换后的GCJ坐标

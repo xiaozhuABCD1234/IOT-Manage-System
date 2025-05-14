@@ -47,6 +47,7 @@ uv run fastapi run main.py --port 8000 --host 0.0.0.0
 - 对服务器高负载是报警
 - 把数据库从SQLite3迁移到MongoDB
 - 增加用户管理界面
+- 重构 P5MultiTrail.vue
 - 下面开始发癫
-- 尝试使用SSR，WSAM看是否提升前端计算性能
+- 尝试使用SSR，Wasm看是否提升前端计算性能
 - 尝试后端用GO语言重构
