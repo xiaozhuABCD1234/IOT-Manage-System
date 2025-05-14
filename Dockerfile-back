@@ -1,0 +1,15 @@
+FROM ghcr.io/astral-sh/uv:python3.13-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache gcc python3-dev musl-dev linux-headers
+
+COPY backend/. /app
+
+RUN uv add requests
+
+COPY frontend/dist ./dist
+
+EXPOSE 8000
+
+CMD ["uv","run","fastapi","run", "main.py", "--host", "0.0.0.0", "--port", "8000"]
