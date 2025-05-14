@@ -31,7 +31,7 @@ register_tortoise(
     add_exception_handlers=True,
 )
 
-app.mount("/", StaticFiles(directory="../frontend/dist", html=True), name="static")
+app.mount("/", StaticFiles(directory="dist", html=True), name="static")
 
 
 # 中间件处理前端路由

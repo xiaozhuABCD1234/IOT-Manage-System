@@ -8,7 +8,7 @@ COPY frontend .
 RUN npm run build
 
 # 构建后端
-FROM python:3.13-slim-bookworm
+FROM python:3.13.3-slim-bookworm
 
 # The installer requires curl (and certificates) to download the release archive
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
@@ -29,17 +29,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc python3-dev
     && rm -rf /var/lib/apt/lists/*
 
 # 拷贝后端依赖
-COPY backend /app/backend
+COPY backend/. /app
 
 # 安装Python依赖
-RUN cd ./backend \
-    && uv add requests
+RUN uv add requests
 
 # 拷贝应用程序
 #COPY backend .
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+COPY --from=frontend-builder /app/frontend/dist ./dist
 
 EXPOSE 8000
 
 # 启动命令
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+CMD ["uv","run","fastapi","run", "main.py", "--host", "0.0.0.0", "--port", "8000"]

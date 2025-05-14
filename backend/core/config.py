@@ -24,7 +24,7 @@ settings = Settings()
 
 
 TORTOISE_ORM = {
-    "connections": {"default": "sqlite://db/database.db"},
+    "connections": {"default": "sqlite://./db/database.db"},
     "apps": {
         "models": {
             "models": ["models.models","models.trajectory_point"],
