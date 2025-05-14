@@ -1,1 +1,0 @@
-import{M as a}from"./MonitorMap-ChU0dl8U.js";import{d as e,c as o,a as t,o as s,_ as c}from"./index-DkkrOWQ5.js";import"./mqtt.esm-BKeQ4ejO.js";import"./config-DlXkem2Y.js";const r={class:"container"},n=e({__name:"MapView",setup(p){return(_,i)=>(s(),o("main",r,[t(a)]))}}),M=c(n,[["__scopeId","data-v-3a7ac747"]]);export{M as default};
