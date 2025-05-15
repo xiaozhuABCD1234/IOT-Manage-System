@@ -1,10 +1,11 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from pydantic import BaseModel
+import time
 import asyncio
 import psutil
-import time
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from pydantic import BaseModel
 
 router = APIRouter()
+
 
 class ServerStatus(BaseModel):
     cpu_used: float
@@ -15,6 +16,7 @@ class ServerStatus(BaseModel):
     disk_used: float
     network_in_rate: float  # 网络接收速率 (bytes/s)
     network_out_rate: float  # 网络发送速率 (bytes/s)
+
 
 async def collect_system_stats(last_net=None):
     """异步收集系统指标"""
@@ -48,35 +50,40 @@ async def collect_system_stats(last_net=None):
         disk_used=disk.used,
         network_in_rate=network_in_rate,
         network_out_rate=network_out_rate,
-    ), {'bytes_recv': net_io.bytes_recv, 'bytes_sent': net_io.bytes_sent, 'time': time.time()}
+    ), {
+        "bytes_recv": net_io.bytes_recv,
+        "bytes_sent": net_io.bytes_sent,
+        "time": time.time(),
+    }
+
 
 @router.websocket("/devops/status")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     last_net = None
-    
+
     try:
         while True:
             start_time = time.time()
             # 收集系统状态
             status, new_net = await collect_system_stats(last_net)
             last_net = new_net
-            
+
             # 检查连接状态后再发送
             if websocket.client_state.CONNECTED:
                 await websocket.send_json(status.dict())
-            
+
             # 等待下一个周期（精确控制间隔）
             await asyncio.sleep(max(1 - (time.time() - start_time), 0))
-    
+
     except WebSocketDisconnect:
         # 客户端主动断开时优雅退出
         pass
-    
+
     # except Exception as e:
     #     # 处理其他异常
     #     print(f"Unexpected error: {e}")
-    
+
     finally:
         # 确保连接关闭（忽略已关闭的情况）
         try:

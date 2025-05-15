@@ -8,6 +8,8 @@
 cd ./frontend
 npm install
 npm run build
+# 复制前端构建文件到后端
+cp -r dist ../backend
 ```
 
 ### 启动后端

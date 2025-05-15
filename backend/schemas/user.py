@@ -1,72 +1,90 @@
-# app/schemas/user.py
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+# schemas/user.py
 from enum import Enum
+from datetime import datetime
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, model_validator
 
 
-# 权限枚举类（保持原样）
 class Permissions(str, Enum):
-    USER = "user"
+    """可用的用户权限类型"""
+
     ADMIN = "admin"
     EDITOR = "editor"
+    USER = "user"
 
 
-# 用户注册模型
-class UserRegister(BaseModel):
-    name: str = Field(..., max_length=50, description="用户名，必须唯一")
-    password: str = Field(..., min_length=6, description="用户密码，至少6位")
-    email: EmailStr = Field(..., description="用户邮箱，必须唯一")
+class UserBase(BaseModel):
+    """基础用户数据模型"""
 
-
-# 用户创建模型
-class UserCreate(UserRegister):
-    permissions: Permissions | None = Field(
-        default=Permissions.USER,  # 注意这里的参数名变更
+    name: str = Field(..., max_length=50, description="用户名")
+    email: EmailStr | None = Field(default=None, description="用户邮箱")
+    phone_number: str | None = Field(default=None, description="用户手机号")
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    permissions: Permissions = Field(
+        default=Permissions.USER,
         description="用户权限，默认为普通用户",
     )
 
-    model_config = ConfigDict(
-        use_enum_values=True,  # 替代原来的Config.use_enum_values
-        populate_by_name=True,  # 允许别名优先（可选）
-    )
+
+class UserRegister(BaseModel):
+    """
+    用户注册数据模型
+
+    验证用户注册时的必要信息，包括密码强度和联系方式完整性
+    """
+
+    name: str = Field(..., max_length=50, description="用户名，必须唯一")
+    password: str = Field(..., min_length=6, description="用户密码，至少6位")
+    email: EmailStr | None = Field(default=None, description="用户邮箱，必须唯一")
+    phone_number: str | None = Field(default=None, description="用户手机号，必须唯一")
+
+    @model_validator(mode="after")
+    def check_contact_info(self):
+        """验证联系方式完整性"""
+        if self.email is None and self.phone_number is None:
+            raise ValueError("必须提供邮箱或手机号")
+        return self
 
 
-# 用户查询模型
-class UserRead(BaseModel):
+class UserCreate(UserRegister, UserBase):
+    """用户创建模型（合并注册和基础信息验证）"""
+
+    pass  # 合并字段，确保无冲突
+
+
+class UserRead(UserBase):
+    """
+    用户读取模型
+
+    用于API响应，包含数据库用户ID
+    """
+
     id: int = Field(..., description="用户ID")
-    name: str = Field(..., max_length=50, description="用户名")
-    email: EmailStr = Field(..., description="用户邮箱")
-    permissions: Permissions
-
-    model_config = ConfigDict(
-        from_attributes=True, use_enum_values=True  # 替代原来的orm_mode
-    )
+    model_config = ConfigDict(from_attributes=True)
 
 
-# 用户更新模型
 class UserUpdate(BaseModel):
-    name: str | None = Field(
-        default=None, max_length=50, description="用户名，可选"  # 参数名变更
-    )
-    email: EmailStr | None = Field(default=None, description="用户邮箱，可选")
+    """用户更新模型"""
 
-    model_config = ConfigDict(use_enum_values=True)
-
-
-# 用户密码更新模型
-class UserPasswordUpdate(BaseModel):
-    password: str = Field(..., min_length=5, description="新密码，至少5位")
-
-    # V2 默认不需要额外配置
-    # model_config = ConfigDict(extra="forbid")  # 可选：禁止额外字段
+    name: str | None = Field(None, max_length=50)
+    email: EmailStr | None = None
+    phone_number: str | None = None
+    permissions: Permissions | None = None
 
 
-# 用户权限更新模型
 class UserPermissionUpdate(BaseModel):
-    permissions: Permissions
+    """权限更新模型"""
 
-    model_config = ConfigDict(
-        use_enum_values=True,
-        json_schema_extra={  # 可选：增强OpenAPI文档
-            "examples": [{"permissions": "admin"}]
-        },
-    )
+    permissions: Permissions = Field(..., description="新权限")
+
+
+class UserPasswordUpdate(BaseModel):
+    """密码更新模型"""
+
+    password: str = Field(..., min_length=6, description="新密码，至少6位")
+
+class PaginatedUsers(BaseModel):
+    total: int = Field(..., description="总记录数")
+    page: int = Field(..., description="当前页码")
+    page_size: int = Field(..., description="每页数量")
+    items: list[UserRead] = Field(..., description="用户列表")
