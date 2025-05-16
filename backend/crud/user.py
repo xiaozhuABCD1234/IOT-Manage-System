@@ -170,41 +170,43 @@ class CRUDUser:
         )
 
     @staticmethod
-    async def get_user_by_name(name: str) -> User | None:
+    async def get_user_by_name(name: str) -> UserRead | None:
         """根据用户名获取用户"""
         user = await User.get_or_none(name=name)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return user
+        return UserRead.model_validate(user)
 
     @staticmethod
-    async def get_user_by_id(user_id: int) -> User | None:
+    async def get_user_by_id(user_id: int) -> UserRead | None:
         """根据用户ID获取用户"""
         user = await User.get_or_none(id=user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return user
+        return UserRead.model_validate(user)
 
     @staticmethod
-    async def get_user_by_email(email: str) -> User | None:
+    async def get_user_by_email(email: str) -> UserRead | None:
         """根据邮箱获取用户"""
         user = await User.get_or_none(email=email)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return user
+        return UserRead.model_validate(user)
 
     @staticmethod
-    async def get_user_by_phone_number(phone_number: str) -> User | None:
+    async def get_user_by_phone_number(phone_number: str) -> UserRead | None:
         """根据手机号获取用户"""
         user = await User.get_or_none(phone_number=phone_number)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        return user
+        return UserRead.model_validate(user)
 
     @staticmethod
-    async def get_user_by_permissions(permissions: Permissions) -> User | None:
+    async def get_user_by_permissions(
+        permissions: Permissions,
+    ) -> list[UserRead] | None:
         """根据权限获取用户"""
-        user = await User.get_or_none(permissions=permissions)
-        if not user:
+        users = await User.filter(permissions=permissions).all().values()
+        if not users:
             raise HTTPException(status_code=404, detail="User not found")
-        return user
+        return [UserRead.model_validate(user) for user in users]

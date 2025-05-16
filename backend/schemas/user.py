@@ -18,25 +18,26 @@ class UserBase(BaseModel):
     name: str = Field(..., max_length=50, description="用户名")
     email: EmailStr | None = Field(default=None, description="用户邮箱")
     phone_number: str | None = Field(default=None, description="用户手机号")
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
-    permissions: Permissions = Field(
-        default=Permissions.USER,
-        description="用户权限，默认为普通用户",
-    )
 
+    @model_validator(mode="before")
+    @classmethod
+    def check_empty_strings(cls, data: dict) -> dict:
+        """将空字符串转换为None"""
+        if isinstance(data, dict):
+            if "email" in data and data["email"] == "":
+                data["email"] = None
+            if "phone_number" in data and data["phone_number"] == "":
+                data["phone_number"] = None
+        return data
 
-class UserRegister(BaseModel):
+class UserRegister(UserBase):
     """
     用户注册数据模型
 
     验证用户注册时的必要信息，包括密码强度和联系方式完整性
     """
 
-    name: str = Field(..., max_length=50, description="用户名，必须唯一")
     password: str = Field(..., min_length=6, description="用户密码，至少6位")
-    email: EmailStr | None = Field(default=None, description="用户邮箱，必须唯一")
-    phone_number: str | None = Field(default=None, description="用户手机号，必须唯一")
 
     @model_validator(mode="after")
     def check_contact_info(self):
@@ -49,7 +50,10 @@ class UserRegister(BaseModel):
 class UserCreate(UserRegister, UserBase):
     """用户创建模型（合并注册和基础信息验证）"""
 
-    pass  # 合并字段，确保无冲突
+    permissions: Permissions | None = Field(
+        default=Permissions.USER,
+        description="用户权限，默认为普通用户",
+    )
 
 
 class UserRead(UserBase):
@@ -60,6 +64,11 @@ class UserRead(UserBase):
     """
 
     id: int = Field(..., description="用户ID")
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    permissions: Permissions = Field(...,
+        description="用户权限，默认为普通用户",
+    )
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -82,6 +91,7 @@ class UserPasswordUpdate(BaseModel):
     """密码更新模型"""
 
     password: str = Field(..., min_length=6, description="新密码，至少6位")
+
 
 class PaginatedUsers(BaseModel):
     total: int = Field(..., description="总记录数")
