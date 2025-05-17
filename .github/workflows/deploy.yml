@@ -1,11 +1,50 @@
-on: push
+name: 自动化部署
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-    npm-build:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - run: |
-                cd frontend
-                npm install
-                npm run build
+  build-deploy:
+    name: 自动化部署
+    runs-on: ubuntu-latest
+    env:
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_IP: ${{ secrets.SERVER_IP }}
+      SERVER_PASSWORD: ${{secrets.SERVER_PWD}}
+
+    steps:
+      - name: 读取仓库内容
+        uses: actions/checkout@v4
+
+      - name: 安装依赖
+        run: npm install
+        working-directory: ./frontend
+
+      - name: 构建并复制前端
+        run: |
+          npm run build
+          cp -r dist ../backend
+        working-directory: ./frontend
+
+      - name: 复上传文件
+        run: |
+          tar -czvf deploy-pkg.tar.gz \
+            backend \
+            Dockerfile.alternative
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+          sshpass -p "${{secrets.SERVER_PWD}}" scp -r ./deploy-pkg.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/IOT-Management-System
+        working-directory: ./
+
+      - name: 解压并构建 Docker 镜像
+        run: |
+          sshpass -p "${{secrets.SERVER_PWD}}" \
+            ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+              cd ~/IOT-Management-System
+              tar -xzvf deploy-pkg.tar.gz
+              docker build -t iot-management-system -f Dockerfile.alternative .
+              docker stop dev-test || true
+              docker rm dev-test || true
+              docker run -d --name dev-test --restart unless-stopped -p 8000:8000 iot-management-system
+            "
