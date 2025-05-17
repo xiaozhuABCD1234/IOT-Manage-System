@@ -1,23 +1,19 @@
-# 需要先编译前端代码
-### 编译前端代码
-
-# ```bash
-# cd ./frontend
-# npm install
-# npm run build
-# cp -r dist ../backend
-# ```
-
-## 编译完成后再构建
 FROM ghcr.io/astral-sh/uv:python3.13-alpine
 
 WORKDIR /app
 
+# 安装系统依赖
 RUN apk add --no-cache gcc python3-dev musl-dev linux-headers
 
-COPY backend/. /app
+# 先复制依赖声明文件
+COPY backend/pyproject.toml \
+    backend/requirements.txt \
+    backend/uv.lock \
+    /app/
 
-RUN uv sync
+RUN uv sync --default-index https://pypi.tuna.tsinghua.edu.cn/simple
+
+COPY backend/. /app
 
 EXPOSE 8000
 
