@@ -33,7 +33,7 @@ fastapi run main.py --port 8000 --host 0.0.0.0
 
 ```bash
 # 安装依赖
-uv add requests
+uv sync
 # 启动
 uv run fastapi run main.py --port 8000 --host 0.0.0.0
 ```
