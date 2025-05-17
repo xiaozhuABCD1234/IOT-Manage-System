@@ -43,7 +43,7 @@ async def spa_middleware(request: Request, call_next):
         # 检查路径是否以API或WebSocket开头
         if not request.url.path.startswith(("/api", "/ws")):
             try:
-                return FileResponse("../frontend/dist/index.html")
+                return FileResponse("./dist/index.html")
             except FileNotFoundError:
                 return Response(status_code=404, content="Not Found")
     return response
