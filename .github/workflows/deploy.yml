@@ -27,15 +27,18 @@ jobs:
           cp -r dist ../backend
         working-directory: ./frontend
 
-      - name: 复上传文件
+      - name: 上传文件
         run: |
           tar -czvf deploy-pkg.tar.gz \
             backend \
             Dockerfile.alternative
           sudo apt-get update
           sudo apt-get install -y sshpass
-          sshpass -p "${{secrets.SERVER_PWD}}" scp -r ./deploy-pkg.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/IOT-Management-System
-        working-directory: ./
+          # 添加 StrictHostKeyChecking=no 和 UserKnownHostsFile
+          sshpass -p "${{secrets.SERVER_PWD}}" scp \
+            -o StrictHostKeyChecking=no \ 
+            -o UserKnownHostsFile=/dev/null \
+            -r ./deploy-pkg.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/IOT-Management-System
 
       - name: 解压并构建 Docker 镜像
         run: |
