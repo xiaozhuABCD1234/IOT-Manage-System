@@ -5,9 +5,9 @@ services:
     networks:
       - monitor-net
     depends_on:
-      - backend-service
+      - fastapi-service
 
-  backend-service:
+  fastapi-service:
     build: ./backend
     image: fastapi-service
     networks:
