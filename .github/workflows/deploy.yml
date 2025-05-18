@@ -45,4 +45,5 @@ jobs:
           script: |
             cd $SERVER_PATH
             tar -xzvf deploy-pkg.tar.gz
+            ls -a -l
             docker-compose up --build -d
