@@ -43,7 +43,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd $SERVER_PATH
+            cd ${{env.SERVER_PATH}}
             ls -la  # 检查当前目录文件
             if [ -f "deploy-pkg.tar.gz" ]; then
               echo "文件存在，开始解压"
