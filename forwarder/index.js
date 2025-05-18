@@ -9,7 +9,7 @@ const mqttOptions = {
 };
 
 // WebSocket 配置
-const wsUrl = "ws://localhost:8000/ws/monitor/position";
+const wsUrl = "ws://backend-service:8000/ws/monitor/position";
 
 // MQTT 客户端
 const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
@@ -65,7 +65,7 @@ function initMqtt() {
   mqttClient.on("message", (topic, message) => {
     try {
       const data = JSON.parse(message.toString());
-      console.log("接收到 MQTT 消息:", data);
+      // console.log("接收到 MQTT 消息:", data);
 
       const rtkSensor = data.sensors.find((sensor) => sensor.name === "RTK");
       if (!rtkSensor || !Array.isArray(rtkSensor.data?.value)) {
@@ -85,7 +85,7 @@ function initMqtt() {
       // 确保 WebSocket 已连接
       if (wsClient && wsClient.readyState === WebSocket.OPEN) {
         wsClient.send(JSON.stringify(wsMessage));
-        console.log("消息已发送到 WebSocket:", wsMessage);
+        // console.log("消息已发送到 WebSocket:", wsMessage);
       }
     } catch (error) {
       console.error("处理 MQTT 消息时出错:", error);

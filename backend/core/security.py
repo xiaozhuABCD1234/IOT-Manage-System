@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 from passlib.context import CryptContext
@@ -64,14 +63,12 @@ class Security:
             )
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(
-            to_encode, 
-            Security.SECRET_KEY, 
-            algorithm=Security.ALGORITHM
+            to_encode, Security.SECRET_KEY, algorithm=Security.ALGORITHM
         )
         return encoded_jwt
 
     @staticmethod
-    def decode_token(token: str) -> Optional[dict]:
+    def decode_token(token: str) -> dict | None:
         """
         解码 JWT 令牌。
 
@@ -87,7 +84,7 @@ class Security:
             return None
 
     @staticmethod
-    async def authenticate_user(username: str, password: str) -> Optional[User]:
+    async def authenticate_user(username: str, password: str) -> User | None:
         """
         验证用户身份。
 
@@ -119,7 +116,7 @@ class Security:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token",
             )
-        user_id = int(payload.get("sub"))
+        user_id = int(payload.get("sub"))  # type: ignore
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -171,7 +168,7 @@ class Security:
         print(payload)
         if not payload:
             return "visitor"
-        user_id = int(payload.get("sub"))
+        user_id = int(payload.get("sub"))  # type: ignore
         if not user_id:
             return "visitor"
         exp = payload.get("exp")

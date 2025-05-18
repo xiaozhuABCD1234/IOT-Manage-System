@@ -1,53 +1,48 @@
 name: 自动化部署
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+
+env:
+  SERVER_PATH: ~/IOT-Management-System
 
 jobs:
-  build-deploy:
-    name: 自动化部署
+  build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      SERVER_USER: ${{ secrets.SERVER_USER }}
-      SERVER_IP: ${{ secrets.SERVER_IP }}
-
     steps:
-      - name: 读取仓库内容
+      - name: 拉取代码
         uses: actions/checkout@v4
-
-      - name: 设置 SSH 密钥
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          echo "StrictHostKeyChecking no" >> ~/.ssh/config
-
-      - name: 安装依赖
-        run: npm install
-        working-directory: ./frontend
 
       - name: 构建并复制前端
         run: |
+          cd frontend
+          npm install
           npm run build
-          cp -r dist ../backend
-        working-directory: ./frontend
+          cp -r ./dist ../backend/
 
-      - name: 上传文件
+      - name: 打包文件
         run: |
           tar -czvf deploy-pkg.tar.gz \
             backend \
-            Dockerfile.alternative
-          scp -o UserKnownHostsFile=/dev/null \
-            -r ./deploy-pkg.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:~/IOT-Management-System
+            forwarder \
+            docker-compose.yml \
 
-      - name: 解压并构建 Docker 镜像
-        run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
-            cd ~/IOT-Management-System
+      - name: 上传文件
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: deploy-pkg.tar.gz
+          target: ${{ env.SERVER_PATH }}
+
+      - name: 远程构建并部署
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd $SERVER_PATH
             tar -xzvf deploy-pkg.tar.gz
-            docker build -t iot-management-system -f Dockerfile.alternative .
-            docker stop dev-test || true
-            docker rm dev-test || true
-            docker run -d --name dev-test --restart unless-stopped -p 8000:8000 iot-management-system
-          "
+            docker compose -f docker-compose.yml up -d --build

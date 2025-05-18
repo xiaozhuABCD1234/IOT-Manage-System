@@ -6,14 +6,14 @@ WORKDIR /app
 RUN apk add --no-cache gcc python3-dev musl-dev linux-headers
 
 # 先复制依赖声明文件
-COPY backend/pyproject.toml \
-    backend/requirements.txt \
-    backend/uv.lock \
-    /app/
+COPY ./pyproject.toml \
+    ./requirements.txt \
+    ./uv.lock \
+    ./
 
 RUN uv sync --default-index https://pypi.tuna.tsinghua.edu.cn/simple
 
-COPY backend/. /app
+COPY ./. ./
 
 EXPOSE 8000
 

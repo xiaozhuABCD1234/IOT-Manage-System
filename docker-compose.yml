@@ -1,0 +1,20 @@
+services:
+  mqtt-forwarder:
+    build: ./forwarder
+    image: mqtt-forwarder
+    networks:
+      - monitor-net
+    depends_on:
+      - backend-service
+
+  backend-service:
+    build: ./backend
+    image: fastapi-service
+    networks:
+      - monitor-net
+    ports:
+      - "8000:8000"
+
+networks:
+  monitor-net:
+    driver: bridge

@@ -43,6 +43,7 @@ uv run fastapi run main.py --port 8000 --host 0.0.0.0
 ## TodoList
 
 - 增加历史位置功能
+- rabbitmq
 - 写一个新的距离展示组件
 - 让它在docker里运行也能监控服务器
 - 增加运维管理的网络监控功能
