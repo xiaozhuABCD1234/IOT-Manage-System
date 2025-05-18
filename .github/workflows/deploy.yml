@@ -44,6 +44,18 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd $SERVER_PATH
-            tar -xzvf deploy-pkg.tar.gz
-            ls -a -l
-            docker-compose up --build -d
+            ls -la  # 检查当前目录文件
+            if [ -f "deploy-pkg.tar.gz" ]; then
+              echo "文件存在，开始解压"
+              tar -xzvf deploy-pkg.tar.gz
+            else
+              echo "错误：deploy-pkg.tar.gz 文件不存在"
+              exit 1
+            fi
+            if [ -f "docker-compose.yml" ]; then
+              echo "docker-compose.yml 存在，开始部署"
+              docker-compose up --build -d
+            else
+              echo "错误：docker-compose.yml 文件不存在"
+              exit 1
+            fi
