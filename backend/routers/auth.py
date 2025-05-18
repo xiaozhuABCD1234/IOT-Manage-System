@@ -1,6 +1,6 @@
 # app/routers/auth.py
 from fastapi import APIRouter, HTTPException, status, Depends
-from models.models import User
+from models.user_model import User
 from schemas.user import UserRegister, UserRead
 from core.security import Security
 from core.config import settings

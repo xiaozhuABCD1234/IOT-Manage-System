@@ -2,7 +2,7 @@
 from fastapi import HTTPException
 from tortoise.transactions import in_transaction
 
-from models.models import User
+from models.user_model import User
 from schemas.user import (
     UserCreate,
     UserRead,

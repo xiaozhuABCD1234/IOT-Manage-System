@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 from passlib.context import CryptContext
 from jose import jwt, JWTError
-from models.models import User
+from models.user_model import User
 from core.config import settings
 
 

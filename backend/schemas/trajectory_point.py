@@ -3,23 +3,28 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from datetime import datetime
 
 
-class TrajectoryPointOut(BaseModel):
+class PositionData(BaseModel):
     device_id: int
-    latitude: float
     longitude: float
+    latitude: float
     timestamp: datetime
     model_config = ConfigDict(
         from_attributes=True,
     )
 
+    @model_validator(mode="after")
+    def validate_latitude_longitude(self):
+        if not ((-90 <= self.latitude <= 90) and (-180 <= self.longitude <= 180)):
+            raise ValueError("无效的经纬度值")
+        return self
 
-class TrajectoryPointIn(BaseModel):
-    device_id: int
-    latitude: float
-    longitude: float
-    model_config = ConfigDict(
-        from_attributes=True,
-    )
+
+class TrajectoryPointOut(PositionData):
+    pass
+
+
+class TrajectoryPointIn(PositionData):
+    pass
 
 
 class PointReadArgs(BaseModel):
