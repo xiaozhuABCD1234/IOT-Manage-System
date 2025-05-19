@@ -1,8 +1,10 @@
 # routers/monitor_position.py
 from datetime import datetime
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from schemas.trajectory_point import TrajectoryPointIn
-from crud import position
+from schemas.trajectory_point import (
+    TrajectoryPointIn,
+)
+from crud.position import Position
 
 router = APIRouter()
 
@@ -25,7 +27,7 @@ async def monitor_position(websocket: WebSocket):
                 latitude=ws_message["latitude"],
                 timestamp=timestamp,
             )
-            await position.create_position_point(data)
+            await Position.create_position_point(data)
 
     except WebSocketDisconnect:
         # 客户端主动断开时优雅退出

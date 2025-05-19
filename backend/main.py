@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from tortoise.contrib.fastapi import register_tortoise
 from core.config import TORTOISE_ORM
-from routers import monitor_position, monitor_server_status, user, auth, user_search
+from routers import monitor_position, monitor_server_status, user, auth, user_search,position
 
 
 app = FastAPI()
@@ -25,6 +25,7 @@ app.include_router(user_search.router, prefix="/api/user_search", tags=["user_se
 app.include_router(auth.router, prefix="/api/user/auth", tags=["auth"])
 app.include_router(monitor_server_status.router, prefix="/ws", tags=["devops"])
 app.include_router(monitor_position.router, prefix="/ws", tags=["monitor"])
+app.include_router(position.router, prefix="/api/position", tags=["position"])
 
 register_tortoise(
     app,
