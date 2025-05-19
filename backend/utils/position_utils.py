@@ -1,53 +1,92 @@
 # utils/positions.py
-from schemas.trajectory_point import TrajectoryPointOut, Path, Position
+from schemas.trajectory_point import TrajectoryPointOut, Path, Position, Path_mini
 
 
 def split_trajectory_by_time(
-    points: list[TrajectoryPointOut], time_s: int = 30
+    points: list[TrajectoryPointOut], time_threshold_seconds: int = 30
 ) -> list[list[TrajectoryPointOut]]:
-    # 检查输入的轨迹点是否为空
+    """
+    将轨迹点按照时间间隔分割成多个段落。
+
+    参数:
+        points (list[TrajectoryPointOut]): 按时间排序的轨迹点列表
+        time_threshold_seconds (int): 判断为新段的时间间隔（单位：秒）
+
+    返回:
+        list[list[TrajectoryPointOut]]: 分割后的轨迹点段落列表
+    """
     if not points:
         return []
-    # 初始化结果列表和当前段落
+
     result = []
     current_segment = [points[0]]
-    # 遍历轨迹点（从第二个点开始）
+
     for point in points[1:]:
-        # 计算当前点与前一个点的时间差（以秒为单位）
-        time_diff = (point.timestamp - current_segment[-1].timestamp).total_seconds()
-        # 如果时间差大于等于给定的时间间隔，则将当前段落添加到结果中，并开始新的段落
-        if time_diff >= time_s:
+        last_point = current_segment[-1]
+        time_diff = (point.timestamp - last_point.timestamp).total_seconds()
+
+        if time_diff >= time_threshold_seconds:
             result.append(current_segment)
             current_segment = [point]
-        # 否则，将当前点添加到当前段落
         else:
             current_segment.append(point)
-    # 添加最后一个段落（如果有的话）
+
+    # 添加最后一个段
     if current_segment:
         result.append(current_segment)
+
     return result
 
 
-def change_to_path(data: list[list[TrajectoryPointOut]]) -> list[Path]:
-    if not data:
+def convert_to_paths(trajectory_segments: list[list[TrajectoryPointOut]]) -> list[Path]:
+    """
+    将轨迹段转换为 Path 对象列表。
+
+    参数:
+        trajectory_segments (list[list[TrajectoryPointOut]]): 轨迹段列表
+
+    返回:
+        list[Path]: 包含设备 ID 和路径坐标的 Path 对象列表
+    """
+    if not trajectory_segments:
         return []
 
-    result = []
-    for points in data:
-        # 确保每个轨迹段至少有一个点
-        if not points:
+    paths = []
+
+    for segment in trajectory_segments:
+        if not segment:
             continue
 
-        # 提取设备ID（假设同一轨迹段内设备ID相同）
-        device_id = points[0].device_id
-
-        # 转换坐标点对象
+        device_id = segment[0].device_id
         positions = [
             Position(latitude=point.latitude, longitude=point.longitude)
-            for point in points
+            for point in segment
         ]
 
-        # 创建Path对象并添加到结果列表
-        result.append(Path(id=device_id, path=positions))
+        paths.append(Path(id=device_id, path=positions))
 
-    return result
+    return paths
+
+
+def simplify_paths(paths: list[Path]) -> list[Path_mini]:
+    """
+    简化路径数据，将 Position 对象转换为二维数组 [latitude, longitude]。
+
+    参数:
+        paths (list[Path]): 原始路径对象列表
+
+    返回:
+        list[Path_mini]: 简化的路径对象列表
+    """
+    if not paths:
+        return []
+
+    simplified = []
+
+    for path in paths:
+        simplified_path = [
+            [position.latitude, position.longitude] for position in path.path
+        ]
+        simplified.append(Path_mini(id=path.id, path=simplified_path))
+
+    return simplified

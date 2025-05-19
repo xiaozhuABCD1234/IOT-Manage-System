@@ -22,6 +22,11 @@ class Path(BaseModel):
     path: list[Position]
 
 
+class Path_mini(BaseModel):
+    id: int
+    path: list[list[float]]
+
+
 class PositionData(Position):
     device_id: int
     timestamp: datetime

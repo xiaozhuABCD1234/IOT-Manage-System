@@ -1,20 +1,40 @@
 # routers/position.py
 from fastapi import APIRouter, Depends
 
-from schemas.trajectory_point import PointReadArgs, Path
+from schemas.trajectory_point import PointReadArgs, Path_mini, Path, TrajectoryPointOut
 from utils import position_utils
 from crud.position import Position
 
 router = APIRouter()
 
 
-@router.get("/")
-async def get_trajectory(
+@router.get("/original")
+async def get_original_path(
+    query: PointReadArgs = Depends(),
+) -> list[list[TrajectoryPointOut]]:
+    points = await Position.get_position_points(query)
+    return position_utils.split_trajectory_by_time(points=points)
+
+
+@router.get("/path")
+async def get_path(
     query: PointReadArgs = Depends(),
 ) -> list[Path]:
     points = await Position.get_position_points(query)
-    return position_utils.change_to_path(
+    return position_utils.convert_to_paths(
         position_utils.split_trajectory_by_time(points=points)
+    )
+
+
+@router.get("/mini")
+async def get_mini_path(
+    query: PointReadArgs = Depends(),
+) -> list[Path_mini]:
+    points = await Position.get_position_points(query)
+    return position_utils.simplify_paths(
+        position_utils.convert_to_paths(
+            position_utils.split_trajectory_by_time(points=points)
+        )
     )
 
 
