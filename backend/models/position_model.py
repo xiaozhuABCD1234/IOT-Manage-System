@@ -4,7 +4,7 @@ from tortoise import fields
 
 
 class PositionData(Model):
-    id = fields.IntField(primary_key=True, description="轨迹点ID")
+    id = fields.BigIntField(primary_key=True, description="轨迹点ID")
     device_id = fields.IntField(index=True, description="设备ID")
     longitude = fields.FloatField(description="经度")
     latitude = fields.FloatField(description="纬度")
