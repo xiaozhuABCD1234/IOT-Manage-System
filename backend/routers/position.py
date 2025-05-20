@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends
 
 from schemas.trajectory_point import PointReadArgs, Path_mini, Path, TrajectoryPointOut
-from utils import position_utils
+from utils import trajectory
 from crud.position import Position
 
 router = APIRouter()
@@ -13,7 +13,7 @@ async def get_original_path(
     query: PointReadArgs = Depends(),
 ) -> list[list[TrajectoryPointOut]]:
     points = await Position.get_position_points(query)
-    return position_utils.split_trajectory_by_time(points=points)
+    return trajectory.split_trajectory_by_time(points=points)
 
 
 @router.get("/path")
@@ -21,8 +21,8 @@ async def get_path(
     query: PointReadArgs = Depends(),
 ) -> list[Path]:
     points = await Position.get_position_points(query)
-    return position_utils.convert_to_paths(
-        position_utils.split_trajectory_by_time(points=points)
+    return trajectory.convert_to_paths(
+        trajectory.split_trajectory_by_time(points=points)
     )
 
 
@@ -31,9 +31,11 @@ async def get_mini_path(
     query: PointReadArgs = Depends(),
 ) -> list[Path_mini]:
     points = await Position.get_position_points(query)
-    return position_utils.simplify_paths(
-        position_utils.convert_to_paths(
-            position_utils.split_trajectory_by_time(points=points)
+    return trajectory.simplify_paths(
+        trajectory.convert_to_paths(
+            trajectory.split_trajectory(
+                points=points, time_threshold=10, velocity_threshold=50
+            )
         )
     )
 
