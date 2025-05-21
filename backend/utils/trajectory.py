@@ -3,7 +3,7 @@
 包含轨迹分段、路径转换和简化逻辑
 """
 
-from schemas.trajectory_point import TrajectoryPointOut, Path, Position, Path_mini
+from schemas.trajectory import TrajectoryPointOut, Path, Position, Path_mini
 from .velocity import simple_calculate_velocity, calculate_velocity
 
 
@@ -158,7 +158,7 @@ def simplify_paths(paths: list[Path]) -> list[Path_mini]:
 
     for path in paths:
         simplified_path = [
-            [position.latitude, position.longitude] for position in path.path
+            [position.longitude, position.latitude] for position in path.path
         ]
         simplified.append(Path_mini(id=path.id, path=simplified_path))
 

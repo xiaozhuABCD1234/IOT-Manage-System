@@ -1,7 +1,7 @@
 # routers/monitor_position.py
 from datetime import datetime
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from schemas.trajectory_point import (
+from schemas.trajectory import (
     TrajectoryPointIn,
 )
 from crud.position import Position

@@ -3,7 +3,7 @@
 包含速度计算逻辑（依赖距离计算）
 """
 
-from schemas.trajectory_point import Position
+from schemas.trajectory import Position
 from .distance import calculate_distance_m, simple_calculate_distance_m
 
 

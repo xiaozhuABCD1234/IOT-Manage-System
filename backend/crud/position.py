@@ -1,6 +1,6 @@
 from typing import cast
 from models.position_model import PositionData
-from schemas.trajectory_point import (
+from schemas.trajectory import (
     TrajectoryPointIn,
     TrajectoryPointOut,
     PointReadArgs,

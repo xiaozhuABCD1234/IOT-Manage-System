@@ -4,7 +4,7 @@
 """
 
 import math
-from schemas.trajectory_point import Position
+from schemas.trajectory import Position
 
 
 def _to_radians(degree: float) -> float:

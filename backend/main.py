@@ -9,10 +9,10 @@ from core.config import TORTOISE_ORM
 from routers import (
     monitor_position,
     monitor_server_status,
+    trajectory,
     user,
     auth,
     user_search,
-    position,
     utils,
 )
 
@@ -31,7 +31,7 @@ app.add_middleware(
 app.include_router(user.router, prefix="/api/users", tags=["user"])
 app.include_router(user_search.router, prefix="/api/user_search", tags=["user_search"])
 app.include_router(auth.router, prefix="/api/user/auth", tags=["auth"])
-app.include_router(position.router, prefix="/api/position", tags=["position"])
+app.include_router(trajectory.router, prefix="/api/trajectory", tags=["trajectory"])
 app.include_router(utils.router, prefix="/api/utils", tags=["utils"])
 
 app.include_router(monitor_server_status.router, prefix="/ws", tags=["devops"])

@@ -1,7 +1,7 @@
 # routers/position.py
 from fastapi import APIRouter, Depends
 
-from schemas.trajectory_point import PointReadArgs, Path_mini, Path, TrajectoryPointOut
+from schemas.trajectory import PointReadArgs, Path_mini, Path, TrajectoryPointOut
 from utils import trajectory
 from crud.position import Position
 
