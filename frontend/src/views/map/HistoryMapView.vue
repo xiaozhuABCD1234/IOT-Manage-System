@@ -19,8 +19,8 @@ const ConfigStore = useConfigStore();
 interface PathOverlay {
   id: number;
   polyline: any;
-  startMarker: any;  // 改为起点标记
-  endMarker: any;    // 新增终点标记
+  startMarker?: any;  // 起点标记变为可选
+  endMarker?: any;    // 终点标记变为可选
 }
 
 const mapRef = ref(null);
@@ -39,7 +39,7 @@ const props = defineProps({
   },
   showStartMarker: {
     type: Boolean,
-    default: true
+    default: false
   },
   showEndMarker: {
     type: Boolean,
@@ -61,33 +61,45 @@ const createPathOverlay = (AMap: any, deviceId: number, coords: Array<[number, n
     lineJoin: 'round'
   });
 
-  // 创建起点标记
-  const startMarker = new AMap.Marker({
-    position: coords[0],
-    content: `
-      <div class="device-marker start" style="background: ${color}">
-        ${deviceId}
-      </div>`,
-    offset: new AMap.Pixel(-12, -12)
-  });
+  let startMarker = null;
+  let endMarker = null;
 
-  // 创建终点标记（新增）
-  const endMarker = new AMap.Marker({
-    position: coords[coords.length - 1],
-    content: `
-      <div class="device-marker end" style="background: ${color}">
-        ${deviceId}
-      </div>`,
-    offset: new AMap.Pixel(-12, -12)
-  });
+  // 如果 showStartMarker 为 true，则创建起点标记
+  if (props.showStartMarker) {
+    startMarker = new AMap.Marker({
+      position: coords[0],
+      content: `
+        <div class="device-marker start" style="background: ${color}">
+          ${deviceId}
+        </div>`,
+      offset: new AMap.Pixel(-12, -12)
+    });
+  }
 
-  map.add([polyline, startMarker, endMarker]);
+  // 如果 showEndMarker 为 true，则创建终点标记
+  if (props.showEndMarker) {
+    endMarker = new AMap.Marker({
+      position: coords[coords.length - 1],
+      content: `
+        <div class="device-marker end" style="background: ${color}">
+          ${deviceId}
+        </div>`,
+      offset: new AMap.Pixel(-12, -12)
+    });
+  }
+
+  // 只有当标记存在时才添加到地图
+  const markersToAdd = [];
+  if (startMarker) markersToAdd.push(startMarker);
+  if (endMarker) markersToAdd.push(endMarker);
+
+  map.add([polyline, ...markersToAdd]);
 
   return {
     id: deviceId,
     polyline,
-    startMarker,  // 替换原来的marker
-    endMarker      // 新增属性
+    startMarker,  // 可能为 null
+    endMarker     // 可能为 null
   };
 };
 
@@ -234,8 +246,5 @@ onUnmounted(() => {
 
 .device-marker.end {
   border-radius: 4px;
-  /* 改为矩形区分终点 */
-  transform: rotate(45deg);
-  /* 旋转45度作为视觉区分 */
 }
 </style>

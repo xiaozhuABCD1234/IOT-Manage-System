@@ -19,13 +19,14 @@ const ConfigStore = useConfigStore();
 interface PathOverlay {
   id: number;
   polyline: any;
-  marker: any;
+  startMarker?: any;  // 起点标记变为可选
+  endMarker?: any;    // 终点标记变为可选
 }
 
 const mapRef = ref(null);
 let map: any = null;
 const overlays = ref<PathOverlay[]>([]);
-const colors = ['1890ff', '#52c41a', '#fadb14', '#ff4d4f', '#722ed1'];
+const colors = ['#1890ff', '#52c41a', '#fadb14', '#ff4d4f', '#722ed1'];
 
 const props = defineProps({
   startTime: {
@@ -35,16 +36,24 @@ const props = defineProps({
   endTime: {
     type: String,
     required: true
+  },
+  showStartMarker: {
+    type: Boolean,
+    default: false
+  },
+  showEndMarker: {
+    type: Boolean,
+    default: true
   }
 });
 
-// 创建路径覆盖物
 const createPathOverlay = (AMap: any, deviceId: number, coords: Array<[number, number]>) => {
   if (coords.length === 0) return null;
 
-  const color = colors[deviceId % colors.length];
+  const colorIndex = deviceId % colors.length;
+  const color = colors[colorIndex];
 
-  // 创建轨迹线
+  // 创建折线（保持不变）
   const polyline = new AMap.Polyline({
     path: coords,
     strokeColor: color,
@@ -52,37 +61,60 @@ const createPathOverlay = (AMap: any, deviceId: number, coords: Array<[number, n
     lineJoin: 'round'
   });
 
-  // 创建起点标记
-  const marker = new AMap.Marker({
-    position: coords[0],
-    content: `
-      <div class="device-marker" style="background: ${color}">
-        ${deviceId}
-      </div>`,
-    offset: new AMap.Pixel(-12, -12)
-  });
+  let startMarker = null;
+  let endMarker = null;
 
-  map.add([polyline, marker]);
+  // 如果 showStartMarker 为 true，则创建起点标记
+  if (props.showStartMarker) {
+    startMarker = new AMap.Marker({
+      position: coords[0],
+      content: `
+        <div class="device-marker start" style="background: ${color}">
+          ${deviceId}
+        </div>`,
+      offset: new AMap.Pixel(-12, -12)
+    });
+  }
 
-  return { id: deviceId, polyline, marker };
+  // 如果 showEndMarker 为 true，则创建终点标记
+  if (props.showEndMarker) {
+    endMarker = new AMap.Marker({
+      position: coords[coords.length - 1],
+      content: `
+        <div class="device-marker end" style="background: ${color}">
+          ${deviceId}
+        </div>`,
+      offset: new AMap.Pixel(-12, -12)
+    });
+  }
+
+  // 只有当标记存在时才添加到地图
+  const markersToAdd = [];
+  if (startMarker) markersToAdd.push(startMarker);
+  if (endMarker) markersToAdd.push(endMarker);
+
+  map.add([polyline, ...markersToAdd]);
+
+  return {
+    id: deviceId,
+    polyline,
+    startMarker,  // 可能为 null
+    endMarker     // 可能为 null
+  };
 };
 
-// 加载并显示历史路径（修改后）
 const loadHistoryPaths = async (AMap: any) => {
   try {
-    // 1. 获取所有设备 ID
     const idsResponse = await trajectoryAPI.getIds();
     const deviceIds = idsResponse.data.data;
 
-    // 2. 并发请求所有设备的路径
     const pathRequests = deviceIds.map(async (deviceId: number) => {
       try {
         const { data } = await trajectoryAPI.getMiniPath({
           id: deviceId,
-          start_time: "2025-05-17T13:28:10",
-          end_time: "2025-05-22T13:28:10"
+          start_time: props.startTime,
+          end_time: props.endTime
         });
-        // console.log(data)
         return data;
       } catch (error) {
         console.error(`设备 ${deviceId} 路径请求失败:`, error);
@@ -90,48 +122,39 @@ const loadHistoryPaths = async (AMap: any) => {
       }
     });
 
-    // 3. 等待请求并过滤无效响应
     const pathResponses = await Promise.all(pathRequests);
-    // 4. 过滤无效响应并展平数据
     const Paths = pathResponses
-      .filter((response: PathMini[] | null) => response !== null)
-      .flatMap((response: PathMini[]) => response);
+      .filter((response): response is PathMini[] => response !== null)
+      .flat();
 
-    console.log(Paths);
-
-    // 4. 处理有效路径数据
-    const deviceMap = new Map<number, Array<[number, number]>>();
+    const deviceMap = new Map<number, Array<Array<[number, number]>>>();
 
     Paths.forEach(response => {
       const deviceId = response.id;
       const rawPath = response.path;
 
-      // 详细坐标转换日志
-      console.log(`处理设备 ${deviceId} 路径`, {
-        rawPoints: rawPath.length,
-        firstPoint: rawPath[0]
-      });
-
-      // 转换坐标并过滤无效点
       const validCoords = rawPath
-        .map(([lng, lat]) => {
-          return gcoord.transform([lng, lat], gcoord.WGS84, gcoord.GCJ02);
-        })
+        .map(([lng, lat]) => gcoord.transform([lng, lat], gcoord.WGS84, gcoord.GCJ02))
         .filter(coord => coord !== null) as Array<[number, number]>;
 
-      // 跳过空路径设备
       if (validCoords.length === 0) {
         console.warn(`设备 ${deviceId} 无有效坐标，跳过绘制`);
         return;
       }
 
-      deviceMap.set(deviceId, validCoords);
+      if (!deviceMap.has(deviceId)) {
+        deviceMap.set(deviceId, []);
+      }
+      deviceMap.get(deviceId)?.push(validCoords);
     });
 
-    // 5. 创建地图覆盖物
-    deviceMap.forEach((coords, deviceId) => {
-      const overlay = createPathOverlay(AMap, deviceId, coords);
-      if (overlay) overlays.value.push(overlay);
+    deviceMap.forEach((pathList, deviceId) => {
+      pathList.forEach((coords, index) => {
+        const overlay = createPathOverlay(AMap, deviceId, coords);
+        if (overlay) {
+          overlays.value.push(overlay); // 直接添加覆盖物，不再移除标记
+        }
+      });
     });
 
   } catch (error) {
@@ -139,6 +162,7 @@ const loadHistoryPaths = async (AMap: any) => {
     throw new Error('无法显示历史路径');
   }
 };
+
 onMounted(async () => {
   window._AMapSecurityConfig = {
     securityJsCode: ConfigStore.securityJsCode,
@@ -161,21 +185,22 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  // 清理所有覆盖物
   overlays.value.forEach(overlay => {
     try {
       if (map && !map.isDestroyed()) {
-        map.remove([overlay.polyline, overlay.marker]);
+        if (overlay.polyline) map.remove(overlay.polyline);
+        if (overlay.startMarker) map.remove(overlay.startMarker);
+        if (overlay.endMarker) map.remove(overlay.endMarker);
       }
       overlay.polyline?.destroy();
-      overlay.marker?.destroy();
+      overlay.startMarker?.destroy();
+      overlay.endMarker?.destroy();
     } catch (e) {
       console.warn('清理覆盖物失败:', e);
     }
   });
   overlays.value = [];
 
-  // 销毁地图实例
   try {
     if (map && !map.isDestroyed()) {
       map.destroy();
@@ -217,5 +242,9 @@ onUnmounted(() => {
   font-weight: bold;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   border: 2px solid white;
+}
+
+.device-marker.end {
+  border-radius: 4px;
 }
 </style>
