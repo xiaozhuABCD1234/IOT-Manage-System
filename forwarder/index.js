@@ -9,8 +9,8 @@ const mqttOptions = {
 };
 
 // WebSocket 配置
-const wsUrl = "ws://fastapi-service:8000/ws/monitor/position";
-
+// const wsUrl = "ws://fastapi-service:8000/ws/monitor/position";
+const wsUrl = "ws://127.0.0.1:8000/ws/monitor/position";
 // MQTT 客户端
 const mqttClient = mqtt.connect(mqttUrl, mqttOptions);
 

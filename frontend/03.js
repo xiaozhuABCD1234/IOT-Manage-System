@@ -1,6 +1,6 @@
 import mqtt from "mqtt";
 
-const id = 3;
+const id = 2;
 // 多个点，每个点是一个数组 [x, y]
 const xy = [
   [121.887541, 30.901874],
