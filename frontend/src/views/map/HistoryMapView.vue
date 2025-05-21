@@ -1,250 +1,164 @@
-<script setup lang="ts">
-declare global {
-  interface Window {
-    _AMapSecurityConfig?: {
-      securityJsCode: string;
-    };
-  }
-}
-
-import { onMounted, onUnmounted, ref, defineProps } from 'vue';
-import AMapLoader from '@amap/amap-jsapi-loader';
-import { useConfigStore } from '@/stores/config';
-import { trajectoryAPI } from '@/api/trajectory';
-import type { PathMini } from '@/api/trajectory';
-import gcoord from 'gcoord';
-
-const ConfigStore = useConfigStore();
-
-interface PathOverlay {
-  id: number;
-  polyline: any;
-  startMarker?: any;  // 起点标记变为可选
-  endMarker?: any;    // 终点标记变为可选
-}
-
-const mapRef = ref(null);
-let map: any = null;
-const overlays = ref<PathOverlay[]>([]);
-const colors = ['#1890ff', '#52c41a', '#fadb14', '#ff4d4f', '#722ed1'];
-
-const props = defineProps({
-  startTime: {
-    type: String,
-    required: true
-  },
-  endTime: {
-    type: String,
-    required: true
-  },
-  showStartMarker: {
-    type: Boolean,
-    default: false
-  },
-  showEndMarker: {
-    type: Boolean,
-    default: true
-  }
-});
-
-const createPathOverlay = (AMap: any, deviceId: number, coords: Array<[number, number]>) => {
-  if (coords.length === 0) return null;
-
-  const colorIndex = deviceId % colors.length;
-  const color = colors[colorIndex];
-
-  // 创建折线（保持不变）
-  const polyline = new AMap.Polyline({
-    path: coords,
-    strokeColor: color,
-    strokeWeight: 3,
-    lineJoin: 'round'
-  });
-
-  let startMarker = null;
-  let endMarker = null;
-
-  // 如果 showStartMarker 为 true，则创建起点标记
-  if (props.showStartMarker) {
-    startMarker = new AMap.Marker({
-      position: coords[0],
-      content: `
-        <div class="device-marker start" style="background: ${color}">
-          ${deviceId}
-        </div>`,
-      offset: new AMap.Pixel(-12, -12)
-    });
-  }
-
-  // 如果 showEndMarker 为 true，则创建终点标记
-  if (props.showEndMarker) {
-    endMarker = new AMap.Marker({
-      position: coords[coords.length - 1],
-      content: `
-        <div class="device-marker end" style="background: ${color}">
-          ${deviceId}
-        </div>`,
-      offset: new AMap.Pixel(-12, -12)
-    });
-  }
-
-  // 只有当标记存在时才添加到地图
-  const markersToAdd = [];
-  if (startMarker) markersToAdd.push(startMarker);
-  if (endMarker) markersToAdd.push(endMarker);
-
-  map.add([polyline, ...markersToAdd]);
-
-  return {
-    id: deviceId,
-    polyline,
-    startMarker,  // 可能为 null
-    endMarker     // 可能为 null
-  };
-};
-
-const loadHistoryPaths = async (AMap: any) => {
-  try {
-    const idsResponse = await trajectoryAPI.getIds();
-    const deviceIds = idsResponse.data.data;
-
-    const pathRequests = deviceIds.map(async (deviceId: number) => {
-      try {
-        const { data } = await trajectoryAPI.getMiniPath({
-          id: deviceId,
-          start_time: "2025-05-17T13:28:10",
-          end_time: "2025-05-22T13:28:10"
-        });
-        return data;
-      } catch (error) {
-        console.error(`设备 ${deviceId} 路径请求失败:`, error);
-        return null;
-      }
-    });
-
-    const pathResponses = await Promise.all(pathRequests);
-    const Paths = pathResponses
-      .filter((response): response is PathMini[] => response !== null)
-      .flat();
-
-    const deviceMap = new Map<number, Array<Array<[number, number]>>>();
-
-    Paths.forEach(response => {
-      const deviceId = response.id;
-      const rawPath = response.path;
-
-      const validCoords = rawPath
-        .map(([lng, lat]) => gcoord.transform([lng, lat], gcoord.WGS84, gcoord.GCJ02))
-        .filter(coord => coord !== null) as Array<[number, number]>;
-
-      if (validCoords.length === 0) {
-        console.warn(`设备 ${deviceId} 无有效坐标，跳过绘制`);
-        return;
-      }
-
-      if (!deviceMap.has(deviceId)) {
-        deviceMap.set(deviceId, []);
-      }
-      deviceMap.get(deviceId)?.push(validCoords);
-    });
-
-    deviceMap.forEach((pathList, deviceId) => {
-      pathList.forEach((coords, index) => {
-        const overlay = createPathOverlay(AMap, deviceId, coords);
-        if (overlay) {
-          overlays.value.push(overlay); // 直接添加覆盖物，不再移除标记
-        }
-      });
-    });
-
-  } catch (error) {
-    console.error('路径加载失败:', error);
-    throw new Error('无法显示历史路径');
-  }
-};
-
-onMounted(async () => {
-  window._AMapSecurityConfig = {
-    securityJsCode: ConfigStore.securityJsCode,
-  };
-
-  AMapLoader.load({
-    key: ConfigStore.key,
-    version: '2.0',
-    plugins: ['AMap.Polyline', 'AMap.Marker']
-  }).then(async (AMap) => {
-    map = new AMap.Map(mapRef.value, {
-      viewMode: '3D',
-      mapStyle: 'amap://styles/normal',
-      zoom: 17,
-      center: [121.891751, 30.902079]
-    });
-
-    await loadHistoryPaths(AMap);
-  }).catch(console.error);
-});
-
-onUnmounted(() => {
-  overlays.value.forEach(overlay => {
-    try {
-      if (map && !map.isDestroyed()) {
-        if (overlay.polyline) map.remove(overlay.polyline);
-        if (overlay.startMarker) map.remove(overlay.startMarker);
-        if (overlay.endMarker) map.remove(overlay.endMarker);
-      }
-      overlay.polyline?.destroy();
-      overlay.startMarker?.destroy();
-      overlay.endMarker?.destroy();
-    } catch (e) {
-      console.warn('清理覆盖物失败:', e);
-    }
-  });
-  overlays.value = [];
-
-  try {
-    if (map && !map.isDestroyed()) {
-      map.destroy();
-      map = null;
-    }
-  } catch (e) {
-    console.warn('地图销毁失败:', e);
-  }
-});
-</script>
-
 <template>
-  <div class="map-container">
-    <div ref="mapRef" style="width: 100%; height: 100%"></div>
+  <div class="trajectory-tracker">
+    <el-row :gutter="0" class="control-panel">
+      <el-col :span="6">
+        <el-select v-model="device_list" multiple placeholder="选择设备" style="width: 240px">
+          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-col>
+      <el-col :span="6">
+        <el-date-picker v-model="starttime" type="datetime" placeholder="选择起始时间" format="YYYY-MM-DD HH:mm:ss"
+          :shortcuts="shortcuts" :default-time="defaultTime" />
+      </el-col>
+      <el-col :span="6">
+        <el-date-picker v-model="endtime" type="datetime" placeholder="选择结束时间" format="YYYY-MM-DD HH:mm:ss"
+          :shortcuts="shortcuts" :default-time="defaultTime" />
+      </el-col>
+      <el-col :span="6">
+        <el-button type="primary" @click="fetchTrajectories">
+          查询历史轨迹
+        </el-button>
+      </el-col>
+    </el-row>
+
+    <!-- 地图容器 -->
+    <HistoryMap v-if="showMap" :key="mapKey" :startTime="starttime" :endTime="endtime" :deviceIds="device_list"
+      :showStartMarker="false" :showEndMarker="true" class="map-container" />
   </div>
 </template>
 
-<style lang="css" scoped>
-.map-container {
-  position: relative;
+<script lang="ts" setup>
+import { ref, onMounted, nextTick } from 'vue'
+import { ElMessage } from 'element-plus'
+import { trajectoryAPI } from '@/api/trajectory'
+import HistoryMap from '@/components/map/HistoryMap.vue'
+
+const starttime = ref('')
+const endtime = ref('')
+const device_list = ref<number[]>([])
+const options = ref<{ value: number; label: string }[]>([])
+const defaultTime = new Date(2000, 1, 1, 0, 0, 0)
+const showMap = ref(false)
+const mapKey = ref(0)
+
+const shortcuts = [
+  { text: '今天', value: new Date() },
+  {
+    text: '昨天',
+    value: () => new Date(new Date().setDate(new Date().getDate() - 1))
+  },
+  {
+    text: '一周前',
+    value: () => new Date(new Date().setDate(new Date().getDate() - 7))
+  }
+]
+
+const fetchTrajectories = () => {
+  if (validateInput()) {
+    refreshMap()
+    ElMessage({
+      message: '查询成功',
+      type: 'success',
+      duration: 3000
+    })
+  }
+}
+
+const validateInput = () => {
+  if (!device_list.value.length) {
+    ElMessage({
+      message: '请选择至少一个设备',
+      type: 'warning',
+      duration: 3000
+    })
+    return false
+  }
+  if (!starttime.value || !endtime.value) {
+    ElMessage({
+      message: '请选择完整的时间范围',
+      type: 'warning',
+      duration: 3000
+    })
+    return false
+  }
+  if (new Date(starttime.value) > new Date(endtime.value)) {
+    ElMessage({
+      message: '结束时间不能早于开始时间',
+      type: 'warning',
+      duration: 3000
+    })
+    return false
+  }
+  return true
+}
+
+const refreshMap = () => {
+  showMap.value = false
+  nextTick(() => {
+    mapKey.value++
+    showMap.value = true
+  })
+}
+
+onMounted(async () => {
+  try {
+    const response = await trajectoryAPI.getIds()
+    options.value = response.data.data.map(id => ({
+      value: id,
+      label: `设备 ${id}`
+    }))
+  } catch (error) {
+    ElMessage({
+      message: '设备列表加载失败',
+      type: 'error',
+      duration: 3000
+    })
+    console.error('设备列表加载失败:', error)
+  }
+})
+</script>
+
+<style scoped>
+.trajectory-tracker {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
+  gap: 20px;
+  background: #f5f7fa;
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  background-color: rgba(255, 255, 255, 0.0);
-}
-</style>
-
-<style>
-.device-marker {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  border: 2px solid white;
 }
 
-.device-marker.end {
-  border-radius: 4px;
+.control-panel {
+  display: flex;
+  /* gap: 16px; */
+  width: 100%;
+  align-items: center;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.map-container {
+  flex: 1;
+  min-height: 400px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* 元素悬停效果 */
+.el-select:hover :deep(.el-input__inner),
+.el-date-picker:hover :deep(.el-input__inner) {
+  border-color: #409eff;
+  box-shadow: 0 1px 6px rgba(32, 160, 255, 0.1);
+}
+
+.el-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(64, 158, 255, 0.2);
 }
 </style>

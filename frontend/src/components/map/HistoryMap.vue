@@ -1,4 +1,11 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted, ref, defineProps, type PropType, watch } from 'vue';
+import AMapLoader from '@amap/amap-jsapi-loader';
+import { useConfigStore } from '@/stores/config';
+import { trajectoryAPI } from '@/api/trajectory';
+import type { PathMini } from '@/api/trajectory';
+import gcoord from 'gcoord';
+
 declare global {
   interface Window {
     _AMapSecurityConfig?: {
@@ -7,20 +14,11 @@ declare global {
   }
 }
 
-import { onMounted, onUnmounted, ref, defineProps } from 'vue';
-import AMapLoader from '@amap/amap-jsapi-loader';
-import { useConfigStore } from '@/stores/config';
-import { trajectoryAPI } from '@/api/trajectory';
-import type { PathMini } from '@/api/trajectory';
-import gcoord from 'gcoord';
-
-const ConfigStore = useConfigStore();
-
 interface PathOverlay {
   id: number;
   polyline: any;
-  startMarker?: any;  // 起点标记变为可选
-  endMarker?: any;    // 终点标记变为可选
+  startMarker?: any;
+  endMarker?: any;
 }
 
 const mapRef = ref(null);
@@ -44,16 +42,26 @@ const props = defineProps({
   showEndMarker: {
     type: Boolean,
     default: true
+  },
+  deviceIds: {
+    type: Array as PropType<number[]>,
+    required: true,
+    validator: (value: number[]) => value.length > 0 && value.every(Number.isInteger)
   }
 });
 
+// 保存 AMap 实例供全局使用
+let AMapInstance: any = null;
+
+const ConfigStore = useConfigStore();
+
+// 创建路径覆盖物
 const createPathOverlay = (AMap: any, deviceId: number, coords: Array<[number, number]>) => {
   if (coords.length === 0) return null;
 
   const colorIndex = deviceId % colors.length;
   const color = colors[colorIndex];
 
-  // 创建折线（保持不变）
   const polyline = new AMap.Polyline({
     path: coords,
     strokeColor: color,
@@ -64,7 +72,6 @@ const createPathOverlay = (AMap: any, deviceId: number, coords: Array<[number, n
   let startMarker = null;
   let endMarker = null;
 
-  // 如果 showStartMarker 为 true，则创建起点标记
   if (props.showStartMarker) {
     startMarker = new AMap.Marker({
       position: coords[0],
@@ -76,7 +83,6 @@ const createPathOverlay = (AMap: any, deviceId: number, coords: Array<[number, n
     });
   }
 
-  // 如果 showEndMarker 为 true，则创建终点标记
   if (props.showEndMarker) {
     endMarker = new AMap.Marker({
       position: coords[coords.length - 1],
@@ -88,25 +94,20 @@ const createPathOverlay = (AMap: any, deviceId: number, coords: Array<[number, n
     });
   }
 
-  // 只有当标记存在时才添加到地图
-  const markersToAdd = [];
-  if (startMarker) markersToAdd.push(startMarker);
-  if (endMarker) markersToAdd.push(endMarker);
-
-  map.add([polyline, ...markersToAdd]);
+  map.add([polyline, ...(startMarker ? [startMarker] : []), ...(endMarker ? [endMarker] : [])]);
 
   return {
     id: deviceId,
     polyline,
-    startMarker,  // 可能为 null
-    endMarker     // 可能为 null
+    startMarker,
+    endMarker
   };
 };
 
+// 加载历史轨迹数据
 const loadHistoryPaths = async (AMap: any) => {
   try {
-    const idsResponse = await trajectoryAPI.getIds();
-    const deviceIds = idsResponse.data.data;
+    const deviceIds = props.deviceIds;
 
     const pathRequests = deviceIds.map(async (deviceId: number) => {
       try {
@@ -123,9 +124,7 @@ const loadHistoryPaths = async (AMap: any) => {
     });
 
     const pathResponses = await Promise.all(pathRequests);
-    const Paths = pathResponses
-      .filter((response): response is PathMini[] => response !== null)
-      .flat();
+    const Paths = pathResponses.filter((response): response is PathMini[] => response !== null).flat();
 
     const deviceMap = new Map<number, Array<Array<[number, number]>>>();
 
@@ -152,7 +151,7 @@ const loadHistoryPaths = async (AMap: any) => {
       pathList.forEach((coords, index) => {
         const overlay = createPathOverlay(AMap, deviceId, coords);
         if (overlay) {
-          overlays.value.push(overlay); // 直接添加覆盖物，不再移除标记
+          overlays.value.push(overlay);
         }
       });
     });
@@ -163,6 +162,27 @@ const loadHistoryPaths = async (AMap: any) => {
   }
 };
 
+// 监听参数变化并重新加载轨迹
+watch(
+  () => [props.deviceIds, props.startTime, props.endTime],
+  async () => {
+    if (map && !map.isDestroyed() && AMapInstance) {
+      // 清除旧覆盖物
+      overlays.value.forEach(overlay => {
+        map.remove(overlay.polyline);
+        overlay.startMarker && map.remove(overlay.startMarker);
+        overlay.endMarker && map.remove(overlay.endMarker);
+      });
+      overlays.value = [];
+
+      // 重新加载路径
+      await loadHistoryPaths(AMapInstance);
+    }
+  },
+  { deep: true }
+);
+
+// 初始化地图
 onMounted(async () => {
   window._AMapSecurityConfig = {
     securityJsCode: ConfigStore.securityJsCode,
@@ -172,7 +192,9 @@ onMounted(async () => {
     key: ConfigStore.key,
     version: '2.0',
     plugins: ['AMap.Polyline', 'AMap.Marker']
-  }).then(async (AMap) => {
+  }).then((AMap) => {
+    AMapInstance = AMap; // 保存 AMap 实例
+
     map = new AMap.Map(mapRef.value, {
       viewMode: '3D',
       mapStyle: 'amap://styles/normal',
@@ -180,35 +202,32 @@ onMounted(async () => {
       center: [121.891751, 30.902079]
     });
 
-    await loadHistoryPaths(AMap);
+    loadHistoryPaths(AMapInstance);
   }).catch(console.error);
 });
 
+// 销毁地图和资源
 onUnmounted(() => {
-  overlays.value.forEach(overlay => {
-    try {
-      if (map && !map.isDestroyed()) {
-        if (overlay.polyline) map.remove(overlay.polyline);
-        if (overlay.startMarker) map.remove(overlay.startMarker);
-        if (overlay.endMarker) map.remove(overlay.endMarker);
-      }
-      overlay.polyline?.destroy();
-      overlay.startMarker?.destroy();
-      overlay.endMarker?.destroy();
-    } catch (e) {
-      console.warn('清理覆盖物失败:', e);
+  const cleanupOverlays = () => {
+    for (let i = overlays.value.length - 1; i >= 0; i--) {
+      const overlay = overlays.value[i];
+      overlay.polyline && map?.remove(overlay.polyline);
+      overlay.startMarker && map?.remove(overlay.startMarker);
+      overlay.endMarker && map?.remove(overlay.endMarker);
     }
-  });
-  overlays.value = [];
+    overlays.value = [];
+  };
 
-  try {
+  const destroyMap = () => {
     if (map && !map.isDestroyed()) {
+      map.clearMap();
       map.destroy();
       map = null;
     }
-  } catch (e) {
-    console.warn('地图销毁失败:', e);
-  }
+  };
+
+  cleanupOverlays();
+  destroyMap();
 });
 </script>
 
