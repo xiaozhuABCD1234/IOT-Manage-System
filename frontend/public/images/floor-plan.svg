@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="5000" height="3000" viewBox="0 0 5000 3000" xmlns="http://www.w3.org/2000/svg">
+  <!-- 外部轮廓 - 绿色区域 -->
+  <path d="M100,100 L4900,100 L4900,2900 L100,2900 Z" 
+        fill="#c8e6c9" stroke="#ff9800" stroke-width="20" />
+  
+  <!-- 室内区域 - 白色背景 -->
+  <rect x="300" y="400" width="4400" height="2200" 
+        fill="#ffffff" stroke="#666666" stroke-width="10" />
+  
+  <!-- 顶部房间 -->
+  <rect x="300" y="400" width="1100" height="800" 
+        fill="#ffffff" stroke="#666666" stroke-width="10" />
+  <rect x="1400" y="400" width="1100" height="800" 
+        fill="#ffffff" stroke="#666666" stroke-width="10" />
+  <rect x="2500" y="400" width="2200" height="800" 
+        fill="#ffffff" stroke="#666666" stroke-width="10" />
+  
+  <!-- 底部房间 -->
+  <rect x="300" y="1200" width="1100" height="1400" 
+        fill="#ffffff" stroke="#666666" stroke-width="10" />
+  <rect x="1400" y="1200" width="1100" height="1400" 
+        fill="#ffffff" stroke="#666666" stroke-width="10" />
+  <rect x="2500" y="1200" width="1100" height="1400" 
+        fill="#ffffff" stroke="#666666" stroke-width="10" />
+  <rect x="3600" y="1200" width="1100" height="1400" 
+        fill="#ffffff" stroke="#666666" stroke-width="10" />
+  
+  <!-- 走廊 -->
+  <rect x="300" y="1000" width="4400" height="200" 
+        fill="#f5f5f5" stroke="#666666" stroke-width="10" />
+  
+  <!-- 门和窗户标记 -->
+  <rect x="800" y="2600" width="100" height="20" 
+        fill="#666666" stroke="none" />
+  <rect x="1800" y="2600" width="100" height="20" 
+        fill="#666666" stroke="none" />
+  <rect x="2800" y="2600" width="100" height="20" 
+        fill="#666666" stroke="none" />
+  <rect x="3800" y="2600" width="100" height="20" 
+        fill="#666666" stroke="none" />
+  
+  <!-- 右侧出口 -->
+  <path d="M4700,2600 L4900,2800 L4700,2800 Z" 
+        fill="#ffffff" stroke="#ff9800" stroke-width="10" />
+</svg> 

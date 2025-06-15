@@ -11,7 +11,7 @@
         <TopBar />
       </el-header>
       <el-container>
-        <el-aside width="200px">
+        <el-aside width="160px">
           <AsideBar />
         </el-aside>
         <el-main class="main-content">
@@ -53,7 +53,7 @@ const isFullScreenLayout = computed(() => {
 }
 
 .el-header {
-  height: 60px;
+  height: 45px;
 }
 
 .el-aside {
@@ -65,7 +65,7 @@ const isFullScreenLayout = computed(() => {
 }
 
 .main-content {
-  padding: 20px;
+  padding: 2px;
   background-color: #f0f0f0;
   overflow-y: auto;
   box-sizing: border-box;

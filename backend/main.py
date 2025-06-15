@@ -22,7 +22,7 @@ app = FastAPI()
 # 添加 CORS 中间件以支持跨域请求
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["localhost:5137"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

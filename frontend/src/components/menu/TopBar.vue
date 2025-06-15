@@ -24,9 +24,9 @@ const handleSelect = (key: string, keyPath: string[]) => {
   <el-row :gutter="20" type="flex">
     <el-col :span="3" class="logo-col">
       <div class="logo-wrapper">
-        <img src="/src/assets/imgs/iot.png" alt="物联网平台" class="logo-img">
+        <img src="/src/assets/imgs/iot.png" alt="思南监理平台" class="logo-img">
         <div class="logo-text">
-          物联网平台
+          思南监理平台
         </div>
       </div>
     </el-col>
@@ -100,9 +100,9 @@ const handleSelect = (key: string, keyPath: string[]) => {
 }
 
 .logo-img {
-  width: 50px;
-  /* 正方形尺寸 */
-  height: 50px;
+  width: 35px;
+  /* 调整为更小的尺寸 */
+  height: 35px;
   /* 保持与宽度一致 */
   object-fit: cover;
   /* 保持图片比例 */
@@ -111,17 +111,17 @@ const handleSelect = (key: string, keyPath: string[]) => {
 }
 
 .logo-text {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
-  line-height: 50px;
+  line-height: 35px;
   /* 与图片高度一致保持垂直居中 */
   white-space: nowrap;
 }
 
 /* 其他元素保持默认样式 */
 .el-row {
-  height: 60px;
-  /* 建议设置固定高度 */
+  height: 45px;
+  /* 减小高度与header保持一致 */
 }
 
 :deep(.el-menu--horizontal) {

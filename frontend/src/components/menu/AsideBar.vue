@@ -10,6 +10,7 @@ import {
   Server,
   Shell,
   Wrench,
+  User,
 } from "lucide-vue-next";
 import { useRoute } from "vue-router";
 import { useMenuStore } from "@/stores/useMenuStore";
@@ -92,6 +93,18 @@ const handleClose = (key: string, keyPath: string[]) => {
           <Shell />
         </el-icon>
         <span>日志</span>
+      </el-menu-item>
+      <el-menu-item index="/devops/tag-admin">
+        <el-icon>
+          <User />
+        </el-icon>
+        <span>标签管理</span>
+      </el-menu-item>
+      <el-menu-item index="/devops/safety-distance-admin">
+        <el-icon>
+          <Wrench />
+        </el-icon>
+        <span>安全距离管理</span>
       </el-menu-item>
     </el-sub-menu>
     <el-sub-menu index="/tools">

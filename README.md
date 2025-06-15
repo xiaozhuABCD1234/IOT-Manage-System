@@ -37,6 +37,7 @@ uv sync
 # 启动
 uv run fastapi run main.py --port 8000 --host 0.0.0.0
 ```
+uvicorn main:app --host 0.0.0.0 --port 8000
 
 ---
 

@@ -1,7 +1,7 @@
 name: 自动化部署
 on:
   push:
-    branches: [main]
+    branches: [main,dev]
 
 env:
   SERVER_PATH: ~/IOT-Management-System
