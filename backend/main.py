@@ -20,9 +20,10 @@ from routers import (
 app = FastAPI()
 
 # 添加 CORS 中间件以支持跨域请求
+# 修改后的CORS配置
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],  # 明确指定前端地址
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
