@@ -222,14 +222,6 @@ const distance = ref<string>('--');
 // 内联 SVG 数据
 const floorPlanSvg = ref(`<?xml version="1.0" encoding="UTF-8"?>
 <svg width="1800" height="2200" viewBox="0 0 1800 2200" xmlns="http://www.w3.org/2000/svg">
-  <!-- 外部轮廓 - 红色边框 -->
-  <path d="M20,2180 L20,20 L600,20 L600,500 L1800,500 L1800,1200 L600,1200 L600,2180 Z" 
-        fill="none" stroke="#ff0000" stroke-width="5"></path>
-  
-  <!-- 内部区域 - 绿色边框 -->
-  <path d="M40,2160 L40,40 L580,40 L580,520 L1780,520 L1780,1180 L580,1180 L580,2160 Z" 
-        fill="none" stroke="#00cc00" stroke-width="3"></path>
-        
   <!-- 白色填充区域 -->
   <rect x="40" y="40" width="540" height="2120" 
         fill="#ffffff" stroke="none"></rect>
@@ -237,7 +229,7 @@ const floorPlanSvg = ref(`<?xml version="1.0" encoding="UTF-8"?>
         fill="#ffffff" stroke="none"></rect>
   
   <!-- 坐标标记 -->
-  <text x="30" y="2170" font-size="24" fill="#ff0000" font-family="Arial, sans-serif" font-weight="bold">0,0</text>
+  <text x="30" y="2170" font-size="24" fill="#007bff" font-family="Arial, sans-serif" font-weight="bold">0,0</text>
   <text x="590" y="2170" font-size="18" fill="#007bff" font-family="Arial, sans-serif" font-weight="bold">(600, 0)</text>
   <text x="590" y="40" font-size="18" fill="#007bff" font-family="Arial, sans-serif" font-weight="bold">(600, 2200)</text>
   <text x="30" y="40" font-size="18" fill="#007bff" font-family="Arial, sans-serif" font-weight="bold">(0, 2200)</text>

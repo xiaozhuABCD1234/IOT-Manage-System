@@ -143,31 +143,14 @@ const isDrawingFence = ref(false);
 
 // 添加地图布局数据
 const mapLayout = {
-  // 外部边界
-  walls: [
-    // 左侧垂直线
-    { x1: 20, y1: 20, x2: 20, y2: 2180, color: '#ff0000', weight: 5 },
-    // 底部水平线
-    { x1: 20, y1: 2180, x2: 600, y2: 2180, color: '#ff0000', weight: 5 },
-    // 右侧垂直线（下半部分）
-    { x1: 600, y1: 1200, x2: 600, y2: 2180, color: '#ff0000', weight: 5 },
-    // 右侧垂直线（上半部分）
-    { x1: 600, y1: 20, x2: 600, y2: 500, color: '#ff0000', weight: 5 },
-    // 顶部水平线
-    { x1: 20, y1: 20, x2: 600, y2: 20, color: '#ff0000', weight: 5 },
-    // 右侧延伸部分顶部
-    { x1: 600, y1: 500, x2: 1800, y2: 500, color: '#ff0000', weight: 5 },
-    // 右侧延伸部分底部
-    { x1: 600, y1: 1200, x2: 1800, y2: 1200, color: '#ff0000', weight: 5 },
-    // 右侧延伸部分右侧
-    { x1: 1800, y1: 500, x2: 1800, y2: 1200, color: '#ff0000', weight: 5 },
-  ] as Wall[],
-  // 内部区域（绿色边框）
+  // 外部边界 - 已移除红色线条
+  walls: [] as Wall[],
+  // 内部区域 - 已移除绿色边框
   areas: [
-    // 主要区域
-    { x: 40, y: 40, width: 540, height: 2120, color: '#ffffff', borderColor: '#00cc00', borderWeight: 3 },
-    // 右侧延伸区域
-    { x: 580, y: 520, width: 1200, height: 660, color: '#ffffff', borderColor: '#00cc00', borderWeight: 3 },
+    // 主要区域 - 保留白色填充，移除边框
+    { x: 40, y: 40, width: 540, height: 2120, color: '#ffffff', borderColor: 'transparent', borderWeight: 0 },
+    // 右侧延伸区域 - 保留白色填充，移除边框
+    { x: 580, y: 520, width: 1200, height: 660, color: '#ffffff', borderColor: 'transparent', borderWeight: 0 },
   ] as Area[],
   // 不再需要绿色填充区域和门
   greenAreas: [],
