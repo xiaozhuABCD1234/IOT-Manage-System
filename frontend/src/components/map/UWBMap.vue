@@ -270,6 +270,9 @@ const handleMessage = (payload: Buffer) => {
     const { id, indoor, sensors } = data;
 
     if (!id) return;
+    
+    // 忽略ID为2的设备数据
+    if (id === 2 || String(id) === '2') return;
 
     // 处理室内状态变化
     if (typeof indoor !== "undefined") {
@@ -358,6 +361,46 @@ const handleMessage = (payload: Buffer) => {
 const resetMapView = () => {
   if (mapRef.value && typeof mapRef.value.resetView === 'function') {
     mapRef.value.resetView();
+  }
+};
+
+// 清除测试设备
+const clearTestDevices = () => {
+  // 清除特定ID的测试设备（设备ID为2的设备）
+  points.value = points.value.filter(p => {
+    // 精确过滤ID为2的设备
+    return String(p.id) !== '2';
+  });
+  
+  // 如果有标签管理器，也从标签列表中移除测试设备
+  if (tagManagerRef.value) {
+    const tagList = tagManagerRef.value.tagList;
+    const filteredTags = tagList.filter((tag: TagItem) => {
+      // 精确过滤ID为2的设备标签
+      return tag.id !== '2';
+    });
+    
+    // 更新标签列表
+    tagManagerRef.value.tagList.length = 0;
+    filteredTags.forEach(tag => tagManagerRef.value?.tagList.push(tag));
+    
+    // 更新本地标签列表
+    allTags.value = tagManagerRef.value.tagList;
+    filterTags1();
+    filterTags2();
+  }
+  
+  // 确保本地存储中也删除了这个标签
+  try {
+    const storageKey = 'device_tag_list';
+    const raw = localStorage.getItem(storageKey);
+    if (raw) {
+      const tags = JSON.parse(raw);
+      const filteredTags = tags.filter((tag: {id: string}) => tag.id !== '2');
+      localStorage.setItem(storageKey, JSON.stringify(filteredTags));
+    }
+  } catch (e) {
+    console.error("Error updating local storage:", e);
   }
 };
 
@@ -550,6 +593,9 @@ onMounted(() => {
   
   // 首先确保标签管理组件和安全距离管理组件加载完成
   nextTick(async () => {
+    // 清除测试设备
+    clearTestDevices();
+    
     // 初始化标签数据
     if (tagManagerRef.value) {
       // 获取初始标签数据
