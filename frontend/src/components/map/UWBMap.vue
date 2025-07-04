@@ -243,10 +243,7 @@ const floorPlanSvg = ref(`<?xml version="1.0" encoding="UTF-8"?>
 const anchors = ref<Anchor[]>([
   { id: 1, x: 0, y: 0, coordinates: "[0, 0]" },
   { id: 2, x: 600, y: 0, coordinates: "[600, 0]" },
-  { id: 3, x: 0, y: 2200, coordinates: "[0, 2200]" },
-  { id: 4, x: 600, y: 2200, coordinates: "[600, 2200]" },
-  { id: 5, x: 1800, y: 1200, coordinates: "[1800, 1200]" },
-  { id: 6, x: 1800, y: 500, coordinates: "[1800, 500]" },
+  { id: 3, x: 0, y: 300, coordinates: "[0, 300]" },
 ]);
 
 const mqttConfig = {
