@@ -1,0 +1,8 @@
+/* src/styles/font.css */
+@font-face {
+  font-family: "MapleMono";
+  src: url("@/assets/fonts/MapleMono-Regular.ttf.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

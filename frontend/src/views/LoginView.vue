@@ -1,187 +1,138 @@
+<!-- src/views/LoginView.vue-->
 <template>
-  <!-- 模板部分保持不变 -->
-  <div class="login-container">
-    <el-card class="login-card">
-      <div class="login-header">
-        <h2>用户登录</h2>
+  <div
+    class="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-200 to-blue-400 p-4 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700"
+  >
+    <div
+      class="mb-30 flex w-full max-w-sm flex-col rounded-xl bg-white shadow-2xl md:max-w-2xl md:flex-row dark:bg-gray-800 dark:shadow-2xl dark:shadow-black/40"
+    >
+      <!-- 左侧图片：桌面端显示，手机端隐藏 -->
+      <div
+        class="hidden aspect-square w-full items-center justify-center bg-cover bg-center md:flex md:w-1/2"
+      >
+        <img
+          src="@/assets/imgs/login_bg.webp"
+          alt="登录配图"
+          class="aspect-square h-full w-full rounded-l-xl object-cover"
+        />
       </div>
 
-      <el-form
-        ref="loginFormRef"
-        :model="loginForm"
-        :rules="loginRules"
-        @keyup.enter="handleLogin"
-      >
-        <el-form-item prop="username">
-          <el-input
-            v-model="loginForm.username"
-            placeholder="请输入用户名"
-            prefix-icon="User"
-            clearable
-          />
-        </el-form-item>
+      <!-- 右侧登录表单 -->
+      <div class="w-full p-8 md:w-1/2">
+        <h1
+          class="font-maplemono mb-6 text-center text-2xl font-bold text-gray-800 dark:text-gray-100"
+        >
+          登录
+        </h1>
 
-        <el-form-item prop="password">
-          <el-input
-            v-model="loginForm.password"
-            placeholder="请输入密码"
-            prefix-icon="Lock"
-            show-password
-            clearable
-          />
-        </el-form-item>
+        <el-form
+          ref="loginFormRef"
+          :model="form"
+          :rules="rules"
+          size="large"
+          @submit.prevent="onSubmit"
+          class="dark"
+        >
+          <el-form-item prop="username">
+            <el-input
+              v-model.trim="form.username"
+              placeholder="请输入用户名"
+              maxlength="32"
+              class="font-maplemono"
+            />
+          </el-form-item>
 
-        <el-form-item prop="remember">
-          <el-checkbox v-model="loginForm.remember">记住我</el-checkbox>
-        </el-form-item>
+          <el-form-item prop="password">
+            <el-input
+              v-model="form.password"
+              type="password"
+              placeholder="请输入密码"
+              show-password
+              maxlength="64"
+            />
+          </el-form-item>
 
-        <el-form-item>
-          <el-button
-            type="primary"
-            @click="handleLogin"
-            :loading="loading"
-            style="width: 100%"
-          >
-            登录
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+          <el-form-item>
+            <el-button
+              native-type="submit"
+              :loading="loading"
+              class="font-maplemono w-full bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            >
+              登录
+            </el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
   </div>
 </template>
 
-<script lang="ts" setup>
-import { onMounted, reactive, ref } from "vue";
-import type { FormInstance, FormRules } from "element-plus";
+<script setup lang="ts">
+import { reactive, ref, onMounted } from "vue";
 import { ElMessage } from "element-plus";
-import axios from "axios";
+import type { FormInstance, FormRules } from "element-plus";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
-import { authApi } from "@/api/auth";
-const authStore = useAuthStore();
+import { userApi } from "@/api/user";
+
 const router = useRouter();
 
-// 登录表单引用
-const loginFormRef = ref<FormInstance>();
-
-// 登录表单数据
-const loginForm = reactive({
+// 用 reactive 包装表单数据，el-form 的 model 需要
+const form = reactive({
   username: "",
   password: "",
-  remember: false,
 });
 
-// 加载状态
 const loading = ref(false);
+const loginFormRef = ref<FormInstance>();
 
-// 表单验证规则
-const loginRules = reactive<FormRules>({
-  username: [
-    { required: true, message: "请输入用户名", trigger: "blur" },
-    { min: 3, max: 20, message: "长度在 3 到 20 个字符", trigger: "blur" },
-  ],
-  password: [
-    { required: true, message: "请输入密码", trigger: "blur" },
-    { min: 6, max: 20, message: "长度在 6 到 20 个字符", trigger: "blur" },
-  ],
-});
-
-// 设置Cookie的函数
-const setCookie = (name: string, value: string, days?: number) => {
-  let expires = "";
-  if (days) {
-    const date = new Date();
-    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    expires = "; expires=" + date.toUTCString();
-  }
-  document.cookie = name + "=" + (value || "") + expires + "; path=/";
+// 可选的校验规则
+const rules: FormRules = {
+  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
 };
 
-// 登录方法
-const handleLogin = async () => {
+// 提交逻辑
+async function onSubmit() {
+  // 如果写了 rules，可以先校验
+  await loginFormRef.value?.validate().catch(() => {
+    ElMessage.warning("请完善表单");
+    return Promise.reject();
+  });
+
+  loading.value = true;
   try {
-    const valid = await loginFormRef.value?.validate();
-    if (!valid) return;
+    const { data } = await userApi.login({
+      username: form.username,
+      password: form.password,
+    });
+    localStorage.setItem("access_token", data.access_token);
+    localStorage.setItem("refresh_token", data.refresh_token);
 
-    loading.value = true;
-    // 调用登录API
-    const response = await authApi.login(
-      loginForm.username,
-      loginForm.password,
-    );
-    console.log("登录响应:", response);
-    // 处理登录成功
-    const { access_token, token_type } = response.data;
+    ElMessage({
+      showClose: true,
+      message: "登录成功！🥳",
+      type: "success",
+    });
+    console.log("登录成功！");
+  } catch (e: unknown) {
+    // 已被全局拦截器处理过，就静默返回
+    if (e as unknown as { _handled: boolean }) return;
 
-    authStore.setToken(access_token);
-    // 使用Cookie存储token（根据remember决定有效期）
-    if (loginForm.remember) {
-      // 记住我 - 设置30天有效期
-      setCookie("access_token", access_token, 30);
-      setCookie("token_type", token_type, 30);
-    } else {
-      // 会话Cookie（浏览器关闭后失效）
-      setCookie("access_token", access_token);
-      setCookie("token_type", token_type);
-    }
-
-    ElMessage.success("登录成功");
-
-    // 跳转到首页或其他页面
-    await router.push("/");
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
-        ElMessage.error("用户名或密码错误");
-      } else {
-        ElMessage.error(`登录失败: ${error.message}`);
-      }
-    } else {
-      ElMessage.error("发生未知错误");
-      console.error(error);
-    }
+    // 否则兜底处理
+    const err = e as { response?: { data?: { detail?: string } } };
+    ElMessage({
+      showClose: true,
+      message: err.response?.data?.detail || "登录失败，请检查账号密码",
+      type: "error",
+    });
   } finally {
     loading.value = false;
   }
-};
-
+}
 onMounted(() => {
-  useAuthStore().logout();
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  // 或者更彻底地清空：
+  // localStorage.clear(); // ⚠️ 注意：这会清除所有本地数据
 });
 </script>
-
-<style scoped>
-/* 样式保持不变 */
-.login-container {
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(to right, #f0f0f0, #3498db);
-}
-
-.login-card {
-  width: 400px;
-  padding: 30px 35px 15px 35px;
-  border-radius: 8px;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.login-header h2 {
-  color: #333;
-  font-size: 24px;
-  font-weight: 500;
-}
-
-.login-footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-</style>

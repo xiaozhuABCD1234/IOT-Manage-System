@@ -1,20 +1,120 @@
 services:
-  mqtt-forwarder:
-    build: ./forwarder
-    image: mqtt-forwarder
+  mosquitto:
+    image: docker.io/library/eclipse-mosquitto:openssl
+    container_name: mosquitto
+    restart: unless-stopped
     networks:
-      - monitor-net
-    depends_on:
-      - fastapi-service
+      - iot_net
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+    volumes:
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./config/mosquitto.passwd:/mosquitto/config/mosquitto.passwd:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
 
-  fastapi-service:
-    build: ./backend
-    image: fastapi-service
+  postgres:
+    image: docker.io/library/postgres:17-alpine
+    container_name: iot_postgres
+    restart: unless-stopped
     networks:
-      - monitor-net
+      - iot_net
+    environment:
+      POSTGRES_DB: iot_manager_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      TZ: Asia/Shanghai
+      LANG: zh_CN.UTF-8
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=zh_CN.UTF-8 --lc-ctype=zh_CN.UTF-8"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d iot_manager_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo:
+    image: docker.io/library/mongo:latest
+    container_name: iot_mongo
+    restart: unless-stopped
+    networks:
+      - iot_net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27018:27017"
+    command:
+      [
+        "mongod",
+        "--quiet",
+        "--logpath",
+        "/dev/null",
+        "--setParameter",
+        "logLevel=0",
+      ]
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: unless-stopped
+    networks:
+      - iot_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: iot_manager_db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      JWT_SECRET: "your-secret-key"
+      TZ: Asia/Shanghai
+    # ports:
+    #   - "8001:8001"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080/health",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: unless-stopped
+    networks:
+      - iot_net
+    environment:
+      USER_SERVICE_URL: "user-service:8001"
+      JWT_SECRET: "your-secret-key"
     ports:
       - "8000:8000"
+volumes:
+  mosquitto_data:
+  mosquitto_log:
+  postgres_data:
+  mongo_data:
 
 networks:
-  monitor-net:
+  iot_net:
     driver: bridge
