@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"IOT-Manage-System/user-service/models"
+	"IOT-Manage-System/user-service/model"
 	"errors"
 	"time"
 
@@ -22,14 +22,14 @@ var (
 )
 
 type CustomClaims struct {
-	UserID   string          `json:"user_id"`
-	Username string          `json:"username"`
-	UserType models.UserType `json:"user_type"`
+	UserID   string         `json:"user_id"`
+	Username string         `json:"username"`
+	UserType model.UserType `json:"user_type"`
 	jwt.RegisteredClaims
 }
 
 // 生成 token 的公共方法
-func generateToken(u *models.User, expiresIn time.Duration, issuer string) (string, error) {
+func generateToken(u *model.User, expiresIn time.Duration, issuer string) (string, error) {
 	claims := CustomClaims{
 		UserID:   u.ID,
 		Username: u.Username,
@@ -46,12 +46,12 @@ func generateToken(u *models.User, expiresIn time.Duration, issuer string) (stri
 }
 
 // 生成 access token（有效期 24 小时）
-func GenerateToken(u *models.User) (string, error) {
+func GenerateToken(u *model.User) (string, error) {
 	return generateToken(u, AccessTokenExpire, AccessTokenIssuer)
 }
 
 // 生成 refresh token（有效期 7 天）
-func GenerateRefreshToken(u *models.User) (string, error) {
+func GenerateRefreshToken(u *model.User) (string, error) {
 	return generateToken(u, RefreshTokenExpire, RefreshTokenIssuer)
 }
 
@@ -98,7 +98,7 @@ func RefreshAccessToken(refreshToken string) (string, error) {
 	}
 
 	// 重新生成 access token
-	user := &models.User{
+	user := &model.User{
 		ID:       claims.UserID,
 		Username: claims.Username,
 		UserType: claims.UserType,

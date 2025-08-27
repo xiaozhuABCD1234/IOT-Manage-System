@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"IOT-Manage-System/user-service/models"
+	"IOT-Manage-System/user-service/model"
 	"IOT-Manage-System/user-service/service"
 	"IOT-Manage-System/user-service/utils"
 
@@ -27,7 +27,7 @@ func NewAuthHandler(as service.AuthService) AuthHandler {
 }
 
 func (h *authHandler) Login(c *gin.Context) {
-	var req models.UserLoginRequest
+	var req model.UserLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.SendBadRequest(c, "请求参数错误: "+err.Error())
 		return
@@ -44,7 +44,7 @@ func (h *authHandler) Login(c *gin.Context) {
 }
 
 func (h *authHandler) Refresh(c *gin.Context) {
-	var req models.RefreshTokenRequest
+	var req model.RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.SendBadRequest(c, "请求参数错误: "+err.Error())
 		return

@@ -1,19 +1,20 @@
 package service
 
 import (
-	"IOT-Manage-System/user-service/models"
+	"IOT-Manage-System/user-service/model"
 	"IOT-Manage-System/user-service/repository"
 	"IOT-Manage-System/user-service/utils"
 	"errors"
+
 	"gorm.io/gorm"
 )
 
 type UserService interface {
-	Register(req *models.UserCreateRequest) (*models.UserResponse, error)
-	GetUserById(id string) (*models.UserResponse, error)
-	UpdateUser(id string, req *models.UserUpdateRequest) (*models.UserResponse, error)
+	Register(req *model.UserCreateRequest) (*model.UserResponse, error)
+	GetUserById(id string) (*model.UserResponse, error)
+	UpdateUser(id string, req *model.UserUpdateRequest) (*model.UserResponse, error)
 	DeleteUser(id string) error
-	ListUsers(page, limit int) (*[]models.UserResponse, int64, error)
+	ListUsers(page, limit int) (*[]model.UserResponse, int64, error)
 }
 
 type userService struct {
@@ -24,7 +25,7 @@ func NewUserService(r repository.UserRepo) UserService {
 	return &userService{repo: r}
 }
 
-func (s *userService) Register(req *models.UserCreateRequest) (*models.UserResponse, error) {
+func (s *userService) Register(req *model.UserCreateRequest) (*model.UserResponse, error) {
 	if req.Username == "" || req.Password == "" {
 		return nil, ErrInvalidInput
 	}
@@ -36,7 +37,7 @@ func (s *userService) Register(req *models.UserCreateRequest) (*models.UserRespo
 		return nil, ErrInternal
 	}
 
-	user := &models.User{
+	user := &model.User{
 		Username: req.Username,
 		PwdHash:  hash,
 		UserType: req.UserType,
@@ -47,7 +48,7 @@ func (s *userService) Register(req *models.UserCreateRequest) (*models.UserRespo
 	return user.ToUserResponse(), nil
 }
 
-func (s *userService) GetUserById(id string) (*models.UserResponse, error) {
+func (s *userService) GetUserById(id string) (*model.UserResponse, error) {
 	if id == "" {
 		return nil, ErrInvalidInput
 	}
@@ -62,7 +63,7 @@ func (s *userService) GetUserById(id string) (*models.UserResponse, error) {
 }
 
 // UpdateUser 更新用户信息
-func (s *userService) UpdateUser(id string, req *models.UserUpdateRequest) (*models.UserResponse, error) {
+func (s *userService) UpdateUser(id string, req *model.UserUpdateRequest) (*model.UserResponse, error) {
 	if id == "" {
 		return nil, ErrInvalidInput
 	}
@@ -104,7 +105,7 @@ func (s *userService) DeleteUser(id string) error {
 }
 
 // ListUsers 分页列表
-func (s *userService) ListUsers(page, limit int) (*[]models.UserResponse, int64, error) {
+func (s *userService) ListUsers(page, limit int) (*[]model.UserResponse, int64, error) {
 	if page <= 0 {
 		page = 1
 	}
@@ -119,7 +120,7 @@ func (s *userService) ListUsers(page, limit int) (*[]models.UserResponse, int64,
 	}
 
 	// 把 []models.User 转成 []models.UserResponse
-	resp := make([]models.UserResponse, len(users))
+	resp := make([]model.UserResponse, len(users))
 	for i, u := range users {
 		resp[i] = *u.ToUserResponse()
 	}

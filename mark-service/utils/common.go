@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func GetEnv(key, defaultValue string) string {
@@ -37,4 +38,31 @@ func GetDSN() string {
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable TimeZone=Asia/Shanghai",
 		dbHost, dbPort, dbUser, dbPasswd, dbName,
 	)
+}
+
+// ParsePositiveInt 把字符串解析为正整数（>0）。
+// 成功返回 (value, true)；否则返回 (0, false)。
+func ParsePositiveInt(s string) (int, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0, nil
+	}
+	v, err := strconv.Atoi(s)
+	if err != nil || v <= 0 {
+		return 0, nil
+	}
+	return v, err
+}
+
+// ParsePositiveInt64 同上，但返回 int64，适配大数场景。
+func ParsePositiveInt64(s string) (int64, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0, nil
+	}
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil || v <= 0 {
+		return 0, nil
+	}
+	return v, err
 }

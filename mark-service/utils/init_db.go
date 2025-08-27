@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"IOT-Manage-System/user-service/model"
 	"fmt"
 	"log"
 	"time"
@@ -35,7 +34,6 @@ func InitDB() (*gorm.DB, error) {
 			Logger: logger.Default.LogMode(logger.Info),
 		})
 		if err == nil {
-			log.Println("数据库连接成功")
 			break
 		}
 		log.Printf("数据库连接失败（尝试 %d/%d）: %v", i+1, maxRetries, err)
@@ -66,34 +64,4 @@ func CloseDB(db *gorm.DB) error {
 		return fmt.Errorf("获取底层 sql.DB 失败: %w", err)
 	}
 	return sqlDB.Close()
-}
-
-func InitRootUser(db *gorm.DB) error {
-	// 事务里做“不存在才插入”，可防并发重复
-	return db.Transaction(func(tx *gorm.DB) error {
-		var count int64
-		if err := tx.Model(&model.User{}).
-			Where("user_type = ?", model.UserTypeRoot).
-			Limit(1).
-			Count(&count).Error; err != nil {
-			return err
-		}
-		if count > 0 {
-			return nil
-		}
-		// 真正创建
-		pwdHash, _ := GetPwd(GetEnv("ADMIN_PWD", "admin"))
-		admin := model.User{
-			Username:  GetEnv("ADMIN_NAME", "admin"),
-			PwdHash:   pwdHash,
-			UserType:  model.UserTypeRoot,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		}
-		if err := tx.Create(&admin).Error; err != nil {
-			return fmt.Errorf("创建系统管理员用户失败: %w", err)
-		}
-		log.Println("成功插入系统管理员用户")
-		return nil
-	})
 }

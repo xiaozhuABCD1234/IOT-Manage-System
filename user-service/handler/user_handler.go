@@ -1,12 +1,13 @@
 package handler
 
 import (
-	"IOT-Manage-System/user-service/models"
+	"IOT-Manage-System/user-service/model"
 	"IOT-Manage-System/user-service/service"
 	"IOT-Manage-System/user-service/utils"
 
-	"github.com/gin-gonic/gin"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 // UserHandler 用户相关的所有 HTTP 处理契约
@@ -33,7 +34,7 @@ func NewUserHandler(us service.UserService) UserHandler {
 // 1. 创建用户
 // --------------------------------------------------
 func (h *userHandler) Create(c *gin.Context) {
-	var req models.UserCreateRequest
+	var req model.UserCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.SendBadRequest(c, "请求参数错误: "+err.Error())
 		return
@@ -45,7 +46,7 @@ func (h *userHandler) Create(c *gin.Context) {
 	case "user":
 		return
 	case "admin":
-		req.UserType = models.UserTypeUser
+		req.UserType = model.UserTypeUser
 	default:
 	}
 	user, err := h.userService.Register(&req)
@@ -110,7 +111,7 @@ func (h *userHandler) UpdateUser(c *gin.Context) {
 		utils.SendBadRequest(c, "缺少用户 ID")
 		return
 	}
-	var req models.UserUpdateRequest
+	var req model.UserUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.SendBadRequest(c, "参数错误: "+err.Error())
 		return

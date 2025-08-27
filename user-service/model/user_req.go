@@ -1,4 +1,4 @@
-package models
+package model
 
 type UserLoginRequest struct {
 	Username string `json:"username" binding:"required,max=32"`

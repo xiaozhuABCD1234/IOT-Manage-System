@@ -1,7 +1,7 @@
 package service
 
 import (
-	"IOT-Manage-System/user-service/models"
+	"IOT-Manage-System/user-service/model"
 	"IOT-Manage-System/user-service/repository"
 	"IOT-Manage-System/user-service/utils"
 	// "log"
@@ -9,8 +9,8 @@ import (
 )
 
 type AuthService interface {
-	Login(*models.UserLoginRequest) (*models.LoginResponse, error)
-	Refresh(*models.RefreshTokenRequest) (*models.RefreshTokenResponse, error)
+	Login(*model.UserLoginRequest) (*model.LoginResponse, error)
+	Refresh(*model.RefreshTokenRequest) (*model.RefreshTokenResponse, error)
 }
 
 type authService struct {
@@ -23,7 +23,7 @@ func NewAuthService(r repository.UserRepo) AuthService {
 	}
 }
 
-func (a *authService) Login(req *models.UserLoginRequest) (*models.LoginResponse, error) {
+func (a *authService) Login(req *model.UserLoginRequest) (*model.LoginResponse, error) {
 	// start := time.Now()
 
 	user, err := a.repo.FindByUsername(req.Username)
@@ -46,16 +46,16 @@ func (a *authService) Login(req *models.UserLoginRequest) (*models.LoginResponse
 		return nil, err
 	}
 
-	return &models.LoginResponse{
+	return &model.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
 
-func (a *authService) Refresh(req *models.RefreshTokenRequest) (*models.RefreshTokenResponse, error) {
+func (a *authService) Refresh(req *model.RefreshTokenRequest) (*model.RefreshTokenResponse, error) {
 	newAccess, err := utils.RefreshAccessToken(req.RefreshToken)
 	if err != nil {
 		return nil, ErrInvalidToken
 	}
-	return &models.RefreshTokenResponse{AccessToken: newAccess}, nil
+	return &model.RefreshTokenResponse{AccessToken: newAccess}, nil
 }
