@@ -11,7 +11,6 @@ type MarkService interface {
 	CreateMark(mark *model.MarkRequest) error
 	GetMarkByID(id string, preload bool) (*model.MarkResponse, error)
 	GetMarkByDeviceID(deviceID string, preload bool) (*model.MarkResponse, error)
-	GetMarksByTagID(tagID int, offset, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	ListMark(page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	UpdateMark(ID string, req *model.MarkUpdateRequest) error
 	DeleteMark(id string) error
@@ -23,6 +22,8 @@ type MarkService interface {
 	ListMarkTags(page, limit int) ([]model.MarkTagResponse, int64, error)
 	UpdateMarkTag(tag *model.MarkTagRequest) error
 	DeleteMarkTag(id int) error
+	GetMarksByTagID(tagID int, offset, limit int, preload bool) ([]model.MarkResponse, int64, error)
+	GetMarksByTagName(tagName string, offset, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	// MarkType 相关操作
 	CreateMarkType(mt *model.MarkTypeRequest) error
 	GetMarkTypeByID(id int) (*model.MarkTypeResponse, error)

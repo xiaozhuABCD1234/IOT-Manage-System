@@ -83,26 +83,6 @@ func (s *markService) GetMarkByDeviceID(deviceID string, preload bool) (*model.M
 	return s.convertToMarkResponse(mark), nil
 }
 
-// GetMarksByTagID 根据标签ID获取标记列表（分页）
-func (s *markService) GetMarksByTagID(tagID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error) {
-	offset := (page - 1) * limit
-	marks, total, err := s.repo.GetMarksByTagID(tagID, preload, offset, limit)
-	if err != nil {
-		return nil, 0, errs.ErrDatabase.WithDetails(err.Error())
-	}
-
-	// 转换为响应模型列表
-	var responses []model.MarkResponse
-	for _, mark := range marks {
-		responses = append(responses, *s.convertToMarkResponse(&mark))
-	}
-	if len(responses) == 0 {
-		return nil, total, errs.NotFound("Marks", "未找到相关标记")
-	}
-
-	return responses, total, nil
-}
-
 // ListMark 获取标记列表（分页）
 func (s *markService) ListMark(page, limit int, preload bool) ([]model.MarkResponse, int64, error) {
 	offset := (page - 1) * limit

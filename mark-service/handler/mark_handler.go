@@ -1,3 +1,4 @@
+// handler/mark_handler.go
 package handler
 
 import (
@@ -110,26 +111,4 @@ func (h *MarkHandler) UpdateMarkLastOnline(c *fiber.Ctx) error {
 		return err
 	}
 	return utils.SendSuccessResponse(c, nil, "标记最后在线时间更新成功")
-}
-
-// GetMarksByTagID 根据标签ID获取标记列表（分页）
-func (h *MarkHandler) GetMarksByTagID(c *fiber.Ctx) error {
-	tagID := c.Params("tag_id")
-	if tagID == "" {
-		return errs.ErrInvalidInput.WithDetails("tag_id 不能为空")
-	}
-	tagIDInt, err := utils.ParsePositiveInt(tagID)
-	if err != nil {
-		return errs.ErrInvalidInput.WithDetails("tag_id 必须是正整数")
-	}
-	page := c.QueryInt("page", 1)
-	limit := c.QueryInt("limit", 10)
-	preload := c.Query("preload", "false") == "true"
-
-	marks, total, appErr := h.markService.GetMarksByTagID(tagIDInt, page, limit, preload)
-	if appErr != nil {
-		return appErr
-	}
-
-	return utils.SendPaginatedResponse(c, marks, total, page, limit)
 }

@@ -139,7 +139,6 @@ func (r *MarkRepo) getOrCreateTags(names []string) ([]model.MarkTag, error) {
 	return tags, nil
 }
 
-
 // GetMarksByTagID 支持分页查询带有特定标签ID的标记，返回数据和总数
 func (r *MarkRepo) GetMarksByTagID(tagID int, preload bool, offset, limit int) ([]model.Mark, int64, error) {
 	// 验证标签是否存在
@@ -174,4 +173,19 @@ func (r *MarkRepo) GetMarksByTagID(tagID int, preload bool, offset, limit int) (
 	}
 
 	return marks, total, nil
+}
+
+// GetMarksByTagName 根据标签名称分页查询关联的标记列表
+func (r *MarkRepo) GetMarksByTagName(tagName string, preload bool, offset, limit int) ([]model.Mark, int64, error) {
+	// 1. 先根据名称拿到标签
+	var tag model.MarkTag
+	if err := r.db.Where("tag_name = ?", tagName).First(&tag).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, 0, nil // 标签不存在，也返回 0 条数据
+		}
+		return nil, 0, err
+	}
+
+	// 2. 复用已有的按 ID 查询逻辑
+	return r.GetMarksByTagID(int(tag.ID), preload, offset, limit)
 }

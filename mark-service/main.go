@@ -47,16 +47,28 @@ func main() {
 		return c.SendString("服务运行正常")
 	})
 	api := app.Group("/api") // /api
+	v1 := api.Group("/v1")   // /api/v1
 
-	v1 := api.Group("/v1") // /api/v1
-	v1.Post("/marks", h.CreateMark)
-	v1.Get("/marks/:id", h.GetMarkByID)
-	v1.Put("/marks/:id", h.UpdateMark)
-	v1.Delete("/marks/:id", h.DeleteMark)
-	v1.Get("/marks", h.ListMark)
-	v1.Get("/marks/device/:device_id", h.GetMarkByDeviceID)
-	v1.Put("/marks/device/:device_id/last-online", h.UpdateMarkLastOnline)
-	v1.Get("/tags/:tag_id/marks", h.GetMarksByTagID)
+	// ---------------- mark 相关路由 ----------------
+	mark := v1.Group("/marks")
+	mark.Post("/", h.CreateMark)                                       // 创建标记
+	mark.Get("/", h.ListMark)                                          // 分页获取标记列表
+	mark.Get("/:id", h.GetMarkByID)                                    // 根据 ID 获取标记
+	mark.Put("/:id", h.UpdateMark)                                     // 更新标记
+	mark.Delete("/:id", h.DeleteMark)                                  // 删除标记
+	mark.Get("/device/:device_id", h.GetMarkByDeviceID)                // 根据设备 ID 获取标记
+	mark.Put("/device/:device_id/last-online", h.UpdateMarkLastOnline) // 更新最后在线时间
+
+	// ---------------- tag 相关路由 ----------------
+	tag := v1.Group("/tags")
+	tag.Post("/", h.CreateMarkTag)                        // 创建标签
+	tag.Get("/", h.ListMarkTags)                          // 分页获取标签列表
+	tag.Get("/:tag_id", h.GetMarkTagByID)                 // 根据 ID 获取标签
+	tag.Get("/name/:tag_name", h.GetMarkTagByName)        // 根据名称获取标签（?name=xxx）
+	tag.Put("/:tag_id", h.UpdateMarkTag)                  // 更新标签
+	tag.Delete("/:tag_id", h.DeleteMarkTag)               // 删除标签
+	tag.Get("/:tag_id/marks", h.GetMarksByTagID)          // 根据标签 ID 获取标记列表（分页）
+	tag.Get("/name/:tag_name/marks", h.GetMarksByTagName) // /tags/name/{name}/marks
 
 	// 启动服务器
 	port := utils.GetEnv("PORT", "8004")

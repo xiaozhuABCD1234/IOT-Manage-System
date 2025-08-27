@@ -21,7 +21,6 @@ type MarkRepository interface {
 	UpdateMark(mark *model.Mark, tagNames []string) error
 	DeleteMark(id string) error
 	UpdateMarkLastOnline(deviceID string, t time.Time) error
-	GetMarksByTagID(tagID int, preload bool, offset, limit int) ([]model.Mark, int64, error)
 
 	// MarkTag 相关操作
 	CreateMarkTag(mt *model.MarkTag) error
@@ -35,6 +34,8 @@ type MarkRepository interface {
 	DeleteMarkTag(id int) error
 	FindTagsByNames(names []string) ([]model.MarkTag, []string, error)
 	GetOrCreateTags(names []string) ([]model.MarkTag, error)
+	GetMarksByTagID(tagID int, preload bool, offset, limit int) ([]model.Mark, int64, error)
+	GetMarksByTagName(tagName string, preload bool, offset, limit int) ([]model.Mark, int64, error)
 
 	// MarkType 相关操作
 	CreateMarkType(mt *model.MarkType) error
