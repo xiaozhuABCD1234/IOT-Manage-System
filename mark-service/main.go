@@ -61,6 +61,8 @@ func main() {
 	mark.Get("/persist/device/:device_id", h.GetPersistMQTTByDeviceID) // GET /api/marks/persist/device/:device_id
 	mark.Get("/persist/list", h.GetMarksByPersistMQTT)                 // GET /api/marks/persist/list?persist=true&page=1&limit=10
 	mark.Get("/persist/device-ids", h.GetDeviceIDsByPersistMQTT)       // GET /api/marks/persist/device-ids?persist=true
+	mark.Get("", h.ListMark)
+	mark.Post("", h.CreateMark)
 
 	// ---------------- markTag 相关路由 ----------------
 	markTag := v1.Group("/tags")
@@ -72,6 +74,8 @@ func main() {
 	markTag.Delete("/:tag_id", h.DeleteMarkTag)               // 删除标签
 	markTag.Get("/:tag_id/marks", h.GetMarksByTagID)          // 根据标签 ID 获取标记列表（分页）
 	markTag.Get("/name/:tag_name/marks", h.GetMarksByTagName) // 根据标签名称获取标记列表（分页）
+	markTag.Post("", h.CreateMarkTag)
+	markTag.Get("", h.ListMarkTags)
 
 	// ---------------- type 相关路由 ----------------
 	markType := v1.Group("/types")
@@ -83,6 +87,8 @@ func main() {
 	markType.Delete("/:type_id", h.DeleteMarkType)               // 删除类型
 	markType.Get("/:type_id/marks", h.GetMarksByTypeID)          // 根据类型 ID 获取标记列表（分页）
 	markType.Get("/name/:type_name/marks", h.GetMarksByTypeName) // 根据类型名称获取标记列表（分页）
+	markType.Post("/", h.CreateMarkType)
+	markType.Get("/", h.ListMarkTypes)
 
 	// 启动服务器
 	port := utils.GetEnv("PORT", "8004")

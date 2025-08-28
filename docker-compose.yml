@@ -61,6 +61,23 @@ services:
         "logLevel=0",
       ]
 
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: unless-stopped
+    networks:
+      - iot_net
+    environment:
+      USER_SERVICE_URL: "user-service:8001"
+      MARK_SERVICE_URL: "mark-service:8004"
+      JWT_SECRET: "your-secret-key"
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+
   user-service:
     build:
       context: ./user-service
@@ -95,22 +112,6 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-
-  api-gateway:
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
-    container_name: api-gateway
-    restart: unless-stopped
-    networks:
-      - iot_net
-    environment:
-      USER_SERVICE_URL: "user-service:8001"
-      JWT_SECRET: "your-secret-key"
-    env_file:
-      - .env
-    ports:
-      - "8000:8000"
 
   mark-service:
     build:

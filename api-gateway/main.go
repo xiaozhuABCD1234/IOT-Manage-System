@@ -17,9 +17,14 @@ func main() {
 	r.Use(middleware.JWTMiddleware())
 
 	userServiceURL := utils.GetEnv("USER_SERVICE_URL", "user-service:8001")
+	markServiceUrl := utils.GetEnv("MARK_SERVICE_URL", "mark-service:8004")
 	log.Println(userServiceURL)
-	log.Printf("解析后的服务地址: %s", userServiceURL)
+	log.Printf("用户 服务地址: %s", userServiceURL)
 	r.Any("/api/v1/users/*proxyPath", createProxyHandler(userServiceURL))
+	log.Printf("标记 服务地址: %s", markServiceUrl) // 调试输出
+	r.Any("/api/v1/marks/*proxyPath", createProxyHandler(markServiceUrl))
+	r.Any("/api/v1/tags/*proxyPath", createProxyHandler(markServiceUrl))
+	r.Any("/api/v1/types/*proxyPath", createProxyHandler(markServiceUrl))
 	// Gin？启动！
 	port := utils.GetEnv("PORT", "8000")
 	log.Printf("服务即将启动，监听端口: %s\n", port)
