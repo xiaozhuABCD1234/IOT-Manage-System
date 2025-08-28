@@ -16,15 +16,23 @@ build/
 *.sqlite3
 *.db
 
-# IDE and editor files
+# ── 2. IDE / Editor ─────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
-*.swn
-
-# OS generated files
+*~
 .DS_Store
 Thumbs.db
 
+# ── 3. OS ───────────────────────────────────────────
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
 dist
+
+.env
+set_env.sh

@@ -1,85 +1,28 @@
 <template>
-  <!-- 全屏布局（用于登录页等） -->
-  <div v-if="isFullScreenLayout" class="full-screen-layout">
-    <RouterView />
-  </div>
+  <!-- 整个视口高度，纵向 flex 布局 -->
+  <div class="font-maplemono flex min-h-screen w-full flex-col">
+    <!-- 头部 -->
+    <header class="h-12 shrink-0 bg-blue-300">头</header>
 
-  <!-- 常规布局（带顶部栏和侧边栏） -->
-  <div v-else class="common-layout">
-    <el-container>
-      <el-header>
-        <TopBar />
-      </el-header>
-      <el-container>
-        <el-aside width="200px">
-          <AsideBar />
-        </el-aside>
-        <el-main class="main-content">
-          <RouterView />
-        </el-main>
-      </el-container>
-    </el-container>
+    <!-- 主内容区，自动占满剩余高度 -->
+    <main class="flex-1 bg-gray-100"></main>
+
+    <!-- 页脚，始终在底部(大屏) -->
+    <footer
+      class="hidden h-12 shrink-0 items-center justify-center bg-blue-400 text-center md:flex"
+    >
+      <HomeFooter />
+    </footer>
+    <!-- 底部导航栏（小屏） -->
+    <footer
+      class="flex h-14 shrink-0 items-center justify-center bg-blue-400 text-center md:hidden"
+    >
+      <MenuFooter></MenuFooter>
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useRoute } from "vue-router";
-import TopBar from "./components/menu/TopBar.vue";
-import AsideBar from "./components/menu/AsideBar.vue";
-
-const route = useRoute();
-
-// 根据路由元信息判断是否使用全屏布局
-const isFullScreenLayout = computed(() => {
-  return route.meta.fullScreen === true;
-});
+import HomeFooter from "./components/HomeFooter.vue";
+import MenuFooter from "./components/MenuFooter.vue";
 </script>
-
-<style scoped>
-/* 全屏布局样式 */
-.full-screen-layout {
-  height: 100vh;
-  width: 100vw;
-}
-
-/* 常规布局样式 */
-.common-layout {
-  height: 100vh;
-}
-
-.el-container {
-  height: 100%;
-}
-
-.el-header {
-  height: 60px;
-}
-
-.el-aside {
-  height: 100%;
-}
-
-.el-main {
-  height: 100%;
-}
-
-.main-content {
-  padding: 20px;
-  background-color: #f0f0f0;
-  overflow-y: auto;
-  box-sizing: border-box;
-  border-radius: 8px;
-}
-</style>
-
-<style>
-/* 全局样式 */
-html,
-body,
-#app {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-</style>

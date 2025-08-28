@@ -1,33 +1,24 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-
 import App from "./App.vue";
 import router from "./router";
 
-// Vuetify
-// import 'vuetify/styles'
-// import { createVuetify } from 'vuetify'
-// import * as components from 'vuetify/components'
-// import * as directives from 'vuetify/directives'
+import "element-plus/theme-chalk/index.css";
+import "element-plus/theme-chalk/dark/css-vars.css";
+import "element-plus/es/components/message/style/css";
+import "@/styles/index.css";
 
-// const vuetify = createVuetify({
-//   components,
-//   directives,
-// })
+// 仅用到的两个自动引入即可
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { usePreferredDark, useDark } from "@vueuse/core";
 
-import ElementPlus from "element-plus";
-import "element-plus/dist/index.css";
+// 让 <html> 自动跟随系统深浅色
+useDark({
+  selector: "html",
+  attribute: "class",
+  valueDark: "dark",
+  valueLight: "",
+  storageKey: null, // 完全跟随系统
+});
 
-import * as ElementPlusIconsVue from "@element-plus/icons-vue";
-
-const app = createApp(App);
-
-for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component);
-}
-app.use(createPinia());
-app.use(router);
-// app.use(vuetify)
-app.use(ElementPlus);
-
-app.mount("#app");
+createApp(App).use(createPinia()).use(router).mount("#app");
