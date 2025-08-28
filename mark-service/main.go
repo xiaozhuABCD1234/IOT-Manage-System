@@ -17,7 +17,7 @@ func main() {
 
 		StrictRouting: true,
 		// ServerHeader:       "Fiber",
-		AppName:            "电子标签服务 v0.0.1",
+		AppName:            "电子标记服务 v0.0.1",
 		CaseSensitive:      true,
 		DisableDefaultDate: true,
 		JSONEncoder:        json.Marshal,
