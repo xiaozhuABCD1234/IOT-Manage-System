@@ -58,6 +58,9 @@ func main() {
 	mark.Delete("/:id", h.DeleteMark)                                  // 删除标记
 	mark.Get("/device/:device_id", h.GetMarkByDeviceID)                // 根据设备 ID 获取标记
 	mark.Put("/device/:device_id/last-online", h.UpdateMarkLastOnline) // 更新最后在线时间
+	mark.Get("/persist/device/:device_id", h.GetPersistMQTTByDeviceID) // GET /api/marks/persist/device/:device_id
+	mark.Get("/persist/list", h.GetMarksByPersistMQTT)                 // GET /api/marks/persist/list?persist=true&page=1&limit=10
+	mark.Get("/persist/device-ids", h.GetDeviceIDsByPersistMQTT)       // GET /api/marks/persist/device-ids?persist=true
 
 	// ---------------- markTag 相关路由 ----------------
 	markTag := v1.Group("/tags")

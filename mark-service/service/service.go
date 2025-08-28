@@ -15,6 +15,10 @@ type MarkService interface {
 	UpdateMark(ID string, req *model.MarkUpdateRequest) error
 	DeleteMark(id string) error
 	UpdateMarkLastOnline(deviceID string, t time.Time) error
+	GetPersistMQTTByDeviceID(deviceID string) (bool, error)
+	GetMarksByPersistMQTT(persist bool, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
+	GetDeviceIDsByPersistMQTT(persist bool) ([]string, error)
+
 	// MarkTag 相关操作
 	CreateMarkTag(mt *model.MarkTagRequest) error
 	GetMarkTagByID(id int) (*model.MarkTagResponse, error)
@@ -24,6 +28,7 @@ type MarkService interface {
 	DeleteMarkTag(id int) error
 	GetMarksByTagID(tagID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	GetMarksByTagName(tagName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
+
 	// MarkType 相关操作
 	CreateMarkType(mt *model.MarkTypeRequest) error
 	GetMarkTypeByID(id int) (*model.MarkTypeResponse, error)

@@ -21,6 +21,9 @@ type MarkRepository interface {
 	UpdateMark(mark *model.Mark, tagNames []string) error
 	DeleteMark(id string) error
 	UpdateMarkLastOnline(deviceID string, t time.Time) error
+	GetMarksByPersistMQTT(persist bool, preload bool, offset, limit int) ([]model.Mark, int64, error)
+	GetPersistMQTTByDeviceID(deviceID string) (bool, error)
+	GetDeviceIDsByPersistMQTT(persist bool) ([]string, error)
 
 	// MarkTag 相关操作
 	CreateMarkTag(mt *model.MarkTag) error

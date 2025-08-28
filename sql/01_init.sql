@@ -58,3 +58,8 @@ CREATE INDEX IF NOT EXISTS idx_marks_created_at ON marks (created_at);
 CREATE INDEX IF NOT EXISTS idx_marks_last_online ON marks (last_online_at);
 CREATE INDEX IF NOT EXISTS idx_mark_tag_relation_tag_id ON mark_tag_relation (tag_id);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
+-- 单独索引（如果查询频繁）
+CREATE INDEX IF NOT EXISTS idx_marks_persist_mqtt ON marks (persist_mqtt);
+
+-- 或者更高效的复合索引（覆盖索引）
+CREATE INDEX IF NOT EXISTS idx_marks_persist_device ON marks (persist_mqtt, device_id);

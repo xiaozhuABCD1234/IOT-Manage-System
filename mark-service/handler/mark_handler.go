@@ -60,8 +60,18 @@ func (h *MarkHandler) GetMarkByDeviceID(c *fiber.Ctx) error {
 
 // ListMark 列表查询，支持分页和预加载
 func (h *MarkHandler) ListMark(c *fiber.Ctx) error {
+	// 分页参数
 	page := c.QueryInt("page", 1)
+	if page < 1 {
+		page = 1
+	}
 	limit := c.QueryInt("limit", 10)
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100 // 限制最大值
+	}
 	preload := c.Query("preload", "false") == "true"
 
 	marks, total, appErr := h.markService.ListMark(page, limit, preload)
@@ -111,4 +121,70 @@ func (h *MarkHandler) UpdateMarkLastOnline(c *fiber.Ctx) error {
 		return err
 	}
 	return utils.SendSuccessResponse(c, nil, "标记最后在线时间更新成功")
+}
+
+// GetPersistMQTTByDeviceID 根据 DeviceID 查询 PersistMQTT 值
+func (h *MarkHandler) GetPersistMQTTByDeviceID(c *fiber.Ctx) error {
+	deviceID := c.Params("device_id")
+	if deviceID == "" {
+		return errs.ErrInvalidInput.WithDetails("device_id 参数不能为空")
+	}
+
+	persist, err := h.markService.GetPersistMQTTByDeviceID(deviceID)
+	if err != nil {
+		return err // 已经是自定义错误，直接返回
+	}
+
+	return utils.SendSuccessResponse(c, persist)
+}
+
+// GetMarksByPersistMQTT 根据 PersistMQTT 值查询标记列表（分页）
+func (h *MarkHandler) GetMarksByPersistMQTT(c *fiber.Ctx) error {
+	// 解析 persist 参数
+	persistStr := c.Query("persist")
+	if persistStr == "" {
+		return errs.ErrInvalidInput.WithDetails("缺少查询参数 'persist' (true/false)")
+	}
+	persist := persistStr == "true"
+
+	// 分页参数
+	page := c.QueryInt("page", 1)
+	if page < 1 {
+		page = 1
+	}
+	limit := c.QueryInt("limit", 10)
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100 // 限制最大值
+	}
+
+	preload := c.Query("preload", "false") == "true"
+
+	// 调用服务
+	marks, total, err := h.markService.GetMarksByPersistMQTT(persist, page, limit, preload)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendPaginatedResponse(c, marks, total, page, limit)
+}
+
+// GetDeviceIDsByPersistMQTT 根据 PersistMQTT 值查询所有 DeviceID 列表
+func (h *MarkHandler) GetDeviceIDsByPersistMQTT(c *fiber.Ctx) error {
+	// 解析 persist 参数
+	persistStr := c.Query("persist")
+	if persistStr == "" {
+		return errs.ErrInvalidInput.WithDetails("缺少查询参数 'persist' (true/false)")
+	}
+	persist := persistStr == "true"
+
+	// 调用服务
+	deviceIDs, err := h.markService.GetDeviceIDsByPersistMQTT(persist)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, deviceIDs)
 }

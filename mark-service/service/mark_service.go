@@ -196,3 +196,42 @@ func (s *markService) convertToMarkResponse(mark *model.Mark) *model.MarkRespons
 
 	return response
 }
+
+// GetPersistMQTTByDeviceID 根据设备ID查询 PersistMQTT 字段的值
+func (s *markService) GetPersistMQTTByDeviceID(deviceID string) (bool, error) {
+	persist, err := s.repo.GetPersistMQTTByDeviceID(deviceID)
+	if err != nil {
+		return false, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return persist, nil
+}
+
+// GetMarksByPersistMQTT 根据 PersistMQTT 字段查询标记列表（分页）
+func (s *markService) GetMarksByPersistMQTT(persist bool, page, limit int, preload bool) ([]model.MarkResponse, int64, error) {
+	offset := (page - 1) * limit
+
+	marks, total, err := s.repo.GetMarksByPersistMQTT(persist, preload, offset, limit)
+	if err != nil {
+		return nil, 0, errs.ErrDatabase.WithDetails(err.Error())
+	}
+
+	if len(marks) == 0 {
+		return nil, total, errs.NotFound("Marks", "未找到 PersistMQTT=%v 的标记", persist)
+	}
+	// 转换为响应模型
+	var responses []model.MarkResponse
+	for _, mark := range marks {
+		responses = append(responses, *s.convertToMarkResponse(&mark))
+	}
+
+	return responses, total, nil
+}
+
+// GetDeviceIDsByPersistMQTT 根据 PersistMQTT 的值查询所有对应的 DeviceID 列表
+func (s *markService) GetDeviceIDsByPersistMQTT(persist bool) ([]string, error) {
+	deviceIDs, err := s.repo.GetDeviceIDsByPersistMQTT(persist)
+	if err != nil {
+		return nil, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return deviceIDs, nil
+}

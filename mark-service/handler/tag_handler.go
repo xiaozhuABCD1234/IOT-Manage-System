@@ -42,8 +42,18 @@ func (h *MarkHandler) GetMarkTagByID(c *fiber.Ctx) error {
 
 // ListMarkTags 分页获取标签列表
 func (h *MarkHandler) ListMarkTags(c *fiber.Ctx) error {
+	// 分页参数
 	page := c.QueryInt("page", 1)
+	if page < 1 {
+		page = 1
+	}
 	limit := c.QueryInt("limit", 10)
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100 // 限制最大值
+	}
 
 	if page <= 0 || limit <= 0 {
 		return errs.ErrInvalidInput.WithDetails("page 和 limit 必须大于 0")
@@ -120,8 +130,18 @@ func (h *MarkHandler) GetMarksByTagID(c *fiber.Ctx) error {
 	if err != nil {
 		return errs.ErrInvalidInput.WithDetails("tag_id 必须是正整数")
 	}
+	// 分页参数
 	page := c.QueryInt("page", 1)
+	if page < 1 {
+		page = 1
+	}
 	limit := c.QueryInt("limit", 10)
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100 // 限制最大值
+	}
 	preload := c.Query("preload", "false") == "true"
 
 	marks, total, appErr := h.markService.GetMarksByTagID(tagIDInt, page, limit, preload)
@@ -137,8 +157,18 @@ func (h *MarkHandler) GetMarksByTagName(c *fiber.Ctx) error {
 	if name == "" {
 		return errs.ErrInvalidInput.WithDetails("tag_name 不能为空")
 	}
+	// 分页参数
 	page := c.QueryInt("page", 1)
+	if page < 1 {
+		page = 1
+	}
 	limit := c.QueryInt("limit", 10)
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100 // 限制最大值
+	}
 	preload := c.Query("preload", "false") == "true"
 
 	marks, total, appErr := h.markService.GetMarksByTagName(name, page, limit, preload)
