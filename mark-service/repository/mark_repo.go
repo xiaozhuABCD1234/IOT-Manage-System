@@ -189,3 +189,52 @@ func (r *MarkRepo) GetMarksByTagName(tagName string, preload bool, offset, limit
 	// 2. 复用已有的按 ID 查询逻辑
 	return r.GetMarksByTagID(int(tag.ID), preload, offset, limit)
 }
+
+// GetMarksByTypeID 支持分页查询带有特定类型ID的标记，返回数据和总数
+func (r *MarkRepo) GetMarksByTypeID(typeID int, preload bool, offset, limit int) ([]model.Mark, int64, error) {
+	// 验证类型是否存在
+	var markType model.MarkType
+	if err := r.db.First(&markType, typeID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, 0, nil
+		}
+		return nil, 0, err
+	}
+
+	// 构建基础查询
+	query := r.db.Model(&model.Mark{}).Where("mark_type_id = ?", typeID)
+
+	// 预加载关联数据
+	if preload {
+		query = query.Preload("MarkType").Preload("Tags")
+	}
+
+	// 获取总数
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 获取分页数据
+	var marks []model.Mark
+	if err := query.Offset(offset).Limit(limit).Find(&marks).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return marks, total, nil
+}
+
+// GetMarksByTypeName 根据类型名称分页查询关联的标记列表
+func (r *MarkRepo) GetMarksByTypeName(typeName string, preload bool, offset, limit int) ([]model.Mark, int64, error) {
+	// 1. 先根据名称拿到类型
+	var markType model.MarkType
+	if err := r.db.Where("type_name = ?", typeName).First(&markType).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, 0, nil // 类型不存在，也返回 0 条数据
+		}
+		return nil, 0, err
+	}
+
+	// 2. 复用已有的按 ID 查询逻辑
+	return r.GetMarksByTypeID(int(markType.ID), preload, offset, limit)
+}

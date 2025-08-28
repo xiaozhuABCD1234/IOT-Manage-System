@@ -22,8 +22,8 @@ type MarkService interface {
 	ListMarkTags(page, limit int) ([]model.MarkTagResponse, int64, error)
 	UpdateMarkTag(tag *model.MarkTagRequest) error
 	DeleteMarkTag(id int) error
-	GetMarksByTagID(tagID int, offset, limit int, preload bool) ([]model.MarkResponse, int64, error)
-	GetMarksByTagName(tagName string, offset, limit int, preload bool) ([]model.MarkResponse, int64, error)
+	GetMarksByTagID(tagID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
+	GetMarksByTagName(tagName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	// MarkType 相关操作
 	CreateMarkType(mt *model.MarkTypeRequest) error
 	GetMarkTypeByID(id int) (*model.MarkTypeResponse, error)
@@ -31,6 +31,8 @@ type MarkService interface {
 	ListMarkTypes(page, limit int) ([]model.MarkTypeResponse, int64, error)
 	UpdateMarkType(mt *model.MarkTypeRequest) error
 	DeleteMarkType(id int) error
+	GetMarksByTypeID(typeID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
+	GetMarksByTypeName(typeName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 }
 
 type markService struct {

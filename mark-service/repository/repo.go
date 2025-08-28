@@ -47,6 +47,8 @@ type MarkRepository interface {
 	ListMarkTypesWithCount(offset, limit int) ([]model.MarkType, int64, error)
 	UpdateMarkType(mt *model.MarkType) error
 	DeleteMarkType(id int) error
+	GetMarksByTypeID(typeID int, preload bool, offset, limit int) ([]model.Mark, int64, error)
+	GetMarksByTypeName(typeName string, preload bool, offset, limit int) ([]model.Mark, int64, error)
 
 	// 判断重复字段
 	IsDeviceIDExists(deviceID string) (bool, error)

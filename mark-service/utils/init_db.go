@@ -26,6 +26,8 @@ func InitDB() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		dbHost, dbPort, dbUser, dbPassword, dbName, dbSSLMode)
 
+	log.Println("DSN:" + dsn)
+
 	var db *gorm.DB
 	var err error
 
@@ -34,6 +36,7 @@ func InitDB() (*gorm.DB, error) {
 			Logger: logger.Default.LogMode(logger.Info),
 		})
 		if err == nil {
+			log.Println("数据库连接成功")
 			break
 		}
 		log.Printf("数据库连接失败（尝试 %d/%d）: %v", i+1, maxRetries, err)

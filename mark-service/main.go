@@ -13,11 +13,11 @@ import (
 
 func main() {
 	app := fiber.New(fiber.Config{
-		Prefork: true,
+		Prefork: false,
 
 		StrictRouting: true,
 		// ServerHeader:       "Fiber",
-		AppName:            "mark-service v0.0.1",
+		AppName:            "电子标签服务 v0.0.1",
 		CaseSensitive:      true,
 		DisableDefaultDate: true,
 		JSONEncoder:        json.Marshal,
@@ -59,16 +59,27 @@ func main() {
 	mark.Get("/device/:device_id", h.GetMarkByDeviceID)                // 根据设备 ID 获取标记
 	mark.Put("/device/:device_id/last-online", h.UpdateMarkLastOnline) // 更新最后在线时间
 
-	// ---------------- tag 相关路由 ----------------
-	tag := v1.Group("/tags")
-	tag.Post("/", h.CreateMarkTag)                        // 创建标签
-	tag.Get("/", h.ListMarkTags)                          // 分页获取标签列表
-	tag.Get("/:tag_id", h.GetMarkTagByID)                 // 根据 ID 获取标签
-	tag.Get("/name/:tag_name", h.GetMarkTagByName)        // 根据名称获取标签（?name=xxx）
-	tag.Put("/:tag_id", h.UpdateMarkTag)                  // 更新标签
-	tag.Delete("/:tag_id", h.DeleteMarkTag)               // 删除标签
-	tag.Get("/:tag_id/marks", h.GetMarksByTagID)          // 根据标签 ID 获取标记列表（分页）
-	tag.Get("/name/:tag_name/marks", h.GetMarksByTagName) // /tags/name/{name}/marks
+	// ---------------- markTag 相关路由 ----------------
+	markTag := v1.Group("/tags")
+	markTag.Post("/", h.CreateMarkTag)                        // 创建标签
+	markTag.Get("/", h.ListMarkTags)                          // 分页获取标签列表
+	markTag.Get("/:tag_id", h.GetMarkTagByID)                 // 根据 ID 获取标签
+	markTag.Get("/name/:tag_name", h.GetMarkTagByName)        // 根据名称获取标签
+	markTag.Put("/:tag_id", h.UpdateMarkTag)                  // 更新标签
+	markTag.Delete("/:tag_id", h.DeleteMarkTag)               // 删除标签
+	markTag.Get("/:tag_id/marks", h.GetMarksByTagID)          // 根据标签 ID 获取标记列表（分页）
+	markTag.Get("/name/:tag_name/marks", h.GetMarksByTagName) // 根据标签名称获取标记列表（分页）
+
+	// ---------------- type 相关路由 ----------------
+	markType := v1.Group("/types")
+	markType.Post("/", h.CreateMarkType)                         // 创建类型
+	markType.Get("/", h.ListMarkTypes)                           // 分页获取类型列表
+	markType.Get("/:type_id", h.GetMarkTypeByID)                 // 根据 ID 获取类型
+	markType.Get("/name/:type_name", h.GetMarkTypeByName)        // 根据名称获取类型
+	markType.Put("/:type_id", h.UpdateMarkType)                  // 更新类型
+	markType.Delete("/:type_id", h.DeleteMarkType)               // 删除类型
+	markType.Get("/:type_id/marks", h.GetMarksByTypeID)          // 根据类型 ID 获取标记列表（分页）
+	markType.Get("/name/:type_name/marks", h.GetMarksByTypeName) // 根据类型名称获取标记列表（分页）
 
 	// 启动服务器
 	port := utils.GetEnv("PORT", "8004")

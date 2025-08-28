@@ -19,9 +19,8 @@ RUN go mod download -x
 # 复制源代码
 COPY . .
 
-# 构建应用（优化二进制，Gin使用go_json序列化）
+# 编译阶段
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-    -tags="go_json" \
     -ldflags="-w -s" \
     -a -installsuffix cgo \
     -o main .
@@ -48,7 +47,7 @@ RUN chown -R appuser:appgroup /app
 USER appuser
 
 # 暴露端口
-EXPOSE 8080
+EXPOSE 8004
 
 # 健康检查
 # HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

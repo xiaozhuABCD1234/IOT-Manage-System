@@ -2,6 +2,7 @@
 package service
 
 import (
+	"IOT-Manage-System/mark-service/errs"
 	"IOT-Manage-System/mark-service/model"
 )
 
@@ -80,4 +81,42 @@ func (s *markService) UpdateMarkType(mt *model.MarkTypeRequest) error {
 // DeleteMarkType 删除标记类型
 func (s *markService) DeleteMarkType(id int) error {
 	return s.repo.DeleteMarkType(id)
+}
+
+func (s *markService) GetMarksByTypeID(typeID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error) {
+	offset := (page - 1) * limit
+	marks, total, err := s.repo.GetMarksByTypeID(typeID, preload, offset, limit)
+	if err != nil {
+		return nil, 0, errs.ErrDatabase.WithDetails(err.Error())
+	}
+
+	// 转换为响应模型列表
+	var responses []model.MarkResponse
+	for _, mark := range marks {
+		responses = append(responses, *s.convertToMarkResponse(&mark))
+	}
+	if len(responses) == 0 {
+		return nil, total, errs.NotFound("Marks", "未找到相关标记")
+	}
+
+	return responses, total, nil
+}
+
+func (s *markService) GetMarksByTypeName(typeName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error) {
+	offset := (page - 1) * limit
+	marks, total, err := s.repo.GetMarksByTagName(typeName, preload, offset, limit)
+	if err != nil {
+		return nil, 0, errs.ErrDatabase.WithDetails(err.Error())
+	}
+
+	// 转换为响应模型列表
+	var responses []model.MarkResponse
+	for _, mark := range marks {
+		responses = append(responses, *s.convertToMarkResponse(&mark))
+	}
+	if len(responses) == 0 {
+		return nil, total, errs.NotFound("Marks", "未找到相关标记")
+	}
+
+	return responses, total, nil
 }

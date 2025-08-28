@@ -90,7 +90,7 @@ services:
           "--quiet",
           "--tries=1",
           "--spider",
-          "http://localhost:8080/health",
+          "http://localhost:8081/health",
         ]
       interval: 30s
       timeout: 5s
@@ -111,6 +111,42 @@ services:
       - .env
     ports:
       - "8000:8000"
+
+  mark-service:
+    build:
+      context: ./mark-service
+      dockerfile: Dockerfile
+    container_name: mark-service
+    restart: unless-stopped
+    networks:
+      - iot_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: iot_manager_db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      JWT_SECRET: "your-secret-key"
+      TZ: Asia/Shanghai
+    # ports:
+    #   - "8004:8004"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8004/health",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
 volumes:
   mosquitto_data:
   mosquitto_log:
