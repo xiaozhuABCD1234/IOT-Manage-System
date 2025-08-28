@@ -1,0 +1,20 @@
+{
+  "id": 1,
+  "indoor": false,
+  "sensors": [
+    {
+      "name": "RTK",
+      "data": {
+        "unit": "°",
+        "value": [121.891751, 30.902079]
+      }
+    },
+    {
+      "name": "UWB",
+      "data": {
+        "unit": "cm",
+        "value": [11.4, 51.4]
+      }
+    }
+  ]
+}

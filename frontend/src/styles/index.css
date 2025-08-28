@@ -1,7 +1,0 @@
-@import "tailwindcss";
-@import "./font.css";
-
-@theme {
-  /* 把字体注册成新工具类 */
-  --font-maplemono: "MapleMono", monospace;
-}

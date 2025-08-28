@@ -1,0 +1,62 @@
+<svg width="210" height="250" xmlns="http://www.w3.org/2000/svg">
+    <g>
+        <title>uwb地图</title>
+        <g id="svg_1">
+            <rect id="svg_4" height="220" width="80" y="15" x="15" stroke="#ffd111" fill="#fff"
+                stroke-width="3" />
+            <rect id="svg_3" height="70" width="100" y="125" x="95" stroke="#ffd111" fill="#fff"
+                stroke-width="3" />
+            <line fill="none" stroke="#000" stroke-width="2" y2="234" x2="84" y1="234" x1="64"
+                id="svg_7" />
+        </g>
+        <g>
+            <g>
+                <circle fill="none" stroke="#22a2c3" cx="15" cy="15" id="svg_8" r="15" />
+                <circle fill="none" stroke="#22a2c3" cx="15" cy="15" id="svg_6" r="10" />
+                <circle fill="none" stroke="#22a2c3" cx="15" cy="15" id="svg_5" r="5" />
+                <circle stroke="#22a2c3" fill="#22a2c3" cx="15" cy="15" id="svg_2" r="2" />
+            </g>
+        </g>
+        <g>
+            <g>
+                <circle fill="none" stroke="#22a2c3" cx="15" cy="235" id="svg_12" r="15" />
+                <circle fill="none" stroke="#22a2c3" cx="15" cy="235" id="svg_11" r="10" />
+                <circle fill="none" stroke="#22a2c3" cx="15" cy="235" id="svg_10" r="5" />
+                <circle stroke="#22a2c3" fill="#22a2c3" cx="15" cy="235" id="svg_9" r="2" />
+            </g>
+        </g>
+        <g>
+            <g>
+                <circle fill="none" stroke="#22a2c3" cx="95" cy="15" id="svg_16" r="15" />
+                <circle fill="none" stroke="#22a2c3" cx="95" cy="15" id="svg_15" r="10" />
+                <circle fill="none" stroke="#22a2c3" cx="95" cy="15" id="svg_14" r="5" />
+                <circle stroke="#22a2c3" fill="#22a2c3" cx="95" cy="15" id="svg_13" r="2" />
+            </g>
+        </g>
+        <g>
+            <g>
+                <circle fill="none" stroke="#22a2c3" cx="95" cy="235" id="svg_20" r="15" />
+                <circle fill="none" stroke="#22a2c3" cx="95" cy="235" id="svg_19" r="10" />
+                <circle fill="none" stroke="#22a2c3" cx="95" cy="235" id="svg_18" r="5" />
+                <circle stroke="#22a2c3" fill="#22a2c3" cx="95" cy="235" id="svg_17" r="2" />
+            </g>
+        </g>
+        <g>
+            <g>
+                <circle fill="none" stroke="#22a2c3" cx="195" cy="125" id="svg_24" r="15" />
+                <circle fill="none" stroke="#22a2c3" cx="195" cy="125" id="svg_23" r="10" />
+                <circle fill="none" stroke="#22a2c3" cx="195" cy="125" id="svg_22" r="5" />
+                <circle stroke="#22a2c3" fill="#22a2c3" cx="195" cy="125" id="svg_21" r="2" />
+            </g>
+        </g>
+        <g>
+            <g>
+                <circle fill="none" stroke="#22a2c3" cx="195" cy="195" id="svg_28" r="15" />
+                <circle fill="none" stroke="#22a2c3" cx="195" cy="195" id="svg_27" r="10" />
+                <circle fill="none" stroke="#22a2c3" cx="195" cy="195" id="svg_26" r="5" />
+                <circle stroke="#22a2c3" fill="#22a2c3" cx="195" cy="195" id="svg_25" r="2" />
+            </g>
+        </g>
+    </g>
+
+</svg>
