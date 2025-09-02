@@ -109,6 +109,30 @@ const createDevice = (AMap: any, id: number, lng: number, lat: number) => {
 //
 //
 
+// 向设备发送MQTT警报消息
+const sendMqttAlertToDevice = (deviceId: string | number, message: string) => {
+  if (!mqttClient) {
+    console.error("MQTT client not connected");
+    return;
+  }
+  
+  try {
+    // 构建设备特定的话题，格式为：location/sensors/{deviceId}
+    const deviceTopic = `location/sensors/${deviceId}`;
+    
+    // 发布消息到设备话题
+    mqttClient.publish(deviceTopic, message, { qos: 1 }, (error) => {
+      if (error) {
+        console.error(`Error sending alert to device ${deviceId}:`, error);
+      } else {
+        console.log(`Alert sent to device ${deviceId}: ${message}`);
+      }
+    });
+  } catch (error) {
+    console.error(`Failed to send alert to device ${deviceId}:`, error);
+  }
+};
+
 // 检查设备是否在围栏内
 const checkFenceViolation = (deviceId: number, lng: number, lat: number) => {
   const point = new AMap.LngLat(lng, lat);
@@ -127,6 +151,9 @@ const checkFenceViolation = (deviceId: number, lng: number, lat: number) => {
       type: "warning",
       duration: 3000,
     });
+    
+    // 向触发警告的设备发送MQTT消息
+    sendMqttAlertToDevice(deviceId, "on");
   }
 };
 

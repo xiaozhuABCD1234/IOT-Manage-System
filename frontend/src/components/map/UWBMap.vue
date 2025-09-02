@@ -260,6 +260,30 @@ const mqttConfig = {
   topic: ConfigStore.mqtttopic,
 };
 
+// 向设备发送MQTT警报消息
+const sendMqttAlertToDevice = (deviceId: string, message: string) => {
+  if (!client) {
+    console.error("MQTT client not connected");
+    return;
+  }
+  
+  try {
+    // 构建设备特定的话题，格式为：location/sensors/{deviceId}
+    const deviceTopic = `location/sensors/${deviceId}`;
+    
+    // 发布消息到设备话题
+    client.publish(deviceTopic, message, { qos: 1 }, (error) => {
+      if (error) {
+        console.error(`Error sending alert to device ${deviceId}:`, error);
+      } else {
+        console.log(`Alert sent to device ${deviceId}: ${message}`);
+      }
+    });
+  } catch (error) {
+    console.error(`Failed to send alert to device ${deviceId}:`, error);
+  }
+};
+
 let client: mqtt.MqttClient | null = null;
 
 const mapRef = ref<InstanceType<typeof P5MultiTrail> | null>(null);
@@ -471,6 +495,10 @@ const calculateDistance = () => {
         type: "warning",
         duration: 5000,
       });
+      
+      // 向两个触发安全距离警告的设备发送MQTT消息
+      sendMqttAlertToDevice(selectedTag1.value, "on");
+      sendMqttAlertToDevice(selectedTag2.value, "on");
     }
   } else {
     distance.value = '--';
@@ -578,6 +606,9 @@ const handleFenceViolation = (deviceId: string) => {
     type: "warning",
     duration: 5000,
   });
+  
+  // 向触发警告的设备发送MQTT消息
+  sendMqttAlertToDevice(deviceId, "on");
 };
 
 watch([selectedTag1, selectedTag2, points, selectedSafetyDistance], calculateDistance, { deep: true });
