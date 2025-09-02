@@ -106,6 +106,8 @@ const createDevice = (AMap: any, id: number, lng: number, lat: number) => {
     marker,
   };
 };
+//
+//
 
 // 检查设备是否在围栏内
 const checkFenceViolation = (deviceId: number, lng: number, lat: number) => {
