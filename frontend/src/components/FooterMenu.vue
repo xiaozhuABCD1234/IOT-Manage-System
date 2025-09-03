@@ -1,6 +1,8 @@
 <!-- src/components/MenuFooter.vue -->
 <template>
-  <nav class="flex h-full w-full items-stretch border-t border-gray-200 bg-white">
+  <nav
+    class="flex h-full w-full items-stretch border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+  >
     <button
       v-for="(item, idx) in menu"
       :key="idx"
@@ -8,6 +10,8 @@
         'flex flex-1 flex-col items-center justify-center text-gray-600',
         'hover:text-blue-500 focus:outline-none',
         active === idx && 'font-maplemono text-blue-600',
+        'dark:text-gray-400 dark:hover:text-blue-400',
+        active === idx && 'dark:text-blue-400',
       ]"
       @click="active = idx"
     >

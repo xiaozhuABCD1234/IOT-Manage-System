@@ -1,6 +1,6 @@
 // src/utils/request.ts
 import axios, { type AxiosResponse, type AxiosError } from "axios";
-import { ElMessage } from "element-plus";
+import { toast } from "vue-sonner";
 
 /* ========== 类型声明 ========== */
 
@@ -51,21 +51,29 @@ service.interceptors.request.use((config) => {
 
 /* ========== 响应拦截器 ========== */
 service.interceptors.response.use(
-  <T>(response: AxiosResponse<ApiResponse<T>>): AxiosResponse<ApiResponse<T>> | Promise<never> => {
+  <T>(response: AxiosResponse<ApiResponse<T>>) => {
     const { success, message } = response.data;
+    if (success) return response;
 
-    if (success) {
-      return response;
-    }
-
-    ElMessage.error(message || "请求失败");
+    // ② 用 toast 替换 ElMessage
+    toast.error(message || "请求失败");
     (response as unknown as { _handled: boolean })._handled = true;
     return Promise.reject(response);
   },
 
   (error: AxiosError<ApiResponse>) => {
-    const msg = error.response?.data?.message || error.message || "网络异常";
-    ElMessage({ showClose: true, message: msg, type: "error" });
+    const { response, message } = error;
+
+    // 404
+    if (response?.status === 404) {
+      toast.error("无法连接到后端，请稍后再试");
+      (error as unknown as { _handled: boolean })._handled = true;
+      return Promise.reject(error);
+    }
+
+    // 其余错误
+    const msg = response?.data?.message || message || "网络异常";
+    toast.error(msg);
     (error as unknown as { _handled: boolean })._handled = true;
     return Promise.reject(error);
   },

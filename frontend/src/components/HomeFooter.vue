@@ -1,8 +1,6 @@
 <!-- src/components/HomeFooter.vue -->
 <template>
-  <footer
-    class="flex h-12 shrink-0 items-center justify-between bg-blue-400 px-4 text-sm text-white md:px-6"
-  >
+  <footer class="flex h-12 shrink-0 items-center justify-between px-4 text-sm text-white md:px-6">
     <!-- 左侧版权 -->
     <div class="flex items-center">
       <Copyright :size="16" />

@@ -1,5 +1,6 @@
 // src/api/user.ts
 import request from "@/utils/request";
+import type { ApiResponse } from "@/utils/request";
 
 /* ----------------- 枚举 ----------------- */
 export enum UserType {
@@ -8,9 +9,10 @@ export enum UserType {
   Admin = "admin",
 }
 
-/* ----------------- 请求/响应 DTO ----------------- */
-// 登录
-export interface UserLoginRequest {
+/* ----------------- DTO ----------------- */
+
+/* 登录 */
+export interface LoginRequest {
   username: string;
   password: string;
 }
@@ -19,7 +21,7 @@ export interface LoginResponse {
   refresh_token: string;
 }
 
-// 刷新 token
+/* 刷新 token */
 export interface RefreshTokenRequest {
   refresh_token: string;
 }
@@ -27,20 +29,17 @@ export interface RefreshTokenResponse {
   access_token: string;
 }
 
-// 创建用户
-export interface UserCreateRequest {
+/* 创建用户 */
+export interface CreateRequest {
   username: string;
   password: string;
   user_type: UserType;
 }
 
-// 更新用户（字段可选，用 Partial 即可）
-export interface UserUpdateRequest {
-  username?: string;
-  user_type?: UserType;
-}
+/* 更新用户（所有字段可选） */
+export type UpdateRequest = Partial<Pick<CreateRequest, "username" | "user_type">>;
 
-// 用户信息（后端 User 表）
+/* 用户信息（后端 User 表） */
 export interface User {
   id: string;
   username: string;
@@ -49,45 +48,51 @@ export interface User {
   updated_at: string;
 }
 
-// 统一分页响应（复用后端 PaginatedResponse<T>）
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
-  has_next: boolean;
-  has_prev: boolean;
+/* 分页查询参数 */
+export interface ListParams {
+  page?: number;
+  per_page?: number;
 }
 
+/* ----------------- 常量 ----------------- */
+const URLS = {
+  users: "/users",
+  token: "/users/token",
+  refresh: "/users/refresh",
+  me: "/users/me",
+} as const;
+
 /* ----------------- API 方法 ----------------- */
+export async function createUser(data: CreateRequest) {
+  return request.post<ApiResponse<User>>(URLS.users, data);
+}
 
-/** 创建用户 POST /api/v1/users */
-export const createUser = (data: UserCreateRequest) => request.post<User>("/users", data);
+export async function login(data: LoginRequest) {
+  return request.post<ApiResponse<LoginResponse>>(URLS.token, data);
+}
 
-/** 用户登录 POST /api/v1/users/token */
-export const login = (data: UserLoginRequest) => request.post<LoginResponse>("/users/token", data);
+export async function refreshToken(data: RefreshTokenRequest) {
+  return request.post<ApiResponse<RefreshTokenResponse>>(URLS.refresh, data);
+}
 
-/** 刷新令牌 POST /api/v1/users/refresh */
-export const refreshToken = (data: RefreshTokenRequest) =>
-  request.post<RefreshTokenResponse>("/users/refresh", data);
+export async function getMe() {
+  return request.get<ApiResponse<User>>(URLS.me);
+}
 
-/** 获取当前登录用户信息 GET /api/v1/users/me */
-export const getMe = () => request.get<User>("/users/me");
+export async function getUser(id: string) {
+  return request.get<ApiResponse<User>>(`${URLS.users}/${id}`);
+}
 
-/** 根据 id 获取用户详情 GET /api/v1/users/:id */
-export const getUser = (id: string) => request.get<User>(`/users/${id}`);
+export async function updateUser(id: string, data: UpdateRequest) {
+  return request.put<ApiResponse<User>>(`${URLS.users}/${id}`, data);
+}
 
-/** 更新用户 PUT /api/v1/users/:id */
-export const updateUser = (id: string, data: UserUpdateRequest) =>
-  request.put<User>(`/users/${id}`, data);
+export async function deleteUser(id: string) {
+  return request.delete<ApiResponse<null>>(`${URLS.users}/${id}`);
+}
 
-/** 删除用户 DELETE /api/v1/users/:id */
-export const deleteUser = (id: string) => request.delete(`/users/${id}`);
+export async function listUsers(params: ListParams = {}) {
+  return request.get<ApiResponse<User[]>>(URLS.users, { params });
+}
 
-/** 分页查询用户 GET /api/v1/users */
-export const listUsers = (params: { page?: number; per_page?: number } = {}) =>
-  request.get<PaginatedResponse<User>>("/users", { params });
-
-/* ----------------- 统一导出 ----------------- */
 export * as userApi from "./user";

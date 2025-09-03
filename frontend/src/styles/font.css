@@ -6,3 +6,8 @@
   font-style: normal;
   font-display: swap;
 }
+
+/* @font-face {
+  font-family: "SmileySans";
+  src: url("@/assets/fonts/SmileySans-Oblique.ttf.woff2") format("woff2");
+} */

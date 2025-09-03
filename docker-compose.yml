@@ -8,6 +8,8 @@ services:
     ports:
       - "1883:1883"
       - "8083:8083"
+    environment:
+      - MOSQUITTO_CHANGE_OWNER=0 
     volumes:
       - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - ./config/mosquitto.passwd:/mosquitto/config/mosquitto.passwd:ro

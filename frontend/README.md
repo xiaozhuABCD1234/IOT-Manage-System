@@ -1,39 +1,17 @@
-# frontend
+# 前端代码
 
-This template should help get you started developing with Vue 3 in Vite.
+依赖 vue3+vite+tailwind css+shadcn-vue+lucide
 
-## Recommended IDE Setup
+## 地图部分
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### 实时地图
 
-## Type Support for `.vue` Imports in TS
+实时标记定位：mqtt发送
+危险和警戒范围：通过mark-server获取，默认0
+电子围栏：通过map-server获取
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+写一个面板列出正发送位置设备的列表
 
-## Customize configuration
+### 历史地图
 
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+### 室内地图

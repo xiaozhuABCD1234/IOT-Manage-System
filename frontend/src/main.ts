@@ -3,9 +3,6 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 
-import "element-plus/theme-chalk/index.css";
-import "element-plus/theme-chalk/dark/css-vars.css";
-import "element-plus/es/components/message/style/css";
 import "@/styles/index.css";
 
 // 仅用到的两个自动引入即可
