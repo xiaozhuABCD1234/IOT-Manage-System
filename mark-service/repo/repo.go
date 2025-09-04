@@ -1,14 +1,15 @@
 // repository/repo.go
-package repository
+package repo
 
 import (
 	"IOT-Manage-System/mark-service/model"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
-// MarkRepository 定义了 Mark 相关数据访问的接口
-type MarkRepository interface {
+// MarkRepo 定义了 Mark 相关数据访问的接口
+type MarkRepo interface {
 	// Mark 相关操作
 	CreateMark(mark *model.Mark) error
 	CreateMarkAutoTag(mark *model.Mark, tagNames []string) error
@@ -39,6 +40,7 @@ type MarkRepository interface {
 	GetOrCreateTags(names []string) ([]model.MarkTag, error)
 	GetMarksByTagID(tagID int, preload bool, offset, limit int) ([]model.Mark, int64, error)
 	GetMarksByTagName(tagName string, preload bool, offset, limit int) ([]model.Mark, int64, error)
+	GetMarkIDsByTagID(tagID int) ([]string, error)
 
 	// MarkType 相关操作
 	CreateMarkType(mt *model.MarkType) error
@@ -52,6 +54,16 @@ type MarkRepository interface {
 	DeleteMarkType(id int) error
 	GetMarksByTypeID(typeID int, preload bool, offset, limit int) ([]model.Mark, int64, error)
 	GetMarksByTypeName(typeName string, preload bool, offset, limit int) ([]model.Mark, int64, error)
+	GetMarkIDsByTypeID(typeID int) ([]string, error)
+
+	//MarkPairSafeDistance
+	// Upsert(mark1ID, mark2ID string, safeDistanceM float64) error
+	// BatchUpsert(markIDs []string, safeDistanceM float64)
+	// CartesianUpsertByMarkIDs(m1IDs, m2IDs []string, safeDistanceM float64) error
+	// Get(m1, m2 string) (float64, error)
+	// Delete(m1, m2 string) error
+	// MapByID(id string) (map[string]float64, error)
+	// MapByDeviceID(device_id string) (map[string]float64, error)
 
 	// 判断重复字段
 	IsDeviceIDExists(deviceID string) (bool, error)
@@ -60,12 +72,12 @@ type MarkRepository interface {
 	IsTypeNameExists(typeName string) (bool, error)
 }
 
-// MarkRepo 是接口的具体实现
-type MarkRepo struct {
+// markRepo 是接口的具体实现
+type markRepo struct {
 	db *gorm.DB
 }
 
 // NewMarkRepo 返回 MarkRepository 接口实例
-func NewMarkRepo(db *gorm.DB) MarkRepository {
-	return &MarkRepo{db: db}
+func NewMarkRepo(db *gorm.DB) MarkRepo {
+	return &markRepo{db: db}
 }

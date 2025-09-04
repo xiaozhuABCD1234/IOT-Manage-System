@@ -131,7 +131,7 @@ func (s *markService) UpdateMark(ID string, req *model.MarkUpdateRequest) error 
 	}
 
 	if req.MqttTopic != nil {
-		m.MqttTopic = *req.MqttTopic
+		m.MqttTopic = req.MqttTopic
 	}
 	if req.PersistMQTT != nil {
 		m.PersistMQTT = *req.PersistMQTT
@@ -163,7 +163,7 @@ func (s *markService) UpdateMarkLastOnline(deviceID string, t time.Time) error {
 // convertToMarkResponse 将数据库模型转换为响应模型
 func (s *markService) convertToMarkResponse(mark *model.Mark) *model.MarkResponse {
 	response := &model.MarkResponse{
-		ID:            mark.ID,
+		ID:            mark.ID.String(),
 		DeviceID:      mark.DeviceID,
 		MarkName:      mark.MarkName,
 		MqttTopic:     mark.MqttTopic,

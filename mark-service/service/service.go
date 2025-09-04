@@ -2,7 +2,7 @@ package service
 
 import (
 	"IOT-Manage-System/mark-service/model"
-	"IOT-Manage-System/mark-service/repository"
+	"IOT-Manage-System/mark-service/repo"
 	"time"
 )
 
@@ -41,9 +41,9 @@ type MarkService interface {
 }
 
 type markService struct {
-	repo repository.MarkRepository
+	repo repo.MarkRepo
 }
 
-func NewMarkService(repo repository.MarkRepository) MarkService {
+func NewMarkService(repo repo.MarkRepo) MarkService {
 	return &markService{repo: repo}
 }

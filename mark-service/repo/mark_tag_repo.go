@@ -1,5 +1,5 @@
 // repository/marktag_repo.go
-package repository
+package repo
 
 import (
 	"errors"
@@ -10,11 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *MarkRepo) CreateMarkTag(mt *model.MarkTag) error {
+func (r *markRepo) CreateMarkTag(mt *model.MarkTag) error {
 	return r.db.Create(mt).Error
 }
 
-func (r *MarkRepo) GetMarkTagByID(id int) (*model.MarkTag, error) {
+func (r *markRepo) GetMarkTagByID(id int) (*model.MarkTag, error) {
 	var tag model.MarkTag
 	err := r.db.First(&tag, id).Error
 	if err != nil {
@@ -23,7 +23,7 @@ func (r *MarkRepo) GetMarkTagByID(id int) (*model.MarkTag, error) {
 	return &tag, nil
 }
 
-func (r *MarkRepo) GetMarkTagByName(name string) (*model.MarkTag, error) {
+func (r *markRepo) GetMarkTagByName(name string) (*model.MarkTag, error) {
 	var tag model.MarkTag
 	err := r.db.Where("tag_name = ?", name).First(&tag).Error
 	if err != nil {
@@ -32,23 +32,23 @@ func (r *MarkRepo) GetMarkTagByName(name string) (*model.MarkTag, error) {
 	return &tag, nil
 }
 
-func (r *MarkRepo) ListMarkTags(offset, limit int) ([]model.MarkTag, error) {
+func (r *markRepo) ListMarkTags(offset, limit int) ([]model.MarkTag, error) {
 	var tags []model.MarkTag
 	err := r.db.Offset(offset).Limit(limit).Find(&tags).Error
 	return tags, err
 }
 
-func (r *MarkRepo) UpdateMarkTag(tag *model.MarkTag) error {
+func (r *markRepo) UpdateMarkTag(tag *model.MarkTag) error {
 	return r.db.Save(tag).Error
 }
 
-func (r *MarkRepo) DeleteMarkTag(id int) error {
+func (r *markRepo) DeleteMarkTag(id int) error {
 	return r.db.Delete(&model.MarkTag{}, id).Error
 }
 
 // FindTagsByNames 批量查询标签：根据名字列表查找存在的标签，并返回未找到的名字
 // 返回：存在的标签列表、未找到的标签名、错误
-func (r *MarkRepo) FindTagsByNames(names []string) ([]model.MarkTag, []string, error) {
+func (r *markRepo) FindTagsByNames(names []string) ([]model.MarkTag, []string, error) {
 	if len(names) == 0 {
 		return nil, nil, nil
 	}
@@ -82,7 +82,7 @@ func (r *MarkRepo) FindTagsByNames(names []string) ([]model.MarkTag, []string, e
 	return existingTags, notFound, nil
 }
 
-func (r *MarkRepo) GetOrCreateTags(names []string) ([]model.MarkTag, error) {
+func (r *markRepo) GetOrCreateTags(names []string) ([]model.MarkTag, error) {
 	var tags []model.MarkTag
 	for _, name := range names {
 		if name == "" {
@@ -100,7 +100,7 @@ func (r *MarkRepo) GetOrCreateTags(names []string) ([]model.MarkTag, error) {
 }
 
 // ListMarkTagsWithCount 列表查询，支持分页，并返回总记录数
-func (r *MarkRepo) ListMarkTagsWithCount(offset, limit int) ([]model.MarkTag, int64, error) {
+func (r *markRepo) ListMarkTagsWithCount(offset, limit int) ([]model.MarkTag, int64, error) {
 	var tags []model.MarkTag
 	var total int64
 
@@ -112,4 +112,17 @@ func (r *MarkRepo) ListMarkTagsWithCount(offset, limit int) ([]model.MarkTag, in
 	// 获取分页数据
 	err := r.db.Offset(offset).Limit(limit).Find(&tags).Error
 	return tags, total, err
+}
+
+func (r *markRepo) GetMarkIDsByTagID(tagID int) ([]string, error) {
+	var markIDs []string
+
+	err := r.db.Table("mark_tag_relation").
+		Where("tag_id = ?", tagID).
+		Pluck("mark_id", &markIDs).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return markIDs, nil
 }

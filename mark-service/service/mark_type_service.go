@@ -1,10 +1,18 @@
-// service/marktype_service.go
+// service/mark_type_service.go
 package service
 
 import (
 	"IOT-Manage-System/mark-service/errs"
 	"IOT-Manage-System/mark-service/model"
 )
+
+// 转换为响应模型
+func (s *markService) convertToMarkTypeResponse(markType *model.MarkType) *model.MarkTypeResponse {
+	return &model.MarkTypeResponse{
+		ID:       markType.ID,
+		TypeName: markType.TypeName,
+	}
+}
 
 // CreateMarkType 创建标记类型
 func (s *markService) CreateMarkType(mt *model.MarkTypeRequest) error {
@@ -24,10 +32,7 @@ func (s *markService) GetMarkTypeByID(id int) (*model.MarkTypeResponse, error) {
 	}
 
 	// 转换为响应模型
-	return &model.MarkTypeResponse{
-		ID:       markType.ID,
-		TypeName: markType.TypeName,
-	}, nil
+	return s.convertToMarkTypeResponse(markType), nil
 }
 
 // GetMarkTypeByName 根据名称获取标记类型
@@ -38,10 +43,7 @@ func (s *markService) GetMarkTypeByName(name string) (*model.MarkTypeResponse, e
 	}
 
 	// 转换为响应模型
-	return &model.MarkTypeResponse{
-		ID:       markType.ID,
-		TypeName: markType.TypeName,
-	}, nil
+	return s.convertToMarkTypeResponse(markType), nil
 }
 
 // ListMarkTypes 获取标记类型列表（分页）
@@ -55,10 +57,7 @@ func (s *markService) ListMarkTypes(page, limit int) ([]model.MarkTypeResponse, 
 	// 转换为响应模型列表
 	var responses []model.MarkTypeResponse
 	for _, mt := range markTypes {
-		responses = append(responses, model.MarkTypeResponse{
-			ID:       mt.ID,
-			TypeName: mt.TypeName,
-		})
+		responses = append(responses, *s.convertToMarkTypeResponse(&mt))
 	}
 
 	return responses, total, nil

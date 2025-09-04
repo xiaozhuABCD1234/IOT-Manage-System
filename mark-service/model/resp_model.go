@@ -25,7 +25,7 @@ type MarkResponse struct {
 	ID            string            `json:"id"`
 	DeviceID      string            `json:"device_id"`
 	MarkName      string            `json:"mark_name"`
-	MqttTopic     string            `json:"mqtt_topic"`
+	MqttTopic     []string          `json:"mqtt_topic"`
 	PersistMQTT   bool              `json:"persist_mqtt"`
 	SafeDistanceM *float64          `json:"safe_distance_m"`
 	MarkType      *MarkTypeResponse `json:"mark_type"` // 嵌套类型

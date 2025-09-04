@@ -1,5 +1,5 @@
 // repository/mark_repo.go
-package repository
+package repo
 
 import (
 	"errors"
@@ -10,12 +10,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *MarkRepo) CreateMark(mark *model.Mark) error {
+func (r *markRepo) CreateMark(mark *model.Mark) error {
 	return r.db.Create(mark).Error
 }
 
 // Create 创建一条 Mark 记录，并自动处理标签关联
-func (r *MarkRepo) CreateMarkAutoTag(mark *model.Mark, tagNames []string) error {
+func (r *markRepo) CreateMarkAutoTag(mark *model.Mark, tagNames []string) error {
 	if len(tagNames) > 0 {
 		tags, err := r.getOrCreateTags(tagNames)
 		if err != nil {
@@ -27,7 +27,7 @@ func (r *MarkRepo) CreateMarkAutoTag(mark *model.Mark, tagNames []string) error 
 }
 
 // GetByID 根据 ID 查询，可预加载关联
-func (r *MarkRepo) GetMarkByID(id string, preload bool) (*model.Mark, error) {
+func (r *markRepo) GetMarkByID(id string, preload bool) (*model.Mark, error) {
 	q := r.db
 	if preload {
 		q = q.Preload("MarkType").Preload("Tags")
@@ -41,7 +41,7 @@ func (r *MarkRepo) GetMarkByID(id string, preload bool) (*model.Mark, error) {
 }
 
 // GetByDeviceID 根据 DeviceID 查询
-func (r *MarkRepo) GetMarkByDeviceID(deviceID string, preload bool) (*model.Mark, error) {
+func (r *markRepo) GetMarkByDeviceID(deviceID string, preload bool) (*model.Mark, error) {
 	q := r.db
 	if preload {
 		q = q.Preload("MarkType").Preload("Tags")
@@ -55,7 +55,7 @@ func (r *MarkRepo) GetMarkByDeviceID(deviceID string, preload bool) (*model.Mark
 }
 
 // ListMark 列表查询，支持预加载和分页
-func (r *MarkRepo) ListMark(offset, limit int, preload bool) ([]model.Mark, error) {
+func (r *markRepo) ListMark(offset, limit int, preload bool) ([]model.Mark, error) {
 	q := r.db
 	if preload {
 		q = q.Preload("MarkType").Preload("Tags")
@@ -69,7 +69,7 @@ func (r *MarkRepo) ListMark(offset, limit int, preload bool) ([]model.Mark, erro
 
 // ListMarkWithCount 列表查询，支持预加载、分页，并返回总记录数
 // 这个方法对于前端分页控件（显示总页数）非常有用
-func (r *MarkRepo) ListMarkWithCount(offset, limit int, preload bool) ([]model.Mark, int64, error) {
+func (r *markRepo) ListMarkWithCount(offset, limit int, preload bool) ([]model.Mark, int64, error) {
 	q := r.db
 	if preload {
 		q = q.Preload("MarkType").Preload("Tags")
@@ -90,7 +90,7 @@ func (r *MarkRepo) ListMarkWithCount(offset, limit int, preload bool) ([]model.M
 }
 
 // Update 更新 Mark 本身及其标签
-func (r *MarkRepo) UpdateMark(mark *model.Mark, tagNames []string) error {
+func (r *markRepo) UpdateMark(mark *model.Mark, tagNames []string) error {
 	// 1. 更新基础字段
 	if err := r.db.Save(mark).Error; err != nil {
 		return err
@@ -109,12 +109,12 @@ func (r *MarkRepo) UpdateMark(mark *model.Mark, tagNames []string) error {
 }
 
 // Delete 软删除
-func (r *MarkRepo) DeleteMark(id string) error {
+func (r *markRepo) DeleteMark(id string) error {
 	return r.db.Delete(&model.Mark{}, "id = ?", id).Error
 }
 
 // UpdateLastOnline 更新最后在线时间
-func (r *MarkRepo) UpdateMarkLastOnline(deviceID string, t time.Time) error {
+func (r *markRepo) UpdateMarkLastOnline(deviceID string, t time.Time) error {
 	return r.db.Model(&model.Mark{}).
 		Where("device_id = ?", deviceID).
 		Update("last_online_at", t).Error
@@ -122,7 +122,7 @@ func (r *MarkRepo) UpdateMarkLastOnline(deviceID string, t time.Time) error {
 
 // ---------- 内部辅助 ----------
 // getOrCreateTags 内部复用，批量获取或创建标签
-func (r *MarkRepo) getOrCreateTags(names []string) ([]model.MarkTag, error) {
+func (r *markRepo) getOrCreateTags(names []string) ([]model.MarkTag, error) {
 	var tags []model.MarkTag
 	for _, name := range names {
 		if name == "" {
@@ -140,7 +140,7 @@ func (r *MarkRepo) getOrCreateTags(names []string) ([]model.MarkTag, error) {
 }
 
 // GetMarksByTagID 支持分页查询带有特定标签ID的标记，返回数据和总数
-func (r *MarkRepo) GetMarksByTagID(tagID int, preload bool, offset, limit int) ([]model.Mark, int64, error) {
+func (r *markRepo) GetMarksByTagID(tagID int, preload bool, offset, limit int) ([]model.Mark, int64, error) {
 	// 验证标签是否存在
 	var tag model.MarkTag
 	if err := r.db.First(&tag, tagID).Error; err != nil {
@@ -176,7 +176,7 @@ func (r *MarkRepo) GetMarksByTagID(tagID int, preload bool, offset, limit int) (
 }
 
 // GetMarksByTagName 根据标签名称分页查询关联的标记列表
-func (r *MarkRepo) GetMarksByTagName(tagName string, preload bool, offset, limit int) ([]model.Mark, int64, error) {
+func (r *markRepo) GetMarksByTagName(tagName string, preload bool, offset, limit int) ([]model.Mark, int64, error) {
 	// 1. 先根据名称拿到标签
 	var tag model.MarkTag
 	if err := r.db.Where("tag_name = ?", tagName).First(&tag).Error; err != nil {
@@ -191,7 +191,7 @@ func (r *MarkRepo) GetMarksByTagName(tagName string, preload bool, offset, limit
 }
 
 // GetMarksByTypeID 支持分页查询带有特定类型ID的标记，返回数据和总数
-func (r *MarkRepo) GetMarksByTypeID(typeID int, preload bool, offset, limit int) ([]model.Mark, int64, error) {
+func (r *markRepo) GetMarksByTypeID(typeID int, preload bool, offset, limit int) ([]model.Mark, int64, error) {
 	// 验证类型是否存在
 	var markType model.MarkType
 	if err := r.db.First(&markType, typeID).Error; err != nil {
@@ -225,7 +225,7 @@ func (r *MarkRepo) GetMarksByTypeID(typeID int, preload bool, offset, limit int)
 }
 
 // GetMarksByTypeName 根据类型名称分页查询关联的标记列表
-func (r *MarkRepo) GetMarksByTypeName(typeName string, preload bool, offset, limit int) ([]model.Mark, int64, error) {
+func (r *markRepo) GetMarksByTypeName(typeName string, preload bool, offset, limit int) ([]model.Mark, int64, error) {
 	// 1. 先根据名称拿到类型
 	var markType model.MarkType
 	if err := r.db.Where("type_name = ?", typeName).First(&markType).Error; err != nil {
@@ -240,7 +240,7 @@ func (r *MarkRepo) GetMarksByTypeName(typeName string, preload bool, offset, lim
 }
 
 // GetMarksByPersistMQTT 根据 PersistMQTT 字段查询 Mark 列表，支持分页和预加载
-func (r *MarkRepo) GetMarksByPersistMQTT(persist bool, preload bool, offset, limit int) ([]model.Mark, int64, error) {
+func (r *markRepo) GetMarksByPersistMQTT(persist bool, preload bool, offset, limit int) ([]model.Mark, int64, error) {
 	var marks []model.Mark
 	var total int64
 
@@ -272,7 +272,7 @@ func (r *MarkRepo) GetMarksByPersistMQTT(persist bool, preload bool, offset, lim
 
 // GetPersistMQTTByDeviceID 根据 DeviceID 查询 PersistMQTT 的值
 // 如果设备不存在，返回 false, nil
-func (r *MarkRepo) GetPersistMQTTByDeviceID(deviceID string) (bool, error) {
+func (r *markRepo) GetPersistMQTTByDeviceID(deviceID string) (bool, error) {
 	var persist bool
 
 	result := r.db.Model(&model.Mark{}).
@@ -292,7 +292,7 @@ func (r *MarkRepo) GetPersistMQTTByDeviceID(deviceID string) (bool, error) {
 }
 
 // GetDeviceIDsByPersistMQTT 根据 PersistMQTT 的值查询所有对应的 DeviceID 列表
-func (r *MarkRepo) GetDeviceIDsByPersistMQTT(persist bool) ([]string, error) {
+func (r *markRepo) GetDeviceIDsByPersistMQTT(persist bool) ([]string, error) {
 	var deviceIDs []string
 
 	// 只查询 device_id 字段
