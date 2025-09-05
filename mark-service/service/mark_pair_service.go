@@ -13,7 +13,7 @@ type MarkPairService interface {
 	// 批量设置：对传入的 MarkID 列表做全组合
 	SetCombinations(ids []string, distance float64) error
 	// 笛卡尔积设置：两组 Mark 两两配对
-	SetCartesian(req model.DistanceQuery, distance float64) error
+	SetCartesian(req model.SetDistanceTypedReq, distance float64) error
 	// 查询单对距离
 	GetDistance(mark1ID, mark2ID string) (float64, error)
 	// 删除单对
@@ -79,7 +79,7 @@ func (s *markPairService) SetCombinations(ids []string, distance float64) error 
 	return nil
 }
 
-func (s *markPairService) SetCartesian(req model.DistanceQuery, distance float64) error {
+func (s *markPairService) SetCartesian(req model.SetDistanceTypedReq, distance float64) error {
 	if distance < 0 {
 		return errs.ErrInvalidInput.WithDetails("distance cannot be negative")
 	}

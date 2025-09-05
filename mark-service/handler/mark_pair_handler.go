@@ -19,7 +19,7 @@ func NewMarkPairHandler(markPairService service.MarkPairService) *MarkPairHandle
 
 // SetPairDistance 设置/更新单对标记距离
 func (h *MarkPairHandler) SetPairDistance(c *fiber.Ctx) error {
-	var req model.DistanceSimpleQuery
+	var req model.SetDistanceMarkReq
 
 	if err := c.BodyParser(&req); err != nil {
 		return errs.ErrInvalidInput.WithDetails("参数解析失败")
@@ -52,7 +52,7 @@ func (h *MarkPairHandler) SetCombinations(c *fiber.Ctx) error {
 
 // SetCartesian 笛卡尔积方式设置标记对距离
 func (h *MarkPairHandler) SetCartesian(c *fiber.Ctx) error {
-	var req model.DistanceQuery
+	var req model.SetDistanceTypedReq
 
 	if err := c.BodyParser(&req); err != nil {
 		return errs.ErrInvalidInput.WithDetails("参数解析失败")
