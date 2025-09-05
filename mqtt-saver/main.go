@@ -7,11 +7,14 @@ import (
 )
 
 func main() {
-	client, err := utils.InitDB()
+	client, err := utils.InitMongo()
 	if err != nil {
-		log.Fatalf("init db: %v", err)
+		log.Fatalf("链接mongodb失败: %v", err)
 	}
-	defer utils.CloseDB()
+	defer utils.CloseMongo()
 
 	client.Database("")
+	for {
+
+	}
 }

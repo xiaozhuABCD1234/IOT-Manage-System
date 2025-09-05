@@ -11,10 +11,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var Client *mongo.Client
+var MongoClient *mongo.Client
 
-// InitDB 初始化并返回一个 MongoDB client（使用 ClientOptions）
-func InitDB() (*mongo.Client, error) {
+// InitMongo 初始化并返回一个 MongoDB client
+func InitMongo() (*mongo.Client, error) {
 	username := GetEnv("MONGO_INITDB_ROOT_USERNAME", "admin")
 	password := GetEnv("MONGO_INITDB_ROOT_PASSWORD", "admin")
 	mongoHost := GetEnv("MONGO_HOST", "mongo")
@@ -25,17 +25,14 @@ func InitDB() (*mongo.Client, error) {
 	escapedUsername := url.QueryEscape(username)
 	escapedPassword := url.QueryEscape(password)
 
-	// 构建 MongoDB URI（不包含用户名密码）
-	uri := fmt.Sprintf("mongodb://%s:%s/%s?authSource=admin", mongoHost, mongoPort, dbName)
+	// ✅ 正确构建 MongoDB URI（含用户名密码）
+	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s?authSource=admin",
+		escapedUsername, escapedPassword, mongoHost, mongoPort, dbName)
 
 	// 使用 ClientOptions 进行配置
 	clientOptions := options.Client().
 		ApplyURI(uri).
-		SetAuth(options.Credential{
-			Username: escapedUsername,
-			Password: escapedPassword,
-		}).
-		SetConnectTimeout(10 * time.Second). // 连接超时
+		SetConnectTimeout(10 * time.Second).
 		SetMaxPoolSize(50).
 		SetMinPoolSize(10).
 		SetMaxConnIdleTime(30 * time.Second)
@@ -55,19 +52,19 @@ func InitDB() (*mongo.Client, error) {
 	}
 
 	log.Println("MongoDB 已连接")
-	Client = client
+	MongoClient = client
 	return client, nil
 }
 
-// CloseDB 关闭全局的 MongoDB 连接
-func CloseDB() {
-	if Client == nil {
+// CloseMongo 关闭全局的 MongoDB 连接
+func CloseMongo() {
+	if MongoClient == nil {
 		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := Client.Disconnect(ctx); err != nil {
+	if err := MongoClient.Disconnect(ctx); err != nil {
 		log.Printf("mongo disconnect: %v", err)
 		return
 	}
