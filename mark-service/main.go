@@ -106,5 +106,7 @@ func main() {
 
 	// 启动服务器
 	port := utils.GetEnv("PORT", "8004")
-	app.Listen(":" + port)
+	if err := app.Listen(":" + port); err != nil {
+		log.Fatalf("启动 HTTP 服务失败: %v", err)
+	}
 }
