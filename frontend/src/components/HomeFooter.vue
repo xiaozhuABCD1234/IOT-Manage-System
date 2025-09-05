@@ -4,7 +4,7 @@
     <!-- 左侧版权 -->
     <div class="flex items-center">
       <Copyright :size="16" />
-      <p>2025 上海电力大学RM实验室 版权所有</p>
+      <p>2025 上海电力大学Lab 107版权所有</p>
       <a
         href="https://beian.miit.gov.cn"
         target="_blank"
@@ -25,9 +25,9 @@
         target="_blank"
         rel="noopener noreferrer"
         title="我的github主页"
-        class="hover:text-black"
+        class="flex items-center gap-1 hover:text-black"
       >
-        <Github :size="16" />
+        我的github主页<Github :size="16" />
       </a>
     </div>
   </footer>

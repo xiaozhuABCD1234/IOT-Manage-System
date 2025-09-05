@@ -5,6 +5,7 @@ import gcoord from "gcoord";
 
 const MQTT_URL = MQTT_CONFIG.MQTT_URL;
 // const MQTT_URL = "tcp://localhost:1883/mqtt";
+export const TOPIC_ONLINE = "online/#";
 
 const MQTT_OPTS = {
   clientId: MQTT_CONFIG.clientId,
@@ -25,13 +26,14 @@ const MQTT_OPTS = {
   },
 };
 
-let client: MqttClient | null = null;
+// let client: MqttClient | null = null;
 
 /** 建立连接并返回客户端 */
 export function connectMQTT(): MqttClient {
-  if (client && client.connected) return client;
-
-  client = mqtt.connect(MQTT_URL, MQTT_OPTS);
+  const client: MqttClient = mqtt.connect(MQTT_URL, {
+    ...MQTT_OPTS,
+    clientId: MQTT_CONFIG.clientId + "_" + Math.random().toString(16).slice(2),
+  });
 
   client.on("connect", () => console.log("MQTT 已连接"));
   client.on("reconnect", () => console.log("MQTT 正在重连"));
@@ -45,10 +47,9 @@ export function connectMQTT(): MqttClient {
 }
 
 /** 主动断开并清理 */
-export function disconnectMQTT() {
+export function disconnectMQTT(client: MqttClient) {
   if (client) {
     client.end();
-    client = null;
   }
 }
 
@@ -70,7 +71,24 @@ export interface Device {
   marker: AMap.Marker;
 }
 
-export const parseMessage = (payload: Buffer) => {
+export interface MarkOnlineMsg {
+  id: string;
+}
+
+export interface MarkOnline {
+  id: string;
+  online: boolean;
+  topic: string;
+  name?: string;
+}
+
+export interface GeoFix {
+  id: string;
+  lng: number;
+  lat: number;
+}
+
+export const parseMessage = (topic: string, payload: Buffer): GeoFix => {
   const data = JSON.parse(payload.toString()) as Msg;
 
   const rtkSen = data.sens.find((s) => s.n === "RTK");
@@ -82,4 +100,28 @@ export const parseMessage = (payload: Buffer) => {
   const [lngGCJ, latGCJ] = gcoord.transform([lngWGS, latWGS], gcoord.WGS84, gcoord.GCJ02);
 
   return { id: data.id, lng: lngGCJ, lat: latGCJ };
+};
+
+export const parseOnlineMessage = (topic: string, payload: Buffer): MarkOnline => {
+  // 1. 先尝试从 topic 里截
+  let idFromTopic = topic.replace("online", "");
+  idFromTopic = idFromTopic.replace(/^\/+|\/+$/g, "");
+  // 2. 解析 payload
+  let data: MarkOnlineMsg | undefined;
+  try {
+    data = JSON.parse(payload.toString()) as MarkOnlineMsg;
+  } catch {
+    data = undefined; // 解析失败就当成空对象
+  }
+
+  // 3. 优先 data.id，没有再回退到 topic 截取的
+  const id = data?.id?.trim() || idFromTopic;
+
+  // 4. 如果两条路都拿不到，给一个兜底（也可以直接 throw）
+  if (!id) {
+    // throw new Error(`无法从 topic:${topic} 或 payload 中解析出设备 id`);
+    return { id: "unknown", online: true, topic };
+  }
+
+  return { id, online: true, topic };
 };

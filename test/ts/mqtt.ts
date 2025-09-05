@@ -1,10 +1,11 @@
 import mqtt, { MqttClient } from "mqtt";
 
-const MQTT_URL = "ws://localhost:8083/mqtt";
+const MQTT_URL = "ws://8.133.17.175:8083/mqtt";
+// const MQTT_URL = "ws://localhost:8083/mqtt";
 // const MQTT_URL = "tcp://localhost:1883/mqtt";
 
 const MQTT_OPTS = {
-	clientId: "vue_" + Math.random().toString(16).slice(3, 9),
+	clientId: "test_" + Math.random().toString(16).slice(3, 9),
 	clean: true,
 	connectTimeout: 4000,
 	reconnectPeriod: 1000,
@@ -28,15 +29,18 @@ let client: MqttClient | null = null;
 export function connectMQTT(): MqttClient {
 	if (client && client.connected) return client;
 
-	client = mqtt.connect(MQTT_URL, MQTT_OPTS);
+	client = mqtt.connect(MQTT_URL, {
+		...MQTT_OPTS,
+		clientId: `test-${Math.random().toString(36).slice(2)}`,
+	});
 
 	client.on("connect", () => console.log("✅ MQTT 已连接"));
 	client.on("reconnect", () => console.log("🔄 正在重连"));
 	client.on("error", (e) => console.error("❌ MQTT 错误", e));
 	client.on("offline", () => console.warn("📡 离线"));
-	client.on("message", (topic, payload) => {
-		console.log(`📨 收到 ${topic}:`, payload.toString());
-	});
+	// client.on("message", (topic, payload) => {
+	// 	console.log(`📨 收到 ${topic}:`, payload.toString());
+	// });
 
 	return client;
 }

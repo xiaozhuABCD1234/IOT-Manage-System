@@ -56,10 +56,10 @@ export interface ListParams {
 
 /* ----------------- 常量 ----------------- */
 const URLS = {
-  users: "/users",
-  token: "/users/token",
-  refresh: "/users/refresh",
-  me: "/users/me",
+  users: "/api/v1/users",
+  token: "/api/v1/users/token",
+  refresh: "/api/v1/users/refresh",
+  me: "/api/v1/users/me",
 } as const;
 
 /* ----------------- API 方法 ----------------- */

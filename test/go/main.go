@@ -36,7 +36,7 @@ func main() {
 
 	// 构造要发的 JSON 数据
 	msg := Msg{
-		ID: "1",
+		ID: "112",
 		Sens: []Sen{
 			{Name: "temperature", Unit: "°C", Value: 23.5},
 			{Name: "humidity", Unit: "%", Value: 68},

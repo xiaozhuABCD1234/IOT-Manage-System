@@ -50,23 +50,34 @@ service.interceptors.request.use((config) => {
 });
 
 /* ========== 响应拦截器 ========== */
+// 不想提示 404 的接口地址列表
+const SILENT_404_URLS: string[] = [
+  "/api/v1/marks", // 举例：获取配置
+];
+
 service.interceptors.response.use(
   <T>(response: AxiosResponse<ApiResponse<T>>) => {
     const { success, message } = response.data;
     if (success) return response;
 
-    // ② 用 toast 替换 ElMessage
     toast.error(message || "请求失败");
     (response as unknown as { _handled: boolean })._handled = true;
     return Promise.reject(response);
   },
 
   (error: AxiosError<ApiResponse>) => {
-    const { response, message } = error;
+    const { response, message, config } = error;
 
     // 404
     if (response?.status === 404) {
-      toast.error("无法连接到后端，请稍后再试");
+      // 如果当前 URL 在白名单里，就不弹提示
+      const url = config?.url ?? "";
+      const shouldSilent = SILENT_404_URLS.some((u) => url.includes(u));
+
+      if (!shouldSilent) {
+        toast.error("无法连接到后端，请稍后再试");
+      }
+
       (error as unknown as { _handled: boolean })._handled = true;
       return Promise.reject(error);
     }

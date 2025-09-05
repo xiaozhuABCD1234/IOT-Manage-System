@@ -4,7 +4,6 @@ import { connectMQTT } from "./mqtt.ts";
 // 1. 建立连接
 const client = connectMQTT();
 
-
 // 2. 连接成功后做点什么
 client.on("connect", () => {
 	console.log("👉 开始订阅和发布");
@@ -16,3 +15,6 @@ client.on("connect", () => {
 	});
 });
 
+client.on("message", (topic, payload) => {
+	console.log(`📨 收到 ${topic}:`, payload.toString());
+});

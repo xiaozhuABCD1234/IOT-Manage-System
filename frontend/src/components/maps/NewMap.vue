@@ -19,7 +19,7 @@ const devices = ref<Device[]>([]);
 
 const msgCallback = (topic: string, payload: Buffer) => {
   if (!map) return;
-  const { id, lng, lat } = parseMessage(payload);
+  const { id, lng, lat } = parseMessage(topic, payload);
   updateDevicePosition(map, devices, id, lng, lat);
 };
 
@@ -55,7 +55,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  disconnectMQTT();
+  disconnectMQTT(mqttClient as MqttClient);
   devices.value = []; // 清空设备数组
   map?.destroy();
 });
