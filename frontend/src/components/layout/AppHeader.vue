@@ -11,8 +11,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Map, MapPinned, History, Fence, Bookmark, Info } from "lucide-vue-next";
 
-import HomeButton from "@/components/HomeButton.vue";
-import ThemeToggle from "./RightButton.vue";
+import HomeButton from "@/components/layout/HomeLogo.vue";
+import ThemeToggle from "./RightControlStrip.vue";
 </script>
 
 <template>

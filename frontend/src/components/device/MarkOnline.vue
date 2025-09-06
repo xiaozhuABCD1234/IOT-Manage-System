@@ -13,7 +13,7 @@ import type { MqttClient } from "mqtt";
 import { getMarkByDeviceID } from "@/api/mark";
 import { createDeviceStateMachine } from "@/utils/deviceState";
 // import { sortMarks } from "@/utils/sort";
-import MarkStatusList from "@/components/MarkStatusList.vue";
+import MarkStatusList from "@/components/device/MarkOnlineGrid.vue";
 
 /* ---------- 原来就有的 ---------- */
 const marks = ref<MarkOnline[]>([]);

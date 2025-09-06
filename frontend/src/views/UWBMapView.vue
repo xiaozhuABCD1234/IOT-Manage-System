@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import UWBScatter from "@/components/UWBScatter.vue";
+import UWBScatter from "@/components/maps/UWBScatter.vue";
 import type { UWBFix } from "@/utils/mqtt";
 
 const list = ref<UWBFix[]>([

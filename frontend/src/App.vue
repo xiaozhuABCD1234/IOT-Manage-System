@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { Toaster } from "@/components/ui/sonner";
 import "vue-sonner/style.css"; // vue-sonner v2 requires this import
-import HomeFooter from "./components/HomeFooter.vue";
-import MenuFooter from "./components/FooterMenu.vue";
-import HomeHeader from "./components/HeaderMenu.vue";
+import HomeFooter from "./components/layout/SiteFooter.vue";
+import MenuFooter from "./components/layout/BottomNav.vue";
+import HomeHeader from "./components/layout/AppHeader.vue";
 </script>

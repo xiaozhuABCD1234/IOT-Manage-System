@@ -1,6 +1,6 @@
 <!-- src/views/RTKMapView.vue -->
 <script setup lang="ts">
-import NewMap from "@/components/maps/NewMap.vue";
+import NewMap from "@/components/maps/RealtimeMap.vue";
 </script>
 
 <template>
