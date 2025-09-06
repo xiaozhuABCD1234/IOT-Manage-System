@@ -188,3 +188,11 @@ func (h *MarkHandler) GetDeviceIDsByPersistMQTT(c *fiber.Ctx) error {
 
 	return utils.SendSuccessResponse(c, deviceIDs)
 }
+
+func (h *MarkHandler) GetAllDeviceIDToName(c *fiber.Ctx) error {
+	resp, err := h.markService.GetAllDeviceIDToName()
+	if err != nil {
+		return err
+	}
+	return utils.SendSuccessResponse(c, resp)
+}

@@ -310,3 +310,24 @@ func (r *markRepo) GetDeviceIDsByPersistMQTT(persist bool) ([]string, error) {
 
 	return deviceIDs, nil
 }
+
+func (r *markRepo) GetAllMarkDeviceIDsAndNames() (map[string]string, error) {
+	rows := make([]struct {
+		DeviceID string
+		Name     string
+	}, 0)
+
+	// 只查两列
+	if err := r.db.Model(&model.Mark{}).
+		Select("device_id", "mark_name as name").
+		Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	// 转 map
+	out := make(map[string]string, len(rows))
+	for _, v := range rows {
+		out[v.DeviceID] = v.Name
+	}
+	return out, nil
+}

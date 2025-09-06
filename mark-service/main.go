@@ -60,6 +60,7 @@ func main() {
 	mark.Get("/:id", h1.GetMarkByID)                                    // 根据 ID 获取标记
 	mark.Put("/:id", h1.UpdateMark)                                     // 更新标记
 	mark.Delete("/:id", h1.DeleteMark)                                  // 删除标记
+	mark.Get("/device/name", h1.GetAllDeviceIDToName)                   // 获取全部 deviceID→markName 映射
 	mark.Get("/device/:device_id", h1.GetMarkByDeviceID)                // 根据设备 ID 获取标记
 	mark.Put("/device/:device_id/last-online", h1.UpdateMarkLastOnline) // 更新最后在线时间
 	mark.Get("/persist/device/:device_id", h1.GetPersistMQTTByDeviceID) // GET /api/marks/persist/device/:device_id

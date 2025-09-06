@@ -235,3 +235,11 @@ func (s *markService) GetDeviceIDsByPersistMQTT(persist bool) ([]string, error) 
 	}
 	return deviceIDs, nil
 }
+
+func (s *markService) GetAllDeviceIDToName() (map[string]string, error) {
+	m, err := s.repo.GetAllMarkDeviceIDsAndNames()
+	if err != nil {
+		return nil, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return m, nil
+}
