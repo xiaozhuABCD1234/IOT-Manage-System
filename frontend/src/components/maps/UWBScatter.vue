@@ -89,12 +89,21 @@ function renderChart() {
 watch(() => props.points, renderChart, { deep: true });
 
 /* ---------- 挂载 & 卸载 ---------- */
+let ro: ResizeObserver | null = null;
+
 onMounted(() => {
   renderChart();
-  const resize = () => chart?.resize();
-  window.addEventListener("resize", resize);
+
+  /* ---------- 关键：监听父容器尺寸 ---------- */
+  ro = new ResizeObserver(() => chart?.resize());
+  if (chartRef.value) ro.observe(chartRef.value);
+
+  /* 如果还想保留窗口resize兜底，可保留下面两行 */
+  const winResize = () => chart?.resize();
+  window.addEventListener("resize", winResize);
   onBeforeUnmount(() => {
-    window.removeEventListener("resize", resize);
+    window.removeEventListener("resize", winResize);
+    ro?.disconnect();
     chart?.dispose();
   });
 });

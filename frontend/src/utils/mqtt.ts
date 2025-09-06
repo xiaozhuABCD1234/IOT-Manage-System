@@ -108,6 +108,19 @@ export const parseMessage = (topic: string, payload: Buffer): GeoFix => {
   return { id: data.id, lng: lngGCJ, lat: latGCJ };
 };
 
+export const parseUWBMessage = (topic: string, payload: Buffer): UWBFix => {
+  const data = JSON.parse(payload.toString()) as Msg;
+
+  // 1. 找 UWB 字段
+  const uwbSen = data.sens.find((s) => s.n === "UWB");
+  if (!uwbSen || !Array.isArray(uwbSen.v) || uwbSen.v.length !== 2) {
+    throw new Error("缺少 UWB 字段或格式错误");
+  }
+
+  const [x, y] = uwbSen.v as [number, number];
+  return { id: data.id, x, y };
+};
+
 export const parseOnlineMessage = (topic: string, payload: Buffer): MarkOnline => {
   // 1. 先尝试从 topic 里截
   let idFromTopic = topic.replace("online", "");

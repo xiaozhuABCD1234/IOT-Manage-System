@@ -1,16 +1,11 @@
-<template>
-  <UWBScatter :points="list" />
-</template>
-
 <script setup lang="ts">
-import { ref } from "vue";
-import UWBScatter from "@/components/maps/UWBScatter.vue";
-import type { UWBFix } from "@/utils/mqtt";
-
-const list = ref<UWBFix[]>([
-  { x: 1.2, y: -3.4, id: "A001" },
-  { x: -5.6, y: 7.8, id: "A002" },
-  { x: 5.6, y: 7.8, id: "A003" },
-  /* … */
-]);
+import UWBLiveScatter from "@/components/maps/UWBLiveScatter.vue";
 </script>
+
+<template>
+  <div
+    class="h-full w-full overflow-hidden rounded-sm border border-gray-300 p-1 backdrop-blur-2xl dark:border-gray-600"
+  >
+    <div class="h-full w-full overflow-hidden rounded-sm"><UWBLiveScatter /></div>
+  </div>
+</template>

@@ -1,4 +1,3 @@
-<!-- src/components/NewMap.vue -->
 <template>
   <div class="m-0 h-full w-full p-0" id="container"></div>
 </template>
@@ -47,9 +46,9 @@ onMounted(() => {
 
   // 连接MQTT
   mqttClient = connectMQTT();
-  mqttClient.subscribe("device/rtk", { qos: 0 }, (err) => {
+  mqttClient.subscribe("location/#", { qos: 0 }, (err) => {
     if (err) return console.error("订阅失败", err);
-    console.log("已订阅 device/rtk");
+    console.log("已订阅 location/#");
   });
   mqttClient.on("message", msgCallback);
 });
