@@ -10,14 +10,13 @@
     </header>
 
     <!-- 主内容：超出可滚动 -->
-    <main class="overflow-y-auto bg-gray-100 pb-0 md:pb-0 dark:bg-gray-800 font-maplemono">
+    <main class="font-maplemono overflow-y-auto bg-gray-100 pb-0 md:pb-0 dark:bg-gray-800">
       <router-view />
       <!-- 底部：大屏显示 -->
-      <footer class="hidden h-12 items-center justify-center bg-blue-400 md:flex dark:bg-sky-900">
-        <HomeFooter />
-      </footer>
     </main>
-
+    <footer class="hidden h-12 items-center justify-center bg-blue-400 md:flex dark:bg-sky-900">
+      <HomeFooter />
+    </footer>
     <!-- 底部：小屏固定到底 -->
     <footer
       class="fixed inset-x-0 bottom-0 z-50 flex h-14 items-center justify-center bg-blue-400 md:hidden dark:bg-cyan-700"

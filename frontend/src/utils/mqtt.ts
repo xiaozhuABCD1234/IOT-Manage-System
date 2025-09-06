@@ -88,6 +88,12 @@ export interface GeoFix {
   lat: number;
 }
 
+export interface UWBFix {
+  x: number;
+  y: number;
+  id: string;
+}
+
 export const parseMessage = (topic: string, payload: Buffer): GeoFix => {
   const data = JSON.parse(payload.toString()) as Msg;
 

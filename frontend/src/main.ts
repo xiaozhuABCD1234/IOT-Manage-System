@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 
+
 import "@/styles/index.css";
 
 // 仅用到的两个自动引入即可
