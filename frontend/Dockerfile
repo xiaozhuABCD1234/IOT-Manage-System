@@ -1,0 +1,37 @@
+# 构建阶段
+FROM docker.io/library/node:iron-slim AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装pnpm + 设置国内镜像
+RUN npm install -g pnpm \
+    && pnpm config set registry https://registry.npmmirror.com \
+    && pnpm config set store-dir /tmp/.pnpm-store
+
+# 复制package文件
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+
+# 安装依赖（添加缓存优化）
+RUN pnpm install --frozen-lockfile --prefer-offline
+
+# 复制源代码
+COPY . .
+
+# 构建应用（添加构建优化）
+RUN pnpm run build
+
+
+# 运行阶段
+FROM docker.io/library/nginx:alpine
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# 复制前端构建产物到 nginx 的 html 目录
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+# 6. 直接启动 nginx，跳过 entrypoint
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

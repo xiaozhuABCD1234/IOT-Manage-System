@@ -14,8 +14,8 @@
         <Wifi v-if="m.online" class="h-5 w-5 text-green-500" />
         <WifiOff v-else class="h-5 w-5 text-gray-400" />
 
-        <Label class="flex-1 truncate" :class="{ 'text-amber-300': !m.name }">
-          {{ m.name || "未知设备" }}
+        <Label class="flex-1 truncate" :class="{ 'text-amber-300': !deviceNames.get(m.id) }">
+          {{ deviceNames.get(m.id) || "未知设备" }}
         </Label>
 
         <Badge variant="outline">{{ m.id }}</Badge>
@@ -37,5 +37,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 defineProps<{
   marks: MarkOnline[];
+  deviceNames: Map<string, string>;
 }>();
 </script>

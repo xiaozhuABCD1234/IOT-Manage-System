@@ -1,6 +1,6 @@
 # 前端代码
 
-依赖 vue3+vite+tailwind css+shadcn-vue+lucide
+依赖 vue3+vite+tailwind css+shadcn-vue+lucide+ECharts+高德地图API
 
 ## 地图部分
 

@@ -79,7 +79,7 @@ export interface MarkOnline {
   id: string;
   online: boolean;
   topic: string;
-  name?: string;
+  // name?: string;
 }
 
 export interface GeoFix {

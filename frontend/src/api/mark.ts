@@ -39,6 +39,10 @@ export async function getMarkByDeviceID(deviceId: string, preload = false) {
   });
 }
 
+export async function getAllDeviceIDToName() {
+  return request.get<ApiResponse<Map<string, string>>>(`${URLS.marks}/device/id-to-name`);
+}
+
 /* 分页获取标记列表 */
 export async function listMarks(params: ListParams = {}) {
   return request.get<ApiResponse<MarkResponse[]>>(URLS.marks, { params });
