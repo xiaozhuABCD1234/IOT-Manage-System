@@ -1,5 +1,4 @@
-# .github/workflows/main.yml
-name: 自动化部署（使用 ghcr.io）
+name: CI-CD 部署 IoT 系统
 
 on:
   push:
@@ -8,11 +7,11 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 拉取代码
+      - name: 检出代码
         uses: actions/checkout@v4
 
+      # 如果各服务镜像想推到 GHCR，就保留；纯本地 build 可删掉
       - name: 登录 GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -20,24 +19,47 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: 构建并推送镜像
+      # 一键构建所有镜像（docker-compose.yml 里用了 build: 上下文）
+      - name: 构建镜像
+        run: docker compose build
+
+      # 可选：把镜像推到 GHCR，方便多节点复用
+      - name: 推送镜像
         run: |
-          docker compose build
           docker compose push
-  
+
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-
     steps:
-      - name: 在服务器上拉取镜像并部署
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # 1. 把 compose 文件+config+sql 上传到服务器
+      - name: 同步部署文件到服务器
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.Server_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml,config,sql"
+          target: "~/iot-manage"
+          strip_components: 0   # 保持目录层级
+
+      # 2. 远程启动
+      - name: 远程 docker compose up
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.Server_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            cd ~/myapp
+            cd ~/iot-manage
+            # 拉取最新镜像（如果有 push 阶段）并重启
             docker compose pull
+            docker compose down --remove-orphans
             docker compose up -d
+            # 可选：等待健康检查通过
+            docker compose ps
