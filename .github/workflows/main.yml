@@ -4,7 +4,7 @@ name: 自动化部署
 
 on:
   push:
-    branches: ["master"] # 监听 master 分支的 push 事件
+    branches: ["main"] # 监听 master 分支的 push 事件
 
 jobs:
   deploy:
