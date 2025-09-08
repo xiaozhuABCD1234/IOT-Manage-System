@@ -15,7 +15,7 @@ func MustSubscribe(c mqtt.Client) {
 	}
 
 	// location 主题只要打印
-	token = c.Subscribe("location/#", 1, LogMsg)
+	token = c.Subscribe("location/#", 1, MultiHandler())
 	if token.Wait() && token.Error() != nil {
 		log.Fatalf("[FATAL] 订阅 location/# 失败: %v", token.Error())
 	}

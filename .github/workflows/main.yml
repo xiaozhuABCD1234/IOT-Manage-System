@@ -1,0 +1,44 @@
+# .github/workflows/main.yml
+
+name: 自动化部署
+
+on:
+  push:
+    branches: ["master"] # 监听 master 分支的 push 事件
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # 使用 GitHub 提供的虚拟机
+
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          docker compose up -d --build
+
+      - name: 保存镜像为 tar 文件
+        run: |
+          docker save $(docker compose images -q) > myapp.tar
+
+      - name: 上传镜像并部署到服务器
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.Server_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "myapp.tar"
+          target: "~/myapp/"
+
+      - name: 在服务器上加载镜像并重启服务
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.Server_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/myapp
+            docker load < myapp.tar
+            docker compose down
+            docker compose up -d

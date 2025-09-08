@@ -1,7 +1,7 @@
 services:
   mosquitto:
     image: docker.io/library/eclipse-mosquitto:openssl
-    container_name: mosquitto
+    container_name: iot_mosquitto
     restart: unless-stopped
     networks:
       - iot_net
@@ -9,7 +9,7 @@ services:
       - "1883:1883"
       - "8083:8083"
     environment:
-      - MOSQUITTO_CHANGE_OWNER=0 
+      - MOSQUITTO_CHANGE_OWNER=0
     volumes:
       - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - ./config/mosquitto.passwd:/mosquitto/config/mosquitto.passwd:ro
@@ -67,7 +67,7 @@ services:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
-    container_name: api-gateway
+    container_name: iot_api-gateway
     restart: unless-stopped
     networks:
       - iot_net
@@ -84,7 +84,7 @@ services:
     build:
       context: ./user-service
       dockerfile: Dockerfile
-    container_name: user-service
+    container_name: iot_user-service
     restart: unless-stopped
     networks:
       - iot_net
@@ -119,7 +119,7 @@ services:
     build:
       context: ./mark-service
       dockerfile: Dockerfile
-    container_name: mark-service
+    container_name: iot_mark-service
     restart: unless-stopped
     networks:
       - iot_net
@@ -149,6 +149,17 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: iot_frontend
+    restart: unless-stopped
+    networks:
+      - iot_net
+    ports:
+      - "3000:80"
 
 volumes:
   mosquitto_data:

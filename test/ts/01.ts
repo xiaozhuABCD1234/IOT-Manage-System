@@ -36,12 +36,23 @@ client.on("connect", () => {
 		client.publish(OnlineTopic, payload, { qos: 0, retain: false });
 	}, 3000);
 
+	let count = 0;
+	// 模拟位置变化
+	setInterval(() => {
+		count++;
+	}, 500);
 	/* 4. 每 1 s 位置 */
 	setInterval(() => {
 		const locPayload = JSON.stringify({
 			id: ID,
-			sens: [{ n: "RTK", u: "deg", v: [121.891751, 30.902079] }],
+			sens: [
+				// { n: "UWB", u: "", v: [11.11 + count++ / 100, 10 + count++ / 100] },
+				// { n: "RTK", u: "deg", v: [121.891751, 30.902079] },
+
+				{ n: "RTK", u: "deg", v: [121.891751, 30.902079] },
+				{ n: "UWB", u: "", v: [11.11 + count++ / 100, 10 + count++ / 100] },
+			],
 		});
-		client.publish(LocTopic, locPayload, { qos: 0, retain: true });
+		client.publish(LocTopic, locPayload, { qos: 0, retain: false });
 	}, 1000); // 1 s
 });

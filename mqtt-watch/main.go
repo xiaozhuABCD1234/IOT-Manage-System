@@ -8,6 +8,7 @@ import (
 
 	"IOT-Manage-System/mqtt-watch/client"
 	"IOT-Manage-System/mqtt-watch/handler"
+	"IOT-Manage-System/mqtt-watch/service"
 	"IOT-Manage-System/mqtt-watch/utils"
 )
 
@@ -17,6 +18,9 @@ func main() {
 
 	c := utils.MQTTClient
 	client.MustSubscribe(c)
+	mqttService := service.NewMqttService(c)
+	mqttHandler := handler.NewMqttService(mqttService)
+	mqttService.SendWarningStart("213")
 
 	app := fiber.New(fiber.Config{
 		Prefork:            false,
@@ -28,11 +32,24 @@ func main() {
 		JSONEncoder:        json.Marshal,
 		JSONDecoder:        json.Unmarshal,
 	})
+	
 
-	// 不再使用 fiberlogger 中间件
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("MQTT Watch is running")
-	})
+	// 2. 挂路由
+	api := app.Group("/api")
+	v1 := api.Group("/v1")
+	mqtt := v1.Group("/mqtt")
+	mqtt.Post("/warning/:deviceId/start", mqttHandler.SendWarningStart)
+	// mqtt.Get("/warning/start", mqttHandler.SendWarningStart)
+
+	mqtt.Post("/warning/:deviceId/end", mqttHandler.SendWarningEnd)
+
+	// 3. 打印路由（必须放在 Listen 之前）
+	app.Stack() // 或者 app.GetRoutes(true)
+	for _, routes := range app.Stack() {
+		for _, r := range routes {
+			log.Printf("Method: %-6s Path: %s\n", r.Method, r.Path)
+		}
+	}
 
 	port := utils.GetEnv("PORT", "8003")
 	if err := app.Listen(":" + port); err != nil {
