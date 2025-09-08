@@ -22,7 +22,6 @@ jobs:
       # 一键构建所有镜像（docker-compose.yml 里用了 build: 上下文）
       - name: 构建镜像
         run: |
-          export OWNER=${{ github.repository_owner }} 
           docker compose build
 
       # 可选：把镜像推到 GHCR，方便多节点复用
@@ -59,7 +58,6 @@ jobs:
             set -e
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd ~/iot-manage
-            export OWNER=${{ github.repository_owner }}
             docker compose pull
             docker compose down --remove-orphans
             docker compose up -d
