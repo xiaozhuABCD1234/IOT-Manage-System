@@ -1,6 +1,6 @@
 // src/api/mark.ts
 import request from "@/utils/request";
-import type { ApiResponse } from "@/utils/request";
+import type { ApiResponse } from "@/types/response";
 import type { MarkRequest, MarkUpdateRequest, MarkResponse } from "@/types/mark";
 
 /* ----------------- 分页查询参数 ----------------- */
@@ -12,7 +12,7 @@ export interface ListParams {
 
 /* ----------------- 常量 ----------------- */
 const URLS = {
-  marks: "/api/v1/marks",
+  marks: "/api/v1/marks/",
   persist: "/api/v1/marks/persist",
   tags: "/api/v1/tags",
   types: "/api/v1/types",

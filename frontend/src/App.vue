@@ -10,7 +10,9 @@
     </header>
 
     <!-- 主内容：超出可滚动 -->
-    <main class="font-maplemono overflow-y-auto bg-gray-100 pb-0 md:pb-0 dark:bg-gray-800">
+    <main
+      class="font-maplemono h-[calc(100vh-3rem)] overflow-y-auto bg-gray-100 pb-0 md:pb-0 dark:bg-gray-800"
+    >
       <router-view />
       <!-- 底部：大屏显示 -->
     </main>
@@ -18,11 +20,11 @@
       <HomeFooter />
     </footer>
     <!-- 底部：小屏固定到底 -->
-    <footer
+    <!-- <footer
       class="fixed inset-x-0 bottom-0 z-50 flex h-14 items-center justify-center bg-blue-400 md:hidden dark:bg-cyan-700"
     >
       <MenuFooter />
-    </footer>
+    </footer> -->
   </div>
 </template>
 

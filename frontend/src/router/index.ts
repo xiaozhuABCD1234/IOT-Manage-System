@@ -5,7 +5,7 @@ import type { RouteRecordRaw } from "vue-router";
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    name: "Home",
+    name: "home",
     component: () => import("@/views/HomeView.vue"),
   },
   {
@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/map/rtk",
-    name: "map/rtk",
+    name: "map-rtk",
     component: () => import("@/views/RTKMapView.vue"),
   },
   {
@@ -25,18 +25,23 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/map/uwb",
-    name: "map/uwb",
+    name: "map-uwb",
     component: () => import("@/views/UWBMapView.vue"),
   },
   {
     path: "/marks/status",
-    name: "marks/status",
+    name: "marks-status",
     component: () => import("@/views/MarksStatusView.vue"),
   },
   {
     path: "/marks/manage",
-    name: "marks/manage",
+    name: "marks-manage",
     component: () => import("@/views/MarkManView.vue"),
+  },
+  {
+    path: "/marks/list/:pageNumber(\\d+)",
+    name: "marks-list",
+    component: () => import("@/views/MarkListView.vue"),
   },
   {
     path: "/profile",

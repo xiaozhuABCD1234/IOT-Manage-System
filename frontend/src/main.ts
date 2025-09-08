@@ -3,7 +3,6 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 
-
 import "@/styles/index.css";
 
 // 仅用到的两个自动引入即可
@@ -19,4 +18,10 @@ useDark({
   storageKey: null, // 完全跟随系统
 });
 
-createApp(App).use(createPinia()).use(router).mount("#app");
+const pinia = createPinia();
+const app = createApp(App);
+
+app.use(pinia);
+app.use(router);
+
+app.mount("#app");

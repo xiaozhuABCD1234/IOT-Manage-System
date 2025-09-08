@@ -1,6 +1,6 @@
 // src/api/markTag.ts
 import request from "@/utils/request";
-import type { ApiResponse } from "@/utils/request";
+import type { ApiResponse } from "@/types/response";
 import type { MarkTagRequest, MarkTagResponse, MarkResponse } from "@/types/mark";
 
 export interface ListParams {

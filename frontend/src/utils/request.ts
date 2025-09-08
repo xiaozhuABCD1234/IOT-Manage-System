@@ -1,33 +1,10 @@
 // src/utils/request.ts
 import axios, { type AxiosResponse, type AxiosError } from "axios";
 import { toast } from "vue-sonner";
+import type { ApiResponse } from "@/types/response";
 
 /* ========== 类型声明 ========== */
 
-/** 后端统一返回结构 */
-interface ErrorObj {
-  code: string;
-  message: string;
-  details?: unknown;
-}
-
-interface PaginationObj {
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
-
-interface ApiResponse<T = unknown> {
-  success: boolean;
-  data: T;
-  message?: string;
-  error?: ErrorObj;
-  pagination?: PaginationObj;
-  timestamp: string;
-}
 
 /* ========== Axios 实例 ========== */
 
@@ -92,4 +69,4 @@ service.interceptors.response.use(
 
 /* ========== 导出 ========== */
 export default service;
-export type { ApiResponse, PaginationObj, ErrorObj };
+

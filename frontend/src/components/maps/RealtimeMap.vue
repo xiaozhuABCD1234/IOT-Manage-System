@@ -18,8 +18,13 @@ const devices = ref<Device[]>([]);
 
 const msgCallback = (topic: string, payload: Buffer) => {
   if (!map) return;
-  const { id, lng, lat } = parseMessage(topic, payload);
-  updateDevicePosition(map, devices, id, lng, lat);
+  const fix = parseMessage(topic, payload);
+  if (!fix) {
+    console.log("收到 0,0，已忽略");
+    return;
+  }
+  // 后续正常处理 fix
+  updateDevicePosition(map, devices, fix.id, fix.lng, fix.lat);
 };
 
 onMounted(() => {

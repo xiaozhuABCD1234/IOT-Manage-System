@@ -1,6 +1,6 @@
 // src/api/user.ts
 import request from "@/utils/request";
-import type { ApiResponse } from "@/utils/request";
+import type { ApiResponse } from "@/types/response";
 
 /* ----------------- 枚举 ----------------- */
 export enum UserType {

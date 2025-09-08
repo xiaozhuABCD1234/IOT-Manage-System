@@ -9,7 +9,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Separator } from "@/components/ui/separator";
-import { Map, MapPinned, History, Fence, Bookmark, Info } from "lucide-vue-next";
+import { Map, MapPinned, History, Fence, Bookmark, Info, List } from "lucide-vue-next";
 
 import HomeButton from "@/components/layout/HomeLogo.vue";
 import ThemeToggle from "./RightControlStrip.vue";
@@ -129,9 +129,7 @@ import ThemeToggle from "./RightControlStrip.vue";
                       <div class="flex items-center justify-between text-sm font-medium">
                         标记状态 <History class="h-4 w-4" />
                       </div>
-                      <p class="text-muted-foreground line-clamp-2 text-xs">
-                        查看当前所有电子标记的状态
-                      </p>
+
                     </RouterLink>
                   </NavigationMenuLink>
                 </li>
@@ -144,9 +142,19 @@ import ThemeToggle from "./RightControlStrip.vue";
                       <div class="flex items-center justify-between text-sm font-medium">
                         标记管理 <Fence class="h-4 w-4" />
                       </div>
-                      <p class="text-muted-foreground line-clamp-2 text-xs">
-                        添加、编辑或删除电子标记
-                      </p>
+                    </RouterLink>
+                  </NavigationMenuLink>
+                </li>
+                <li>
+                  <NavigationMenuLink as-child>
+                    <RouterLink
+                      to="/marks/list/1"
+                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
+                    >
+                      <div class="flex items-center justify-between text-sm font-medium">
+                        标记列表 <List class="h-4 w-4" />
+                      </div>
+
                     </RouterLink>
                   </NavigationMenuLink>
                 </li>

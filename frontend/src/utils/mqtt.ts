@@ -94,16 +94,28 @@ export interface UWBFix {
   id: string;
 }
 
-export const parseMessage = (topic: string, payload: Buffer): GeoFix => {
+export const parseMessage = (topic: string, payload: Buffer): GeoFix | null => {
   const data = JSON.parse(payload.toString()) as Msg;
 
-  const rtkSen = data.sens.find((s) => s.n === "RTK");
+  const rtkSen = data.sens.find((s) => s.n === 'RTK');
   if (!rtkSen || !Array.isArray(rtkSen.v) || rtkSen.v.length !== 2) {
-    throw new Error("缺少 RTK 字段或格式错误");
+    throw new Error('缺少 RTK 字段或格式错误');
   }
 
   const [lngWGS, latWGS] = rtkSen.v as [number, number];
-  const [lngGCJ, latGCJ] = gcoord.transform([lngWGS, latWGS], gcoord.WGS84, gcoord.GCJ02);
+
+  /* ====== 新增：0,0 过滤 ====== */
+  if (lngWGS === 0 && latWGS === 0) {
+    // 视业务需求 return null 或抛错
+    return null;          // 选择“不返回”
+    // throw new Error('RTK 原始坐标为 0,0，已丢弃');
+  }
+
+  const [lngGCJ, latGCJ] = gcoord.transform(
+    [lngWGS, latWGS],
+    gcoord.WGS84,
+    gcoord.GCJ02
+  );
 
   return { id: data.id, lng: lngGCJ, lat: latGCJ };
 };
