@@ -21,7 +21,9 @@ jobs:
 
       # 一键构建所有镜像（docker-compose.yml 里用了 build: 上下文）
       - name: 构建镜像
-        run: docker compose build
+        run: |
+          export OWNER=${{ github.repository_owner }} 
+          docker compose build
 
       # 可选：把镜像推到 GHCR，方便多节点复用
       - name: 推送镜像
@@ -44,7 +46,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml,config,sql"
           target: "~/iot-manage"
-          strip_components: 0   # 保持目录层级
+          strip_components: 0 # 保持目录层级
 
       # 2. 远程启动
       - name: 远程 docker compose up
@@ -57,9 +59,8 @@ jobs:
             set -e
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd ~/iot-manage
-            # 拉取最新镜像（如果有 push 阶段）并重启
+            export OWNER=${{ github.repository_owner }}
             docker compose pull
             docker compose down --remove-orphans
             docker compose up -d
-            # 可选：等待健康检查通过
             docker compose ps
