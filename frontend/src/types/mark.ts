@@ -2,12 +2,14 @@
 // MarkType
 // ==========================
 export interface MarkTypeRequest {
-  type_name: string; // required, max 255
+  type_name: string | null; // required, max 255
+  default_safe_distance_m: number | null; // optional, default null
 }
 
 export interface MarkTypeResponse {
   id: number;
   type_name: string;
+  default_safe_distance_m: number;
 }
 
 // ==========================
@@ -27,14 +29,14 @@ export interface MarkTagResponse {
 // ==========================
 
 /** 创建/更新时共用字段 */
-export interface MarkRequest {
-  device_id: string; // required, max 255
-  mark_name: string; // required, max 255
-  mqtt_topic: string[]; // optional, max 65535
-  persist_mqtt?: boolean; // optional, default false
-  safe_distance_m?: number; // optional
-  mark_type_id?: number; // optional
-  tags?: string[]; // optional
+export interface MarkCreateRequest {
+  device_id: string; // required
+  mark_name: string; // required
+  mqtt_topic?: string[]; // 不传表示空数组
+  persist_mqtt?: boolean; // 不传后端给 false
+  safe_distance_m?: number | null; // 传 null 表示“使用类型默认值”
+  mark_type_id?: number; // 不传后端给 1
+  tags?: string[]; // 不传表示空数组
 }
 
 /** 仅更新用：所有字段可选；传 null/undefined 表示不修改，传空数组表示清空 */

@@ -1,7 +1,7 @@
 // src/api/mark.ts
 import request from "@/utils/request";
 import type { ApiResponse } from "@/types/response";
-import type { MarkRequest, MarkUpdateRequest, MarkResponse } from "@/types/mark";
+import type { MarkCreateRequest, MarkUpdateRequest, MarkResponse } from "@/types/mark";
 
 /* ----------------- 分页查询参数 ----------------- */
 export interface ListParams {
@@ -21,7 +21,7 @@ const URLS = {
 /* ----------------- API 方法 ----------------- */
 
 /* 创建标记 */
-export async function createMark(data: MarkRequest) {
+export async function createMark(data: MarkCreateRequest) {
   return request.post<ApiResponse<MarkResponse>>(URLS.marks, data);
 }
 
