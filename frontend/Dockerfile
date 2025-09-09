@@ -1,6 +1,11 @@
 # 构建阶段
 FROM docker.io/library/node:iron-slim AS builder
 
+ARG VITE_API_BASE
+ARG VITE_AMAP_KEY
+ARG VITE_AMAP_SECURITY_CODE
+ARG VITE_MQTT_URL
+
 # 设置工作目录
 WORKDIR /app
 

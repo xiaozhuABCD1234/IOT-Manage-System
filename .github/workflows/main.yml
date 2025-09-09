@@ -23,6 +23,10 @@ jobs:
       - name: 构建镜像
         run: |
           docker compose build
+        env:
+          VITE_AMAP_KEY: ${{ secrets.VITE_AMAP_KEY }}
+          VITE_AMAP_SECURITY_CODE: ${{ secrets.VITE_AMAP_SECURITY_CODE }}
+          VITE_MQTT_URL: ${{ secrets.VITE_MQTT_URL }}
 
       # 可选：把镜像推到 GHCR，方便多节点复用
       - name: 推送镜像
