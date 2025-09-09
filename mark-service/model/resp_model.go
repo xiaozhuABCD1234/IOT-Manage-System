@@ -8,8 +8,9 @@ import (
 // MarkType
 // ==========================
 type MarkTypeResponse struct {
-	ID       int    `json:"id"`
-	TypeName string `json:"type_name"`
+	ID                   int      `json:"id"`
+	TypeName             string   `json:"type_name"`
+	DefaultSafeDistanceM *float64 `json:"default_safe_distance_m,omitempty"`
 }
 
 // ==========================

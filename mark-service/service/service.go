@@ -31,11 +31,11 @@ type MarkService interface {
 	GetMarksByTagName(tagName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 
 	// MarkType 相关操作
-	CreateMarkType(mt *model.MarkTypeRequest) error
+	CreateMarkType(mt *model.MarkTypeCreateRequest) error
 	GetMarkTypeByID(id int) (*model.MarkTypeResponse, error)
 	GetMarkTypeByName(name string) (*model.MarkTypeResponse, error)
 	ListMarkTypes(page, limit int) ([]model.MarkTypeResponse, int64, error)
-	UpdateMarkType(mt *model.MarkTypeRequest) error
+	UpdateMarkType(typeID int, mt *model.MarkTypeUpdateRequest) error
 	DeleteMarkType(id int) error
 	GetMarksByTypeID(typeID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	GetMarksByTypeName(typeName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error)

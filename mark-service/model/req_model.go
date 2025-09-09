@@ -1,9 +1,14 @@
 package model
 
-// MarkTypeRequest 用于创建或更新标记类型
-type MarkTypeRequest struct {
-	TypeName             string  `json:"type_name" validate:"required,max=255"`
-	DefaultSafeDistanceM float64 `json:"default_safe_distance_m"`
+// MarkTypeCreateRequest 用于创建或更新标记类型
+type MarkTypeCreateRequest struct {
+	TypeName             string   `json:"type_name" validate:"required,max=255"`
+	DefaultSafeDistanceM *float64 `json:"default_safe_distance_m"`
+}
+
+type MarkTypeUpdateRequest struct {
+	TypeName             *string  `json:"type_name" validate:"omitempty,max=255"`
+	DefaultSafeDistanceM *float64 `json:"default_safe_distance_m"`
 }
 
 // MarkTagRequest 用于创建或更新标记标签

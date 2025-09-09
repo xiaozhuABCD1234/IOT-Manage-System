@@ -9,9 +9,9 @@ import (
 
 // MarkType 标记类型表：同一类型下可拥有多条 Mark 记录。
 type MarkType struct {
-	ID                   int     `gorm:"primaryKey;autoIncrement;column:id"`        // ID：主键，自增
-	TypeName             string  `gorm:"unique;size:255;not null;column:type_name"` // TypeName：类型名称，全局唯一
-	DefaultSafeDistanceM float64 `gorm:"column:default_safe_distance_m;default:-1"` // DefaultSafeDistanceM：该类型下默认安全距离（米），-1 表示未设置
+	ID                   int      `gorm:"primaryKey;autoIncrement;column:id"`        // ID：主键，自增
+	TypeName             string   `gorm:"unique;size:255;not null;column:type_name"` // TypeName：类型名称，全局唯一
+	DefaultSafeDistanceM *float64 `gorm:"column:default_safe_distance_m;default:-1"` // DefaultSafeDistanceM：该类型下默认安全距离（米），-1 表示未设置
 
 	// 一对多关联：删除类型时被关联的 Mark 受外键 RESTRICT 保护。
 	Marks []Mark `gorm:"foreignKey:MarkTypeID;references:ID"`
@@ -61,7 +61,7 @@ type MarkPairSafeDistance struct {
 	DistanceM float64   // DistanceM：两条 Mark 之间的安全距离（米）
 }
 
-func (MarkPairSafeDistance) TableName() string {return "mark_pair_safe_distance"}
+func (MarkPairSafeDistance) TableName() string { return "mark_pair_safe_distance" }
 
 // BeforeCreate GORM 钩子：在插入前将 UUID 对调整为字典序，避免重复主键。
 func (m *MarkPairSafeDistance) BeforeCreate(tx *gorm.DB) error {

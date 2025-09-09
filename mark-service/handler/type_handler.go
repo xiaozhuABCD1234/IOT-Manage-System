@@ -11,7 +11,7 @@ import (
 
 // CreateMarkType 创建标记类型
 func (h *MarkHandler) CreateMarkType(c *fiber.Ctx) error {
-	req := new(model.MarkTypeRequest)
+	req := new(model.MarkTypeCreateRequest)
 	if err := c.BodyParser(req); err != nil {
 		return errs.ErrInvalidInput.WithDetails(err)
 	}
@@ -87,17 +87,22 @@ func (h *MarkHandler) GetMarkTypeByName(c *fiber.Ctx) error {
 
 // UpdateMarkType 更新标记类型
 func (h *MarkHandler) UpdateMarkType(c *fiber.Ctx) error {
-	req := new(model.MarkTypeRequest)
+	typeID := c.Params("type_id")
+	if typeID == "" {
+		return errs.ErrInvalidInput.WithDetails("type_id 不能为空")
+	}
+	typeIDInt, err := utils.ParsePositiveInt(typeID)
+	if err != nil {
+		return errs.ErrInvalidInput.WithDetails("type_id 必须是正整数")
+	}
+
+	req := new(model.MarkTypeUpdateRequest)
 	if err := c.BodyParser(req); err != nil {
-		return errs.ErrInvalidInput.WithDetails(err)
+		return errs.ErrInvalidInput.WithDetails(err.Error())
 	}
 
-	if req.TypeName == "" {
-		return errs.ErrInvalidInput.WithDetails("TypeName 不能为空")
-	}
-
-	appErr := h.markService.UpdateMarkType(req)
-	if appErr != nil {
+	// 4. 调用服务层（签名已对齐）
+	if appErr := h.markService.UpdateMarkType(typeIDInt, req); appErr != nil {
 		return appErr
 	}
 
