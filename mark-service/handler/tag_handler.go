@@ -84,6 +84,15 @@ func (h *MarkHandler) GetMarkTagByName(c *fiber.Ctx) error {
 
 // UpdateMarkTag 更新标签
 func (h *MarkHandler) UpdateMarkTag(c *fiber.Ctx) error {
+	tagID := c.Params("tag_id")
+	if tagID == "" {
+		return errs.ErrInvalidInput.WithDetails("tag_id 不能为空")
+	}
+	tagIDInt, err := utils.ParsePositiveInt(tagID)
+	if err != nil {
+		return errs.ErrInvalidInput.WithDetails("tag_id 必须是正整数")
+	}
+
 	req := new(model.MarkTagRequest)
 	if err := c.BodyParser(req); err != nil {
 		return errs.ErrInvalidInput.WithDetails(err)
@@ -93,7 +102,7 @@ func (h *MarkHandler) UpdateMarkTag(c *fiber.Ctx) error {
 		return errs.ErrInvalidInput.WithDetails("TagName 不能为空")
 	}
 
-	appErr := h.markService.UpdateMarkTag(req)
+	appErr := h.markService.UpdateMarkTag(tagIDInt, req)
 	if appErr != nil {
 		return appErr
 	}

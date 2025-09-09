@@ -8,20 +8,18 @@ import (
 	"IOT-Manage-System/mark-service/model"
 )
 
-// CreateMark 创建标记
 // CreateMark 创建标记（已做重复性校验）
 func (s *markService) CreateMark(mark *model.MarkRequest) error {
-	// 1. 先判断 device_id 是否已存在
+	// 1. 设备 ID 重复检查
 	exist, err := s.repo.IsDeviceIDExists(mark.DeviceID)
 	if err != nil {
 		return errs.ErrDatabase.WithDetails(err.Error())
 	}
 	if exist {
-		// return errs.ErrDuplicate.WithMsg("设备ID已存在")
 		return errs.AlreadyExists("DeviceID", "设备ID已存在")
 	}
 
-	// 2. 判断 mark_name 是否已存在
+	// 2. 名称重复检查
 	exist, err = s.repo.IsMarkNameExists(mark.MarkName)
 	if err != nil {
 		return errs.ErrDatabase.WithDetails(err.Error())
@@ -30,26 +28,44 @@ func (s *markService) CreateMark(mark *model.MarkRequest) error {
 		return errs.AlreadyExists("MarkName", "标记名称已存在")
 	}
 
-	// 3. 解析默认值
+	// 3. 解析指针默认值
 	persistMQTT := false
 	if mark.PersistMQTT != nil {
 		persistMQTT = *mark.PersistMQTT
 	}
 
+	// 4. 确定要使用的类型 ID
+	markTypeID := 1 // 默认类型
+	if mark.MarkTypeID != nil {
+		markTypeID = *mark.MarkTypeID
+	}
+
+	// 5. 如果 SafeDistanceM 为空，取类型默认值
+	safeDistance := mark.SafeDistanceM
+	if safeDistance == nil || *safeDistance < 0 { // nil 或显式负值都视为“空”
+		typ, err := s.repo.GetMarkTypeByID(markTypeID)
+		if err != nil {
+			return errs.ErrDatabase.WithDetails("获取MarkType失败: " + err.Error())
+		}
+		if typ.DefaultSafeDistanceM != nil {
+			safeDistance = typ.DefaultSafeDistanceM
+		} else {
+			// 数据库也 NULL，给 0 或业务兜底值
+			safeDistance = new(float64) // 0
+		}
+	}
+
+	// 6. 组装持久化对象
 	dbMark := model.Mark{
 		DeviceID:      mark.DeviceID,
 		MarkName:      mark.MarkName,
 		MqttTopic:     mark.MqttTopic,
 		PersistMQTT:   persistMQTT,
-		SafeDistanceM: mark.SafeDistanceM,
-		MarkTypeID:    1, // 默认值
+		SafeDistanceM: safeDistance,
+		MarkTypeID:    markTypeID,
 	}
 
-	if mark.MarkTypeID != nil {
-		dbMark.MarkTypeID = *mark.MarkTypeID
-	}
-
-	// 4. 创建标记并处理标签
+	// 7. 入库并自动处理标签
 	if err := s.repo.CreateMarkAutoTag(&dbMark, mark.Tags); err != nil {
 		return errs.ErrDatabase.WithDetails(err.Error())
 	}
@@ -92,15 +108,27 @@ func (s *markService) ListMark(page, limit int, preload bool) ([]model.MarkRespo
 	}
 
 	// 转换为响应模型列表
-	var responses []model.MarkResponse
+	responses := make([]model.MarkResponse, 0, len(marks))
 	for _, mark := range marks {
 		responses = append(responses, *s.convertToMarkResponse(&mark))
 	}
-	if len(responses) == 0 {
-		return nil, total, errs.NotFound("Marks", "未找到相关标记")
-	}
 
 	return responses, total, nil
+}
+
+func (s *markService) fallbackSafeDistance(reqSafe *float64, markTypeID int) (*float64, error) {
+	if reqSafe != nil && *reqSafe >= 0 { // 显式给出合法值，直接用它
+		return reqSafe, nil
+	}
+	typ, err := s.repo.GetMarkTypeByID(markTypeID)
+	if err != nil {
+		return nil, err
+	}
+	if typ.DefaultSafeDistanceM != nil {
+		return typ.DefaultSafeDistanceM, nil
+	}
+	zero := 0.0
+	return &zero, nil
 }
 
 // UpdateMark 更新标记
@@ -136,8 +164,16 @@ func (s *markService) UpdateMark(ID string, req *model.MarkUpdateRequest) error 
 	if req.PersistMQTT != nil {
 		m.PersistMQTT = *req.PersistMQTT
 	}
-	if req.SafeDistanceM != nil {
-		m.SafeDistanceM = req.SafeDistanceM
+	if req.SafeDistanceM != nil || req.MarkTypeID != nil {
+		newTypeID := m.MarkTypeID
+		if req.MarkTypeID != nil {
+			newTypeID = *req.MarkTypeID
+		}
+		fallback, err := s.fallbackSafeDistance(req.SafeDistanceM, newTypeID)
+		if err != nil {
+			return errs.ErrDatabase.WithDetails("获取默认安全距离失败: " + err.Error())
+		}
+		m.SafeDistanceM = fallback
 	}
 	if req.MarkTypeID != nil {
 		m.MarkTypeID = *req.MarkTypeID
@@ -208,6 +244,12 @@ func (s *markService) GetPersistMQTTByDeviceID(deviceID string) (bool, error) {
 
 // GetMarksByPersistMQTT 根据 PersistMQTT 字段查询标记列表（分页）
 func (s *markService) GetMarksByPersistMQTT(persist bool, page, limit int, preload bool) ([]model.MarkResponse, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit <= 0 || limit > 200 {
+		limit = 20
+	}
 	offset := (page - 1) * limit
 
 	marks, total, err := s.repo.GetMarksByPersistMQTT(persist, preload, offset, limit)

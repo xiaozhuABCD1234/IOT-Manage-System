@@ -25,7 +25,7 @@ type MarkService interface {
 	GetMarkTagByID(id int) (*model.MarkTagResponse, error)
 	GetMarkTagByName(name string) (*model.MarkTagResponse, error)
 	ListMarkTags(page, limit int) ([]model.MarkTagResponse, int64, error)
-	UpdateMarkTag(tag *model.MarkTagRequest) error
+	UpdateMarkTag(id int, mt *model.MarkTagRequest) error
 	DeleteMarkTag(id int) error
 	GetMarksByTagID(tagID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	GetMarksByTagName(tagName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error)

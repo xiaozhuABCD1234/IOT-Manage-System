@@ -14,7 +14,7 @@ func (s *markService) CreateMarkTag(mt *model.MarkTagRequest) error {
 	}
 
 	// 判断是否已存在同名标签
-	if _, err := s.repo.GetMarkTagByName(mt.TagName); err == nil {
+	if exist, err := s.repo.IsTagNameExists(mt.TagName); exist != false || err != nil {
 		return errs.AlreadyExists("MARK_TAG", "标签名称已存在")
 	}
 
@@ -71,20 +71,30 @@ func (s *markService) ListMarkTags(page, limit int) ([]model.MarkTagResponse, in
 }
 
 // UpdateMarkTag 更新标记标签
-func (s *markService) UpdateMarkTag(tag *model.MarkTagRequest) error {
-	if tag.TagName == "" {
+func (s *markService) UpdateMarkTag(id int, mt *model.MarkTagRequest) error {
+	if mt.TagName == "" {
 		return errs.ErrInvalidInput.WithDetails("TagName 不能为空")
 	}
-	// 根据名称找到要更新的记录
-	existingTag, err := s.repo.GetMarkTagByName(tag.TagName)
+
+	// 1. 按 ID 拿记录
+	tag, err := s.repo.GetMarkTagByID(id)
 	if err != nil {
-		return errs.NotFound("MARK_TAG", "待更新标签不存在", err)
+		return errs.NotFound("MARK_TAG", "标签不存在", err)
 	}
-	existingTag.TagName = tag.TagName
-	if err := s.repo.UpdateMarkTag(existingTag); err != nil {
-		return errs.ErrDatabase.WithDetails(err)
+
+	// 2. 名称没变，直接返回
+	if tag.TagName == mt.TagName {
+		return nil
 	}
-	return nil
+
+	// 3. 名称要改，检查冲突
+	if exist, err := s.repo.IsTagNameExists(mt.TagName); exist != false || err != nil {
+		return errs.AlreadyExists("MARK_TAG", "标签名称已存在")
+	}
+
+	// 4. 更新
+	tag.TagName = mt.TagName
+	return s.repo.UpdateMarkTag(tag)
 }
 
 // DeleteMarkTag 删除标记标签
@@ -97,6 +107,12 @@ func (s *markService) DeleteMarkTag(id int) error {
 
 // GetMarksByTagID 根据标签ID获取标记列表（分页）
 func (s *markService) GetMarksByTagID(tagID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit <= 0 || limit > 200 {
+		limit = 20
+	}
 	offset := (page - 1) * limit
 	marks, total, err := s.repo.GetMarksByTagID(tagID, preload, offset, limit)
 	if err != nil {
@@ -116,6 +132,12 @@ func (s *markService) GetMarksByTagID(tagID int, page, limit int, preload bool) 
 }
 
 func (s *markService) GetMarksByTagName(tagName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit <= 0 || limit > 200 {
+		limit = 20
+	}
 	offset := (page - 1) * limit
 	marks, total, err := s.repo.GetMarksByTagName(tagName, preload, offset, limit)
 	if err != nil {
