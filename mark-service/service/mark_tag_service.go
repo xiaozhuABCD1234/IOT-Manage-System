@@ -15,7 +15,7 @@ func (s *markService) CreateMarkTag(mt *model.MarkTagRequest) error {
 
 	// 判断是否已存在同名标签
 	if exist, err := s.repo.IsTagNameExists(mt.TagName); exist != false || err != nil {
-		return errs.AlreadyExists("MARK_TAG", "标签名称已存在")
+		return errs.AlreadyExists("MARK_TAG", "标签已存在")
 	}
 
 	markTag := model.MarkTag{TagName: mt.TagName}
@@ -89,7 +89,7 @@ func (s *markService) UpdateMarkTag(id int, mt *model.MarkTagRequest) error {
 
 	// 3. 名称要改，检查冲突
 	if exist, err := s.repo.IsTagNameExists(mt.TagName); exist != false || err != nil {
-		return errs.AlreadyExists("MARK_TAG", "标签名称已存在")
+		return errs.AlreadyExists("MARK_TAG", "标签已存在")
 	}
 
 	// 4. 更新

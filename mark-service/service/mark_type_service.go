@@ -19,11 +19,16 @@ func (s *markService) convertToMarkTypeResponse(markType *model.MarkType) *model
 }
 
 // CreateMarkType 创建标记类型
-func (s *markService) CreateMarkType(mt *model.MarkTypeCreateRequest) error {
+func (s *markService) CreateMarkType(req *model.MarkTypeCreateRequest) error {
+	exist, err := s.repo.IsTypeNameExists(req.TypeName)
+	if err == nil && exist != false {
+		return errs.AlreadyExists("MARK_TYPE", "标记类型重复")
+	}
+
 	// 将请求模型转换为数据库模型
 	markType := model.MarkType{
-		TypeName:             mt.TypeName,
-		DefaultSafeDistanceM: mt.DefaultSafeDistanceM,
+		TypeName:             req.TypeName,
+		DefaultSafeDistanceM: req.DefaultSafeDistanceM,
 	}
 
 	return s.repo.CreateMarkType(&markType)
@@ -85,9 +90,9 @@ func (s *markService) UpdateMarkType(typeID int, req *model.MarkTypeUpdateReques
 		return errs.ErrResourceNotFound
 	}
 	if req.TypeName != nil && *req.TypeName != mt.TypeName {
-		exist, err := s.repo.IsMarkNameExists(*req.TypeName)
+		exist, err := s.repo.IsTypeNameExists(mt.TypeName)
 		if err == nil && exist != false {
-			return errs.ErrResourceConflict
+			return errs.AlreadyExists("MARK_TYPE", "标记类型重复")
 		}
 	}
 

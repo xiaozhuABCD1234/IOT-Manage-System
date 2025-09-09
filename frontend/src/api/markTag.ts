@@ -10,7 +10,7 @@ export interface ListParams {
 }
 
 const URLS = {
-  tags: "/api/v1/tags",
+  tags: "/api/v1/tags/",
 } as const;
 
 /* 创建标签 */

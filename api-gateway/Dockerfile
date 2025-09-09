@@ -29,6 +29,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 # 运行阶段
 FROM docker.io/library/alpine:latest
 
+ENV HTTP_PROXY=
+ENV HTTPS_PROXY=
+ENV NO_PROXY=
+
 ENV GIN_MODE=release
 
 # 安装运行时依赖

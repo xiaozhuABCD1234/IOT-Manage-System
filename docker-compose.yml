@@ -76,16 +76,16 @@ services:
       USER_SERVICE_URL: "user-service:8001"
       MARK_SERVICE_URL: "mark-service:8004"
       JWT_SECRET: "your-secret-key"
-      HTTP_PROXY:
-      http_proxy:
-      HTTPS_PROXY:
-      https_proxy:
-      FTP_PROXY:
-      ftp_proxy:
-      ALL_PROXY:
-      all_proxy:
-      NO_PROXY:
-      no_proxy:
+      HTTP_PROXY: ""
+      http_proxy: ""
+      HTTPS_PROXY: ""
+      https_proxy: ""
+      FTP_PROXY: ""
+      ftp_proxy: ""
+      ALL_PROXY: ""
+      all_proxy: ""
+      NO_PROXY: ""
+      no_proxy: ""
     ports:
       - "8000:8000"
 

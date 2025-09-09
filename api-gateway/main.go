@@ -13,6 +13,7 @@ import (
 
 func main() {
 	r := gin.Default()
+	r.RedirectTrailingSlash = false // 关闭 301
 	r.Use(middleware.Cors())
 	r.Use(middleware.JWTMiddleware())
 

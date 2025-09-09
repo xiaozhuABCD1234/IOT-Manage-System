@@ -3,7 +3,7 @@
 // ==========================
 export interface MarkTypeRequest {
   type_name: string | null; // required, max 255
-  default_safe_distance_m: number | null; // optional, default null
+  default_safe_distance_m?: number | null; // optional, default null
 }
 
 export interface MarkTypeResponse {

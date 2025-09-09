@@ -10,7 +10,7 @@ export interface ListParams {
 }
 
 const URLS = {
-  types: "/api/v1/types",
+  types: "/api/v1/types/",
 } as const;
 
 /* 创建类型 */

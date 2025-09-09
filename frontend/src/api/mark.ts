@@ -12,10 +12,10 @@ export interface ListParams {
 
 /* ----------------- 常量 ----------------- */
 const URLS = {
-  marks: "/api/v1/marks",
+  marks: "/api/v1/marks/",
   persist: "/api/v1/marks/persist",
-  tags: "/api/v1/tags",
-  types: "/api/v1/types",
+  tags: "/api/v1/tags/",
+  types: "/api/v1/types/",
 } as const;
 
 /* ----------------- API 方法 ----------------- */
