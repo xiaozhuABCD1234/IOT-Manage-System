@@ -34,4 +34,5 @@ Thumbs.db
 
 dist
 
+.env
 set_env.sh
