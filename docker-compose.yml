@@ -101,6 +101,8 @@ services:
       DB_PASSWORD: password
       JWT_SECRET: "your-secret-key"
       TZ: Asia/Shanghai
+      ADMIN_NAME: admin
+      ADMIN_PWD: admin
     # ports:
     #   - "8001:8001"
     healthcheck:
