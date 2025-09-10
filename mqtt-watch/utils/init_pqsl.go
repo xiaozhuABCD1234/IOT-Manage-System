@@ -15,7 +15,7 @@ func InitDB() (*gorm.DB, error) {
 	dbPort := GetEnv("DB_PORT", "5432")
 	dbUser := GetEnv("DB_USER", "postgres")
 	dbPassword := GetEnv("DB_PASSWORD", "password")
-	dbName := GetEnv("DB_NAME", "credit_management")
+	dbName := GetEnv("DB_NAME", "iot_manager_db")
 	dbSSLMode := GetEnv("DB_SSLMODE", "disable")
 	maxOpen := GetEnvInt("DB_MAX_OPEN_CONNS", 100)
 	maxIdle := GetEnvInt("DB_MAX_IDLE_CONNS", 20)

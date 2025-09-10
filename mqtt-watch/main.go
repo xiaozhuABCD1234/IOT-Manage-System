@@ -8,6 +8,7 @@ import (
 
 	"IOT-Manage-System/mqtt-watch/client"
 	"IOT-Manage-System/mqtt-watch/handler"
+	"IOT-Manage-System/mqtt-watch/repo"
 	"IOT-Manage-System/mqtt-watch/service"
 	"IOT-Manage-System/mqtt-watch/utils"
 )
@@ -16,8 +17,32 @@ func main() {
 	utils.InitMQTT()
 	defer utils.CloseMQTT()
 
+	db, err := utils.InitDB()
+	if err != nil {
+		log.Fatalf("初始化数据库失败: %v", err)
+	}
+	defer func() {
+		if err := utils.CloseDB(db); err != nil {
+			log.Printf("关闭数据库失败: %v", err)
+		} else {
+			log.Println("数据库已正常关闭")
+		}
+	}()
+	if _, err := utils.InitMongo(); err != nil {
+		panic(err)
+	}
+
+	mark_repo := repo.NewMarkRepo(db)
+	mark_pair_repo := repo.NewMarkPairRepo(db)
+	deviceLocRepo := repo.NewMongoRepo(utils.DeviceLocColl())
+
+	mark_service := service.NewMarkService(mark_repo)
+	mark_pair_service := service.NewMarkPairService(mark_pair_repo, mark_repo)
+	mongoService := service.NewMongoService(deviceLocRepo)
 	c := utils.MQTTClient
-	client.MustSubscribe(c)
+	mqttCallback := client.NewMqttCallback(c, mark_service, mark_pair_service, mongoService)
+
+	mqttCallback.MustSubscribe()
 	mqttService := service.NewMqttService(c)
 	mqttHandler := handler.NewMqttService(mqttService)
 	mqttService.SendWarningStart("213")
@@ -32,7 +57,6 @@ func main() {
 		JSONEncoder:        json.Marshal,
 		JSONDecoder:        json.Unmarshal,
 	})
-	
 
 	// 2. 挂路由
 	api := app.Group("/api")

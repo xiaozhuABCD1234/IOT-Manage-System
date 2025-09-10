@@ -6,6 +6,22 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
+func (mc *MqttCallback) MustSubscribe() {
+	// online 主题需要两个回调
+	token := mc.cli.Subscribe("online/#", 1, MultiHandler(EchoMsg))
+	if token.Wait() && token.Error() != nil {
+		log.Fatalf("[FATAL] 订阅 online/# 失败: %v", token.Error())
+	}
+
+	// location 主题：打印 + 落库
+	token = mc.cli.Subscribe("location/#", 1, MultiHandler(mc.saveLocation))
+	if token.Wait() && token.Error() != nil {
+		log.Fatalf("[FATAL] 订阅 location/# 失败: %v", token.Error())
+	}
+
+	log.Println("[INFO] MQTT 订阅已完成")
+}
+
 // MustSubscribe 一次性挂接所有订阅，失败 fatal。
 func MustSubscribe(c mqtt.Client) {
 	// online 主题需要两个回调
