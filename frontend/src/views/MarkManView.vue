@@ -1,12 +1,12 @@
 <template>
-  <div class="h-full w-full">标签管理
-  <div class="max-w-md mx-auto mt-10">
-    <h1 class="text-xl font-semibold mb-4">创建 MarkType</h1>
-    <MarkTypeCreateForm />
-  </div>
+  <!-- 高度自己定，这里占满屏幕剩余区域 -->
+  <div class="flex h-full w-md flex-col">
+    <main class="flex-1 overflow-hidden">
+      <MarkTypeGrid />
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import MarkTypeCreateForm from '@/components/MarkTypeCreateForm.vue'
+import MarkTypeGrid from "@/components/MarkTypeGrid.vue";
 </script>

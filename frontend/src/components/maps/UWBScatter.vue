@@ -34,15 +34,15 @@ function renderChart() {
       type: "value",
       scale: true,
       splitLine: { lineStyle: { type: "dashed" } },
-      // min: -20,
-      // max: 20,
+      min: -1000,
+      max: 1000,
     },
     yAxis: {
       type: "value",
       scale: true,
       splitLine: { lineStyle: { type: "dashed" } },
-      // min: -20,
-      // max: 20,
+      min: -1000,
+      max: 1000,
     },
     series: [
       {

@@ -4,7 +4,7 @@ import { connectMQTT } from "./mqtt.ts";
 type Device = {
 	id: string;
 	client: any; // mqtt.MqttClient
-	timer: NodeJS.Timeout;   // ← 这里
+	timer: NodeJS.Timeout; // ← 这里
 };
 
 const devices: Device[] = [];
@@ -45,7 +45,7 @@ function createDevice(index: number): Device {
 }
 
 /* ---------- 批量创建 1..100 ---------- */
-for (let i = 1; i <= 30; i++) devices.push(createDevice(i));
+for (let i = 1; i <= 100; i++) devices.push(createDevice(i));
 
 /* ---------- 优雅退出 ---------- */
 export function stopAll() {

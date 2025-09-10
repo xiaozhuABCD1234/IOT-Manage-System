@@ -25,7 +25,7 @@ export async function listMarkTypes(params: ListParams = {}) {
 
 /* 根据 ID 获取类型 */
 export async function getMarkTypeByID(typeId: number) {
-  return request.get<ApiResponse<MarkTypeResponse>>(`${URLS.types}/${typeId}`);
+  return request.get<ApiResponse<MarkTypeResponse>>(`${URLS.types}${typeId}`);
 }
 
 /* 根据名称获取类型 */
@@ -45,7 +45,7 @@ export async function deleteMarkType(typeId: number) {
 
 /* 根据类型 ID 获取标记列表（分页） */
 export async function getMarksByTypeID(typeId: number, params: ListParams = {}) {
-  return request.get<ApiResponse<MarkResponse[]>>(`${URLS.types}/${typeId}/marks`, {
+  return request.get<ApiResponse<MarkResponse[]>>(`${URLS.types}${typeId}/marks`, {
     params,
   });
 }
