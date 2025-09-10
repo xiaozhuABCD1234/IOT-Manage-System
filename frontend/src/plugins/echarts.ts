@@ -8,15 +8,23 @@ import { ScatterChart } from "echarts/charts";
 import {
   GridComponent,
   TooltipComponent,
-  DataZoomComponent, // ← 新增
+  DataZoomComponent,
+  GraphicComponent,
 } from "echarts/components";
 
 import type { ECharts } from "echarts/core"; // 把官方类型导出来
 
 import { CanvasRenderer } from "echarts/renderers";
 
-echarts.use([ScatterChart, GridComponent, TooltipComponent, CanvasRenderer, DataZoomComponent]);
+echarts.use([
+  GraphicComponent,
+  ScatterChart,
+  GridComponent,
+  TooltipComponent,
+  CanvasRenderer,
+  DataZoomComponent,
+]);
 
-export default echarts
-export type { ECharts }
-export * from 'echarts/core'   // 如果还想用其它工具函数
+export default echarts;
+export type { ECharts };
+export * from "echarts/core"; // 如果还想用其它工具函数
