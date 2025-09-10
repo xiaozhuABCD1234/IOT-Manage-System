@@ -1,5 +1,5 @@
 <template>
-  <TypeInfoCard :typeInfo="typeData" />
+  <TypeInfoCard :typeInfo="typeData" class="mt-4"/>
   <MarkTablePager :fetcher="fetchByType" />
 </template>
 

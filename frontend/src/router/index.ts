@@ -39,12 +39,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/MarkManView.vue"),
   },
   {
-    path: "/marks/list/:pageNumber(\\d+)",
+    path: "/marks/list",
     name: "marks-list",
     component: () => import("@/views/MarkListView.vue"),
   },
   {
-    path: "/types/:typeId/:pageNumber?",
+    path: "/types/:typeId",
     name: "TypeMarks",
     component: () => import("@/views/TypeListView.vue"),
   },

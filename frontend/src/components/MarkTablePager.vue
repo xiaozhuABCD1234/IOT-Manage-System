@@ -24,7 +24,7 @@
             <TableCell>
               <RouterLink
                 v-if="mark.mark_type"
-                :to="`/types/${mark.mark_type.id}/1`"
+                :to="`/types/${mark.mark_type.id}`"
                 class="hover:underline"
               >
                 {{ mark.mark_type.type_name }}
@@ -102,6 +102,10 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { RouterLink } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute();
+const router = useRouter();
 
 /* 外部传入 */
 const props = withDefaults(
@@ -117,11 +121,17 @@ const props = withDefaults(
 /* 内部状态 */
 const rows = ref<MarkResponse[]>([]);
 const total = ref(0);
-const currPage = ref(1);
+const currPage = ref(Number(route.query.page) || 1);
 
 /* 拉数据 */
 async function go(page = 1) {
   currPage.value = page;
+
+  // 更新 URL 查询参数
+  router.replace({
+    query: { ...route.query, page: String(page) },
+  });
+
   const { data } = await props.fetcher({ page, limit: props.limit, preload: true });
   rows.value = data.data;
   total.value = data.pagination.totalItems;

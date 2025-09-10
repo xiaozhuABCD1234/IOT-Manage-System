@@ -148,7 +148,7 @@ import ThemeToggle from "./RightControlStrip.vue";
                 <li>
                   <NavigationMenuLink as-child>
                     <RouterLink
-                      to="/marks/list/1"
+                      to="/marks/list"
                       class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                     >
                       <div class="flex items-center justify-between text-sm font-medium">
