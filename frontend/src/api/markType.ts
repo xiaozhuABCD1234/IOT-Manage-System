@@ -30,17 +30,17 @@ export async function getMarkTypeByID(typeId: number) {
 
 /* 根据名称获取类型 */
 export async function getMarkTypeByName(name: string) {
-  return request.get<ApiResponse<MarkTypeResponse>>(`${URLS.types}/name/${name}`);
+  return request.get<ApiResponse<MarkTypeResponse>>(`${URLS.types}name/${name}`);
 }
 
 /* 更新类型 */
 export async function updateMarkType(typeId: number, data: MarkTypeRequest) {
-  return request.put<ApiResponse<MarkTypeResponse>>(`${URLS.types}/${typeId}`, data);
+  return request.put<ApiResponse<MarkTypeResponse>>(`${URLS.types}${typeId}`, data);
 }
 
 /* 删除类型 */
 export async function deleteMarkType(typeId: number) {
-  return request.delete<ApiResponse<null>>(`${URLS.types}/${typeId}`);
+  return request.delete<ApiResponse<null>>(`${URLS.types}${typeId}`);
 }
 
 /* 根据类型 ID 获取标记列表（分页） */
@@ -52,7 +52,7 @@ export async function getMarksByTypeID(typeId: number, params: ListParams = {}) 
 
 /* 根据类型名称获取标记列表（分页） */
 export async function getMarksByTypeName(name: string, params: ListParams = {}) {
-  return request.get<ApiResponse<MarkResponse[]>>(`${URLS.types}/name/${name}/marks`, {
+  return request.get<ApiResponse<MarkResponse[]>>(`${URLS.types}name/${name}/marks`, {
     params,
   });
 }

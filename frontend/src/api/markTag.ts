@@ -25,17 +25,17 @@ export async function listMarkTags(params: ListParams = {}) {
 
 /* 根据 ID 获取标签 */
 export async function getMarkTagByID(tagId: number) {
-  return request.get<ApiResponse<MarkTagResponse>>(`${URLS.tags}/${tagId}`);
+  return request.get<ApiResponse<MarkTagResponse>>(`${URLS.tags}${tagId}`);
 }
 
 /* 根据名称获取标签 */
 export async function getMarkTagByName(name: string) {
-  return request.get<ApiResponse<MarkTagResponse>>(`${URLS.tags}/name/${name}`);
+  return request.get<ApiResponse<MarkTagResponse>>(`${URLS.tags}name/${name}`);
 }
 
 /* 更新标签 */
 export async function updateMarkTag(tagId: number, data: MarkTagRequest) {
-  return request.put<ApiResponse<MarkTagResponse>>(`${URLS.tags}/${tagId}`, data);
+  return request.put<ApiResponse<MarkTagResponse>>(`${URLS.tags}${tagId}`, data);
 }
 
 /* 删除标签 */
@@ -45,14 +45,14 @@ export async function deleteMarkTag(tagId: number) {
 
 /* 根据标签 ID 获取标记列表（分页） */
 export async function getMarksByTagID(tagId: number, params: ListParams = {}) {
-  return request.get<ApiResponse<MarkResponse[]>>(`${URLS.tags}/${tagId}/marks`, {
+  return request.get<ApiResponse<MarkResponse[]>>(`${URLS.tags}${tagId}/marks`, {
     params,
   });
 }
 
 /* 根据标签名称获取标记列表（分页） */
 export async function getMarksByTagName(name: string, params: ListParams = {}) {
-  return request.get<ApiResponse<MarkResponse[]>>(`${URLS.tags}/name/${name}/marks`, {
+  return request.get<ApiResponse<MarkResponse[]>>(`${URLS.tags}name/${name}/marks`, {
     params,
   });
 }

@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/types/:typeId",
     name: "TypeMarks",
-    component: () => import("@/views/TypeListView.vue"),
+    component: () => import("@/views/TypeDetialView.vue"),
   },
   {
     path: "/profile",

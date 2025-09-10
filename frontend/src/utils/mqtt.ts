@@ -39,9 +39,9 @@ export function connectMQTT(): MqttClient {
   client.on("reconnect", () => console.log("MQTT 正在重连"));
   client.on("error", (e) => console.error("MQTT 错误", e));
   client.on("offline", () => console.warn("MQTT 离线"));
-  client.on("message", (topic, payload) => {
-    console.log(`收到 ${topic}:`, payload.toString());
-  });
+  // client.on("message", (topic, payload) => {
+  //   console.log(`收到 ${topic}:`, payload.toString());
+  // });
 
   return client;
 }

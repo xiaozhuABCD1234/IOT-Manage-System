@@ -1,6 +1,7 @@
 <template>
-  <TypeInfoCard :typeInfo="typeData" class="mt-4"/>
-  <MarkTablePager :fetcher="fetchByType" />
+  <div class="flex h-full w-full flex-col items-center justify-start gap-4 md:justify-center">
+    <TypeInfoCard :typeInfo="typeData" class="mt-4" /> <MarkTablePager :fetcher="fetchByType" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -38,9 +39,7 @@ onMounted(async () => {
       typeData.value = res.data.data;
     }
   } catch {
-
   } finally {
-
   }
 });
 </script>
