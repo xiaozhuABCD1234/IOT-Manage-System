@@ -1,0 +1,259 @@
+<template>
+  <div class="container">
+    <!-- 页面顶部分隔器 -->
+    <div class="page-top-divider"></div>
+    
+    <!-- UWB地图区域 -->
+    <div class="uwb-map-container" style="width: 100%">
+      <!-- 固定位置的警告信息面板 -->
+      <div class="alerts-panel" v-if="fenceViolationDevices.size > 0 || safetyAlertMessage">
+        <div class="alerts-header">
+          <h3>⚠️ 实时警告信息</h3>
+          <el-button type="text" @click="clearAllAlerts">清除全部</el-button>
+        </div>
+        
+        <!-- 围栏违规警告 -->
+        <div v-if="fenceViolationDevices.size > 0" class="alert-section">
+          <h4>围栏警告</h4>
+          <div v-for="[deviceId, info] in Array.from(fenceViolationDevices.entries())" :key="deviceId" class="alert-item fence-alert">
+            <span>设备 {{ info.name }} ({{ deviceId }}) 已进入电子围栏区域！</span>
+            <el-button type="text" size="small" @click="clearFenceAlert(deviceId)">×</el-button>
+          </div>
+        </div>
+        
+        <!-- 安全距离警告 -->
+        <div v-if="safetyAlertMessage" class="alert-section">
+          <h4>安全距离警告</h4>
+          <div class="alert-item distance-alert">
+            <span>{{ safetyAlertMessage }}</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="distance-panel" v-if="showDistancePanel">
+        <h3>距离计算</h3>
+        <div class="distance-inputs">
+          <div class="input-column">
+            <label>选择设备1类型:</label>
+            <el-select v-model="selectedType1" placeholder="选择类型" size="small" @change="filterTags1">
+              <el-option label="全部" value="" />
+              <el-option label="人" value="person" />
+              <el-option label="物" value="object" />
+            </el-select>
+            <label style="margin-top: 10px;">选择设备1标签:</label>
+            <el-select v-model="selectedTag1" placeholder="选择标签" size="small">
+              <el-option v-for="tag in filteredTags1" :key="tag.id" :label="tag.label + ' (' + tag.id + ')'" :value="tag.id" />
+            </el-select>
+          </div>
+          <div class="input-column">
+            <label>选择设备2类型:</label>
+            <el-select v-model="selectedType2" placeholder="选择类型" size="small" @change="filterTags2">
+              <el-option label="全部" value="" />
+              <el-option label="人" value="person" />
+              <el-option label="物" value="object" />
+            </el-select>
+            <label style="margin-top: 10px;">选择设备2标签:</label>
+            <el-select v-model="selectedTag2" placeholder="选择标签" size="small">
+              <el-option v-for="tag in filteredTags2" :key="tag.id" :label="tag.label + ' (' + tag.id + ')'" :value="tag.id" />
+            </el-select>
+          </div>
+        </div>
+        <div class="result">
+          <div>
+            <strong>两设备之间距离:</strong> {{ distance }} cm
+          </div>
+          <div style="margin-top: 10px;">
+            <label>选择安全距离类型:</label>
+            <el-select v-model="selectedSafetyDistance" placeholder="选择安全距离" size="small" @change="calculateDistance">
+              <el-option v-for="item in safetyDistances" :key="item.type" :label="item.type + ' (' + item.value + 'cm)'" :value="item.value" />
+            </el-select>
+          </div>
+          <div v-if="safetyAlertMessage" class="safety-alert-message">
+            {{ safetyAlertMessage }}
+          </div>
+        </div>
+      </div>
+    
+      <div class="controls" v-if="showControls" :class="{'collapsed': isPanelCollapsed}">
+        <div class="control-title" @click="toggleControlPanel">
+          地图控制面板
+          <el-icon v-if="isPanelCollapsed"><el-icon-arrow-up /></el-icon>
+          <el-icon v-else><el-icon-arrow-down /></el-icon>
+        </div>
+        
+        <div class="el-switch-group">
+          <el-switch v-model="showFloorPlan" active-text="显示平面图-3" />
+          <el-switch v-model="showAnchors" active-text="显示基站" />
+          <el-switch v-model="showCoordinates" active-text="显示坐标" />
+          <el-switch v-model="showFence" active-text="显示围栏区域" />
+        </div>
+        
+        <!-- 水平分隔器 -->
+        <div class="horizontal-divider"></div>
+        
+        <div class="button-group">
+          <el-button 
+            type="primary" 
+            :class="{ 'active': drawingFence }"
+            @click="toggleFenceDrawing"
+            icon="Edit"
+          >
+            {{ drawingFence ? '完成围栏' : '绘制电子围栏' }}
+          </el-button>
+          
+          <el-button 
+            type="danger"
+            @click="resetFence"
+            :disabled="!showFence"
+            icon="Delete"
+          >
+            清除围栏
+          </el-button>
+          
+          <el-button 
+            type="info"
+            @click="resetMapView"
+            title="重置地图视图"
+            icon="Refresh"
+          >
+            重置视图
+          </el-button>
+          
+          <el-button 
+            type="success"
+            @click="toggleDistancePanel"
+            icon="Ruler"
+          >
+            {{ showDistancePanel ? '隐藏距离计算' : '显示距离计算' }}
+          </el-button>
+        </div>
+        
+        <!-- 水平分隔器 -->
+        <div class="horizontal-divider"></div>
+        
+        <div class="button-group management-buttons">
+          <el-button 
+            type="warning"
+            @click="showTagManagement = true"
+            icon="Management"
+          >
+            标签管理
+          </el-button>
+          
+          <el-button 
+            type="warning"
+            @click="showSafetyManagement = true"
+            icon="Setting"
+          >
+            安全距离管理
+          </el-button>
+          
+          <el-button 
+            type="warning"
+            @click="showAnchorManagement = true"
+            icon="Location"
+          >
+            基站管理
+          </el-button>
+        </div>
+        
+        <div class="tip">提示: 点击"绘制电子围栏"按钮，然后在地图上点击添加围栏顶点，至少需要3个点</div>
+      </div>
+
+      <el-dialog
+        title="设备标签管理"
+        v-model="showTagManagement"
+        width="80%"
+        :before-close="handleTagManagementClose"
+      >
+        <TagManager ref="tagManagerRef" />
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="handleTagManagementClose">关闭</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <el-dialog
+        title="安全距离管理"
+        v-model="showSafetyManagement"
+        width="80%"
+        :before-close="handleSafetyManagementClose"
+      >
+        <SafetyDistanceManager ref="safetyDistanceManagerRef" />
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="handleSafetyManagementClose">关闭</el-button>
+          </span>
+        </template>
+      </el-dialog>
+    
+      <el-dialog
+        title="基站管理"
+        v-model="showAnchorManagement"
+        width="80%"
+        :before-close="handleAnchorManagementClose"
+      >
+        <AnchorManager ref="anchorManagerRef" />
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="handleAnchorManagementClose">关闭</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <P5MultiTrail
+        ref="mapRef"
+        :points="points"
+        :trail-length="80"
+        :grid-step="100"
+        :show-grid="true"
+        :initialXRange="{ min: 0, max: 1800 }"
+        :initialYRange="{ min: 0, max: 2200 }"
+        :floorPlanImage="null"
+        :showFloorPlan="showFloorPlan"
+        :anchors="anchors"
+        :showAnchors="showAnchors"
+        :showCoordinates="showCoordinates"
+        :floorPlanSvg="floorPlanSvg"
+        :drawingFence="drawingFence"
+        :showFence="showFence"
+        @fenceComplete="handleFenceComplete"
+        @fenceViolation="handleFenceViolation"
+        @deviceClicked="handleDeviceClick"
+        style="width: 100%; height: 100%; min-height: 90vh;"
+      />
+      
+      <!-- 地图和控制面板之间的水平分隔器 -->
+      <div class="map-controls-divider"></div>
+    
+      <!-- 移动端设备详情弹窗 -->
+      <el-dialog
+        v-model="showDeviceDetail"
+        title="设备详情"
+        width="90%"
+        center
+        class="mobile-device-dialog"
+      >
+        <div v-if="selectedDevice">
+          <div class="device-detail-item">
+            <span class="label">ID:</span>
+            <span class="value">{{ selectedDevice.id }}</span>
+          </div>
+          <div class="device-detail-item">
+            <span class="label">类型:</span>
+            <span class="value">{{ selectedDevice.color === '#ff6600' ? '人员' : '设备' }}</span>
+          </div>
+          <div class="device-detail-item">
+            <span class="label">标签:</span>
+            <span class="value">{{ selectedDevice.label || '未命名' }}</span>
+          </div>
+          <div class="device-detail-item">
+            <span class="label">位置:</span>
+            <span class="value">({{ selectedDevice.x.toFixed(0) }}, {{ selectedDevice.y.toFixed(0) }})</span>
+          </div>
+        </div>
+      </el-dialog>
+    </div>
+  </div>
+</template>

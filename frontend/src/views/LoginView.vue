@@ -5,6 +5,9 @@
       <div class="login-header">
         <h2>用户登录</h2>
       </div>
+      
+      <!-- 标题下方的水平分隔器 -->
+      <div class="login-divider"></div>
 
       <el-form
         ref="loginFormRef"
@@ -34,6 +37,9 @@
         <el-form-item prop="remember">
           <el-checkbox v-model="loginForm.remember">记住我</el-checkbox>
         </el-form-item>
+        
+        <!-- 登录按钮上方的水平分隔器 -->
+        <div class="login-divider"></div>
 
         <el-form-item>
           <el-button
@@ -127,8 +133,9 @@ const handleLogin = async () => {
 
     ElMessage.success("登录成功");
 
-    // 跳转到首页或其他页面
-    await router.push("/");
+    // 跳转到仪表盘页面
+    const redirectPath = router.currentRoute.value.query.redirect as string;
+    await router.push(redirectPath || "/dashboard");
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401) {
@@ -183,5 +190,27 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
+}
+
+/* 登录页面水平分隔器样式 */
+.login-divider {
+  height: 1px;
+  background: linear-gradient(to right, rgba(52, 152, 219, 0.1), rgba(52, 152, 219, 0.8), rgba(52, 152, 219, 0.1));
+  margin: 15px 0;
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .login-card {
+    width: 90%;
+    max-width: 400px;
+    padding: 20px 25px 10px 25px;
+  }
+  
+  .login-divider {
+    margin: 10px 0;
+  }
 }
 </style>

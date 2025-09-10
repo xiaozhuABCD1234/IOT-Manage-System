@@ -11,6 +11,7 @@ import {
   Shell,
   Wrench,
   User,
+  Home,
 } from "lucide-vue-next";
 import { useRoute } from "vue-router";
 import { useMenuStore } from "@/stores/useMenuStore";
@@ -45,9 +46,15 @@ const handleClose = (key: string, keyPath: string[]) => {
   >
     <el-menu-item index="/">
       <el-icon>
-        <House />
+        <Home />
       </el-icon>
       <span>首页</span>
+    </el-menu-item>
+    <el-menu-item index="/dashboard">
+      <el-icon>
+        <House />
+      </el-icon>
+      <span>控制台</span>
     </el-menu-item>
     <el-sub-menu index="/map">
       <template #title>

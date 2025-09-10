@@ -6,6 +6,24 @@ const router = createRouter({
     routes: [
         {
             path: '/',
+            name: 'landing',
+            component: () => import('@/views/LandingPage.vue'),
+            meta: {
+                fullScreen: true,
+                requiresAuth: false,
+            },
+        },
+        {
+            path: '/home',
+            name: 'landing-auth',
+            component: () => import('@/views/LandingPage.vue'),
+            meta: {
+                fullScreen: false,
+                requiresAuth: true,
+            },
+        },
+        {
+            path: '/dashboard',
             name: 'home',
             component: () => import('@/views/HomeView.vue'),
             meta: {
@@ -129,11 +147,16 @@ const getCookie = (name: string):
                                path: '/login',
                                query: {redirect: to.fullPath},
                            })
-                           // } else if (to.path === "/login" &&
-                           // isAuthenticated) {
-                           //   // 已登录用户访问登录页，跳转到首页
-                           //   next("/");
                        }
+                       else if (to.path === '/login' && isAuthenticated) {
+                           // 已登录用户访问登录页，跳转到仪表盘
+                           next('/dashboard');
+                       }
+                       // 注释掉这个条件，让已登录用户可以访问首页
+                       // else if (to.path === '/' && isAuthenticated) {
+                       //     // 已登录用户访问首页，跳转到仪表盘
+                       //     next('/dashboard');
+                       // }
                        else {
                            // 其他情况直接放行
                            next()
