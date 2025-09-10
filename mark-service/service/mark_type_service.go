@@ -131,9 +131,9 @@ func (s *markService) GetMarksByTypeID(typeID int, page, limit int, preload bool
 	for _, mark := range marks {
 		responses = append(responses, *s.convertToMarkResponse(&mark))
 	}
-	if len(responses) == 0 {
-		return nil, total, errs.NotFound("Marks", "未找到相关标记")
-	}
+	// if len(responses) == 0 {
+	// 	return nil, total, errs.NotFound("Marks", "未找到相关标记")
+	// }
 
 	return responses, total, nil
 }
@@ -156,9 +156,9 @@ func (s *markService) GetMarksByTypeName(typeName string, page, limit int, prelo
 	for _, mark := range marks {
 		responses = append(responses, *s.convertToMarkResponse(&mark))
 	}
-	if len(responses) == 0 {
-		return nil, total, errs.NotFound("Marks", "未找到相关标记")
-	}
+	// if len(responses) == 0 {
+	// 	return nil, total, errs.NotFound("Marks", "未找到相关标记")
+	// }
 
 	return responses, total, nil
 }

@@ -24,7 +24,7 @@
             <TableCell>
               <RouterLink
                 v-if="mark.mark_type"
-                :to="`/types/${mark.mark_type.id}`"
+                :to="`/type/${mark.mark_type.id}`"
                 class="hover:underline"
               >
                 {{ mark.mark_type.type_name }}

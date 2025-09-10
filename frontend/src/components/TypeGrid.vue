@@ -1,25 +1,44 @@
 <template>
-  <div
-    class="grid gap-4 p-4"
-    :style="{ gridTemplateColumns: `repeat(auto-fill, minmax(${cardMinW}px, 1fr))` }"
-  >
-    <Card v-for="t in types" :key="t.id" class="p-3">
-      <h3 class="text-sm font-semibold">{{ t.type_name }}</h3>
-      <p class="text-muted-foreground text-xs">安全距离：{{ t.default_safe_distance_m }} m</p>
-    </Card>
-  </div>
+  <Card>
+    <CardHeader>
+      <CardTitle>类型列表</CardTitle>
+      <CardDescription></CardDescription>
+    </CardHeader>
+    <CardContent
+      class="grid gap-4 p-4"
+      :style="{ gridTemplateColumns: `repeat(auto-fill, minmax(${cardMinW}px, 1fr))` }"
+    >
+      <RouterLink
+        v-for="t in types"
+        :key="t.id"
+        :to="`/type/${t.id}`"
+        class="block rounded-lg focus:ring-2 focus:ring-offset-2 focus:outline-none"
+      >
+        <Card class="cursor-pointer p-3 transition-shadow hover:shadow-md">
+          <h3 class="text-sm font-semibold">{{ t.type_name }}</h3>
+          <p class="text-muted-foreground text-xs">安全距离：{{ t.default_safe_distance_m }} m</p>
+        </Card>
+      </RouterLink>
+    </CardContent>
+  </Card>
 
   <!-- 底部提示 -->
-  <div class="text-muted-foreground py-4 text-center text-xs">
+  <!-- <div class="text-muted-foreground py-4 text-center text-xs">
     <span v-if="loading">加载中…</span>
     <span v-else-if="finished">没有更多了</span>
-  </div>
+  </div> -->
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { listMarkTypes } from "@/api/markType";
 import type { MarkTypeResponse } from "@/types/mark";
 

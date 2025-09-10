@@ -49,6 +49,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/TypeDetialView.vue"),
   },
   {
+    path: "/tags/:typeId",
+    name: "TypeMarks",
+    component: () => import("@/views/TagDetialView.vue"),
+  },
+  {
     path: "/profile",
     name: "profile",
     component: () => import("@/views/UserProfileView.vue"),
