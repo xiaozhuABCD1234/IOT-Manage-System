@@ -47,7 +47,7 @@ RUN chown -R appuser:appgroup /app
 USER appuser
 
 # 暴露端口
-EXPOSE 8004
+EXPOSE 8003
 
 # 健康检查
 # HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

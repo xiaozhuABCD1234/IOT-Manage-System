@@ -75,6 +75,7 @@ services:
     environment:
       USER_SERVICE_URL: "user-service:8001"
       MARK_SERVICE_URL: "mark-service:8004"
+      MQTT_SERVICE_URL: "mqtt-watch:8003"
       JWT_SECRET: "your-secret-key"
       HTTP_PROXY: ""
       http_proxy: ""
@@ -126,6 +127,36 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+
+  mqtt-watch:
+    image: ghcr.io/xiaozhuabcd1234/iot-manage-system_mqtt-watch:latest
+    build:
+      context: ./mqtt-watch
+      dockerfile: Dockerfile
+    container_name: iot_mqtt-watch
+    restart: unless-stopped
+    networks:
+      - iot_net
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: iot_manager_db
+      DB_USER: postgres
+      DB_PASSWORD: password
+
+      # ---------- MongoDB ----------
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_DB: mqtt_db
+
+      # ---------- MQTT ----------
+      MQTT_BROKER: ws://mosquitto:8083
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+    # ports:
+    #   - "8003:8003"
 
   mark-service:
     image: ghcr.io/xiaozhuabcd1234/iot-manage-system_mark-service:latest
