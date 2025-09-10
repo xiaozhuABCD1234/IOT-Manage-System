@@ -1,3 +1,4 @@
+<!-- src/components/TypeSelect.vue -->
 <script setup lang="ts">
 import {
   Select,

@@ -1,3 +1,4 @@
+<!-- src/components/DeviceIDSelect.vue -->
 <template>
   <Select v-model="selectedUnnamedId">
     <SelectTrigger id="unnamed-select" class="w-[180px]">

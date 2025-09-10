@@ -2,6 +2,7 @@ package client
 
 import (
 	"log"
+	// "sync"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -127,6 +128,66 @@ func (m *MqttCallback) saveLocation(c mqtt.Client, msg mqtt.Message) {
 	m.mongoService.SaveDeviceLoc(*data) // <-- 新增
 	log.Printf("[INFO] 保存位置信息成功  deviceID=%s  indoor=%t  lat=%f  lon=%f  uwb_x=%f  uwb_y=%f", deviceID, indoor, *data.Latitude, *data.Longitude, *data.UWBX, *data.UWBY)
 }
+
+type DistanceMsg struct {
+	X float64
+	Y float64
+}
+
+// var devLoc = &deviceLocMap{data: make(map[string]DistanceMsg)}
+
+// // 对外暴露的只读查询函数
+// func GetDeviceDistance(deviceID string) (DistanceMsg, bool) {
+// 	devLoc.mux.RLock()
+// 	defer devLoc.mux.RUnlock()
+// 	d, ok := devLoc.data[deviceID]
+// 	return d, ok
+// }
+
+// // 对外暴露的只读快照函数
+// func AllDeviceDistance() map[string]DistanceMsg {
+// 	devLoc.mux.RLock()
+// 	defer devLoc.mux.RUnlock()
+// 	cp := make(map[string]DistanceMsg, len(devLoc.data))
+// 	for k, v := range devLoc.data {
+// 		cp[k] = v
+// 	}
+// 	return cp
+// }
+
+// 线程安全的设备坐标缓存
+// type deviceLocMap struct {
+// 	mux  sync.RWMutex
+// 	data map[string]DistanceMsg
+// }
+
+// func (m *MqttCallback) distanceCallback(c mqtt.Client, msg mqtt.Message) {
+// 	deviceID := utils.ParseOnlineId(msg.Topic(), msg.Payload())
+
+// 	var locMsg model.LocMsg
+// 	if err := json.Unmarshal(msg.Payload(), &locMsg); err != nil {
+// 		log.Println("[ERROR] json 解析失败:", err)
+// 		return
+// 	}
+// 	if len(locMsg.Sens) == 0 {
+// 		return
+// 	}
+
+// 	var rtk, uwb *model.Sens
+// 	for i := range locMsg.Sens {
+// 		switch locMsg.Sens[i].N {
+// 		case "RTK":
+// 			rtk = &locMsg.Sens[i]
+// 		case "UWB":
+// 			uwb = &locMsg.Sens[i] // 原来是 rtk = &locMsg.Sens[i]，属于笔误
+// 		}
+// 	}
+// 	indoor := uwb != nil && len(uwb.V) >= 2
+
+// 	devLoc.mux.Lock()
+// 	devLoc.data[deviceID] = DistanceMsg{X: target.V[0], Y: target.V[1]}
+// 	devLoc.mux.Unlock()
+// }
 
 func DefaultMsgHandler(c mqtt.Client, m mqtt.Message) {
 	log.Printf("[INFO] 收到: topic=%s payload=%s\n", m.Topic(), string(m.Payload()))

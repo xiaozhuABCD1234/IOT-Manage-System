@@ -1,108 +1,54 @@
-<!-- src/views/About.vue -->
+<!-- ParentDemo.vue -->
 <template>
-  <div
-    class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 p-8 dark:from-slate-900 dark:to-slate-800"
-  >
-    <div class="mx-auto max-w-3xl">
-      <h1 class="mb-2 text-4xl font-bold text-slate-900 dark:text-slate-100">关于项目</h1>
-      <p class="mb-8 text-slate-600 dark:text-slate-400">基于现代化技术栈开发的全栈应用</p>
-
-      <div class="space-y-4">
-        <!-- 前端 -->
-        <div
-          class="rounded-xl border bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800"
-        >
-          <h2 class="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">前端技术栈</h2>
-          <div class="flex flex-wrap gap-2">
-            <span
-              class="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-              >Vue 3</span
-            >
-            <span
-              class="rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-800 dark:bg-purple-900/30 dark:text-purple-300"
-              >Vite</span
-            >
-            <span
-              class="rounded-full bg-cyan-100 px-3 py-1 text-sm text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300"
-              >Tailwind CSS</span
-            >
-            <span
-              class="rounded-full bg-indigo-100 px-3 py-1 text-sm text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300"
-              >shadcn-vue</span
-            >
-            <span
-              class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-800 dark:bg-slate-700 dark:text-slate-300"
-              >Lucide</span
-            >
-          </div>
-        </div>
-
-        <!-- 后端 -->
-        <div
-          class="rounded-xl border bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800"
-        >
-          <h2 class="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">后端技术栈</h2>
-          <div class="flex flex-wrap gap-2">
-            <span
-              class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-800 dark:bg-green-900/30 dark:text-green-300"
-              >Go</span
-            >
-            <span
-              class="rounded-full bg-teal-100 px-3 py-1 text-sm text-teal-800 dark:bg-teal-900/30 dark:text-teal-300"
-              >Gin</span
-            >
-            <span
-              class="rounded-full bg-emerald-100 px-3 py-1 text-sm text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
-              >Fiber</span
-            >
-            <span
-              class="rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-              >GORM</span
-            >
-            <span
-              class="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-              >PostgreSQL</span
-            >
-            <span
-              class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-800 dark:bg-green-900/30 dark:text-green-300"
-              >MongoDB</span
-            >
-          </div>
-        </div>
-
-        <!-- 通信 & 基础设施 -->
-        <div
-          class="rounded-xl border bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800"
-        >
-          <h2 class="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">通信与部署</h2>
-          <div class="flex flex-wrap gap-2">
-            <span
-              class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-800 dark:bg-green-900/30 dark:text-green-300"
-              >Nginx</span
-            >
-            <span
-              class="rounded-full bg-orange-100 px-3 py-1 text-sm text-orange-800 dark:bg-orange-900/30 dark:text-orange-300"
-              >MQTT</span
-            >
-            <span
-              class="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-              >Mosquitto</span
-            >
-            <span
-              class="rounded-full bg-sky-100 px-3 py-1 text-sm text-sky-800 dark:bg-sky-900/30 dark:text-sky-300"
-              >Docker</span
-            >
-            <span
-              class="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-              >Docker Compose</span
-            >
-            <span
-              class="rounded-full bg-red-100 px-3 py-1 text-sm text-red-800 dark:bg-red-900/30 dark:text-red-300"
-              >Axios</span
-            >
-          </div>
-        </div>
-      </div>
+  <div class="space-y-4 p-6">
+    <!-- 1. 类型下拉 -->
+    <div>
+      <label class="block mb-2 text-sm font-medium">选择标注类型</label>
+      <TypeSelect v-model="markTypeId" />
     </div>
+
+    <!-- 2. 未命名设备下拉 -->
+    <div>
+      <label class="block mb-2 text-sm font-medium">选择未命名设备</label>
+      <DeviceIDSelect v-model="deviceId" />
+    </div>
+
+    <!-- 3. 仅用于演示：实时显示父组件拿到的值 -->
+    <div class="text-sm text-gray-600">
+      父组件拿到的类型 id：{{ markTypeId ?? '未选择' }}<br>
+      父组件拿到的设备 id：{{ deviceId ?? '未选择' }}
+    </div>
+
+    <!-- 4. 提交按钮 -->
+    <Button @click="handleSubmit">提交</Button>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import TypeSelect from '@/components/TypeSelect.vue'
+import DeviceIDSelect from '@/components/DeviceIDSelect.vue'
+import { Button } from '@/components/ui/button'
+
+/* 父组件本地变量，双向绑定到两个子组件 */
+const markTypeId = ref<number | undefined>(undefined)
+const deviceId  = ref<string | undefined>(undefined)
+
+/* 提交示例 */
+function handleSubmit() {
+  if (markTypeId.value == null) {
+    alert('请先选择标注类型')
+    return
+  }
+  if (deviceId.value == null) {
+    alert('请先选择未命名设备')
+    return
+  }
+
+  // 这里就可以调用后端接口
+  console.log('提交参数', {
+    markTypeId: markTypeId.value,
+    deviceId:   deviceId.value
+  })
+}
+</script>
