@@ -1,7 +1,10 @@
 name: 自动化部署
+
 on:
   push:
-    branches: [main,dev]
+    branches:
+      - main
+      - dev
 
 env:
   SERVER_PATH: ~/IOT-Management-System
@@ -16,8 +19,9 @@ jobs:
       - name: 构建并复制前端
         run: |
           cd frontend
-          npm install
+          npm ci
           npm run build
+          rm -rf ../backend/dist
           cp -r ./dist ../backend/
 
       - name: 打包文件
@@ -25,7 +29,7 @@ jobs:
           tar -czvf deploy-pkg.tar.gz \
             backend \
             forwarder \
-            docker-compose.yml \
+            docker-compose.yml
 
       - name: 上传文件
         uses: appleboy/scp-action@v1
@@ -43,7 +47,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ${{env.SERVER_PATH}}
+            cd ${{ env.SERVER_PATH }}
             tar -xzvf deploy-pkg.tar.gz
             rm deploy-pkg.tar.gz
+            docker compose down
             docker compose up --build -d
+            docker image prune -af
