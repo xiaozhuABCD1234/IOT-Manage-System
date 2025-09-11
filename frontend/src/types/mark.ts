@@ -32,7 +32,6 @@ export interface MarkTagResponse {
 export interface MarkCreateRequest {
   device_id: string; // required
   mark_name: string; // required
-  mqtt_topic?: string[]; // 不传表示空数组
   persist_mqtt?: boolean; // 不传后端给 false
   safe_distance_m?: number | null; // 传 null 表示“使用类型默认值”
   mark_type_id?: number; // 不传后端给 1
@@ -43,7 +42,6 @@ export interface MarkCreateRequest {
 export interface MarkUpdateRequest {
   device_id?: string;
   mark_name?: string;
-  mqtt_topic?: string[];
   persist_mqtt?: boolean;
   safe_distance_m?: number;
   mark_type_id?: number;
@@ -56,7 +54,6 @@ export interface MarkResponse {
   id: string;
   device_id: string;
   mark_name: string;
-  mqtt_topic: string[];
   persist_mqtt: boolean;
   safe_distance_m: number | null;
   mark_type: MarkTypeResponse | null;
