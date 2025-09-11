@@ -3,14 +3,6 @@
     <ResizablePanel> <MarksOnline /></ResizablePanel>
     <ResizableHandle with-handle />
     <ResizablePanel> <DeviceCreate /></ResizablePanel>
-    <ResizableHandle with-handle />
-    <ResizablePanel>
-      <ResizablePanelGroup direction="vertical" class="h-full w-full">
-        <ResizablePanel> 右上角</ResizablePanel>
-        <ResizableHandle with-handle />
-        <ResizablePanel>Two</ResizablePanel>
-      </ResizablePanelGroup>
-    </ResizablePanel>
   </ResizablePanelGroup>
 </template>
 

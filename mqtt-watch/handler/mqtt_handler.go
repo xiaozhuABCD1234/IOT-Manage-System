@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"IOT-Manage-System/mqtt-watch/service"
+	"IOT-Manage-System/mqtt-watch/utils"
 )
 
 type MqttHandler interface {
@@ -21,7 +22,7 @@ func (h *mqttHandler) SendWarningStart(c *fiber.Ctx) error {
 	if err := h.mqttSer.SendWarningStart(deviceID); err != nil {
 		return c.Status(err.Status).JSON(err) // 统一错误 JSON
 	}
-	return c.JSON(fiber.Map{"code": 0, "msg": "warning started"})
+	return utils.SendSuccessResponse(c, "warning started")
 }
 
 // 解除报警  POST /mqtt/warning/:deviceId/end
@@ -30,7 +31,7 @@ func (h *mqttHandler) SendWarningEnd(c *fiber.Ctx) error {
 	if err := h.mqttSer.SendWarningEnd(deviceID); err != nil {
 		return c.Status(err.Status).JSON(err)
 	}
-	return c.JSON(fiber.Map{"code": 0, "msg": "warning ended"})
+	return utils.SendSuccessResponse(c, "warning ended")
 }
 
 func NewMqttService(s service.MqttService) MqttHandler {

@@ -1,5 +1,5 @@
 <template>
-  <Card>
+  <Card class="w-full h-full">
     <CardHeader>
       <CardTitle>类型列表</CardTitle>
       <CardDescription></CardDescription>

@@ -155,6 +155,17 @@ services:
       MQTT_BROKER: ws://mosquitto:8083
       MQTT_USERNAME: admin
       MQTT_PASSWORD: admin
+
+      HTTP_PROXY: ""
+      http_proxy: ""
+      HTTPS_PROXY: ""
+      https_proxy: ""
+      FTP_PROXY: ""
+      ftp_proxy: ""
+      ALL_PROXY: ""
+      all_proxy: ""
+      NO_PROXY: ""
+      no_proxy: ""
     # ports:
     #   - "8003:8003"
 

@@ -63,6 +63,11 @@ const routes: RouteRecordRaw[] = [
     name: "about",
     component: () => import("@/views/AboutView.vue"),
   },
+  {
+    path: "/W",
+    name: "w",
+    component: () => import("@/views/WaringView.vue"),
+  },
 ];
 
 const router = createRouter({
