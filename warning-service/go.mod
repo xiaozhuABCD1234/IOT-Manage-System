@@ -1,6 +1,6 @@
 module IOT-Manage-System/warning-service
 
-go 1.24.7
+go 1.24.6
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.5.0
