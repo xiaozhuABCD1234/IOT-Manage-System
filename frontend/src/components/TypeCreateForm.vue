@@ -10,7 +10,7 @@
       </FormItem>
     </FormField>
 
-    <FormField v-slot="{ componentField }" name="default_safe_distance_m">
+    <FormField v-slot="{ componentField }" name="default_danger_zone_m">
       <FormItem>
         <FormLabel>默认安全距离（米）</FormLabel>
         <FormControl>
@@ -25,47 +25,36 @@
 </template>
 
 <script setup lang="ts">
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/zod'
-import * as z from 'zod'
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { toast } from "vue-sonner"
-import { createMarkType } from '@/api/markType';
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "vue-sonner";
+import { createMarkType } from "@/api/markType";
 
 const validationSchema = toTypedSchema(
   z.object({
-    type_name: z.string().min(1, '类型名称不能为空').max(255),
-    default_safe_distance_m: z.preprocess(
-      val => {
-        const num = Number(val)
-        return isNaN(num) ? undefined : num
-      },
-      z.number().nonnegative().optional()
-    ),
-  })
-)
+    type_name: z.string().min(1, "类型名称不能为空").max(255),
+    default_danger_zone_m: z.preprocess((val) => {
+      const num = Number(val);
+      return isNaN(num) ? undefined : num;
+    }, z.number().nonnegative().optional()),
+  }),
+);
 
 const { handleSubmit, isSubmitting } = useForm({
   validationSchema,
-})
+});
 
 const onSubmit = handleSubmit(async (values) => {
-  console.log('提交数据:', values)
+  console.log("提交数据:", values);
   try {
-    await createMarkType(values);   // 对象就是 JSON，自动进 body
+    await createMarkType(values); // 对象就是 JSON，自动进 body
     toast.success("创建成功", {
-      description: values.type_name
-    })
-  } catch (e: any) {
-
-  }
-})
+      description: values.type_name,
+    });
+  } catch (e: any) {}
+});
 </script>

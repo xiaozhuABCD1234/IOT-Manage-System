@@ -221,6 +221,38 @@ services:
     ports:
       - "3000:80"
 
+  warning-service:
+    image: ghcr.io/xiaozhuabcd1234/iot-warning-service:latest
+    build:
+      context: ./warning-service
+      dockerfile: Dockerfile
+    container_name: iot_warning-service
+    restart: unless-stopped
+    networks:
+      - iot_net
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: iot_manager_db
+      DB_USER: postgres
+      DB_PASSWORD: password
+
+      # ---------- MQTT ----------
+      MQTT_BROKER: ws://mosquitto:8083
+      MQTT_USERNAME: admin
+      MQTT_PASSWORD: admin
+
+      HTTP_PROXY: ""
+      http_proxy: ""
+      HTTPS_PROXY: ""
+      https_proxy: ""
+      FTP_PROXY: ""
+      ftp_proxy: ""
+      ALL_PROXY: ""
+      all_proxy: ""
+      NO_PROXY: ""
+      no_proxy: ""
+
 volumes:
   mosquitto_data:
   mosquitto_log:

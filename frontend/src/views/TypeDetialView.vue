@@ -29,7 +29,7 @@ const fetchByType = (p: any) => getMarksByTypeID(typeId.value, p);
 const typeData = ref<MarkTypeResponse>({
   id: 1,
   type_name: "警示标志",
-  default_safe_distance_m: 5.0,
+  default_danger_zone_m: 5.0,
 });
 
 onMounted(async () => {

@@ -48,7 +48,7 @@ listMarkTypes().then((res) => (options.value = res.data.data));
         class="flex w-full justify-between"
       >
         <span>{{ opt.type_name }}</span>
-        <span class="text-muted-foreground">({{ opt.default_safe_distance_m }}m)</span>
+        <span class="text-muted-foreground">({{ opt.default_danger_zone_m }}m)</span>
       </SelectItem>
     </SelectContent>
   </Select>

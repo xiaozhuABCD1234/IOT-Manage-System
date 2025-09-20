@@ -12,9 +12,9 @@ func (s *markService) convertToMarkTypeResponse(markType *model.MarkType) *model
 		return nil
 	}
 	return &model.MarkTypeResponse{
-		ID:                   markType.ID,
-		TypeName:             markType.TypeName,
-		DefaultSafeDistanceM: markType.DefaultSafeDistanceM,
+		ID:                 markType.ID,
+		TypeName:           markType.TypeName,
+		DefaultDangerZoneM: markType.DefaultSafeDistanceM,
 	}
 }
 

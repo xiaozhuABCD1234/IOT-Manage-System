@@ -6,18 +6,20 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+
+	"IOT-Manage-System/warning-service/config"
 )
 
 var MQTTClient mqtt.Client
 
 // InitMQTT 由 main.go 主动调用
 func InitMQTT() {
-	url := GetEnv("MQTT_BROKER", "ws://8.133.17.175:8083")
+	url := config.C.MQTTConfig.MQTT_BROKER
 	opts := mqtt.NewClientOptions().
 		AddBroker(url).
-		SetClientID(fmt.Sprintf("warning-watch-%d", time.Now().UnixNano())).
-		SetUsername(GetEnv("MQTT_USERNAME", "admin")).
-		SetPassword(GetEnv("MQTT_PASSWORD", "admin")).
+		SetClientID(fmt.Sprintf("warning-service-%d", time.Now().UnixNano())).
+		SetUsername(config.C.MQTTConfig.MQTT_USERNAME).
+		SetPassword(config.C.MQTTConfig.MQTT_PASSWORD).
 		SetKeepAlive(60 * time.Second).
 		SetPingTimeout(10 * time.Second).
 		SetAutoReconnect(true).

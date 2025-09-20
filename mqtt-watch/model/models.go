@@ -1,10 +1,11 @@
 package model
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
-	"time"
 )
 
 // MarkType 标记类型表：同一类型下可拥有多条 Mark 记录。

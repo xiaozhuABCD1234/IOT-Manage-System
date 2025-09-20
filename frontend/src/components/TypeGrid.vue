@@ -1,5 +1,5 @@
 <template>
-  <Card class="w-full h-full">
+  <Card class="h-full w-full">
     <CardHeader>
       <CardTitle>类型列表</CardTitle>
       <CardDescription></CardDescription>
@@ -16,7 +16,7 @@
       >
         <Card class="cursor-pointer p-3 transition-shadow hover:shadow-md">
           <h3 class="text-sm font-semibold">{{ t.type_name }}</h3>
-          <p class="text-muted-foreground text-xs">安全距离：{{ t.default_safe_distance_m }} m</p>
+          <p class="text-muted-foreground text-xs">安全距离：{{ t.default_danger_zone_m }} m</p>
         </Card>
       </RouterLink>
     </CardContent>

@@ -1,7 +1,7 @@
 // main.ts
 import { connectMQTT } from "./mqtt.ts";
 
-const EchoTopic = "#";
+const EchoTopic = "warning/#";
 
 const client = connectMQTT();
 

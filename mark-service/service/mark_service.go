@@ -199,15 +199,15 @@ func (s *markService) UpdateMarkLastOnline(deviceID string, t time.Time) error {
 // convertToMarkResponse 将数据库模型转换为响应模型
 func (s *markService) convertToMarkResponse(mark *model.Mark) *model.MarkResponse {
 	response := &model.MarkResponse{
-		ID:            mark.ID.String(),
-		DeviceID:      mark.DeviceID,
-		MarkName:      mark.MarkName,
-		MqttTopic:     mark.MqttTopic,
-		PersistMQTT:   mark.PersistMQTT,
-		SafeDistanceM: mark.SafeDistanceM,
-		CreatedAt:     mark.CreatedAt,
-		UpdatedAt:     mark.UpdatedAt,
-		LastOnlineAt:  mark.LastOnlineAt,
+		ID:           mark.ID.String(),
+		DeviceID:     mark.DeviceID,
+		MarkName:     mark.MarkName,
+		MqttTopic:    mark.MqttTopic,
+		PersistMQTT:  mark.PersistMQTT,
+		DangerZoneM:  mark.SafeDistanceM,
+		CreatedAt:    mark.CreatedAt,
+		UpdatedAt:    mark.UpdatedAt,
+		LastOnlineAt: mark.LastOnlineAt,
 	}
 
 	// 处理 MarkType

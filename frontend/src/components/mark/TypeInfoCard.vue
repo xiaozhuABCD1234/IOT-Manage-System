@@ -12,9 +12,7 @@
         <span class="text-gray-500">默认安全距离：</span>
         <span class="font-medium">
           {{
-            typeInfo.default_safe_distance_m === -1
-              ? "未设置"
-              : typeInfo.default_safe_distance_m + " m"
+            typeInfo.default_danger_zone_m === -1 ? "未设置" : typeInfo.default_danger_zone_m + " m"
           }}
         </span>
       </div>

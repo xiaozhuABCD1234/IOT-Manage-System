@@ -19,7 +19,7 @@ type mqttService struct {
 }
 
 func (m *mqttService) SendWarningStart(deviceID string) *errs.AppError {
-	token := m.c.Publish("warning/"+deviceID, 1, false, "1")
+	token := m.c.Publish("warning/"+deviceID, 2, false, "1")
 	token.Wait()
 	if err := token.Error(); err != nil {
 		log.Fatalln("❌")
@@ -31,7 +31,7 @@ func (m *mqttService) SendWarningStart(deviceID string) *errs.AppError {
 }
 
 func (m *mqttService) SendWarningEnd(deviceID string) *errs.AppError {
-	token := m.c.Publish("warning/"+deviceID, 1, false, "0")
+	token := m.c.Publish("warning/"+deviceID, 2, false, "0")
 	token.Wait()
 	if err := token.Error(); err != nil {
 		return errs.ErrThirdParty.WithDetails(err.Error())

@@ -3,13 +3,13 @@
 // ==========================
 export interface MarkTypeRequest {
   type_name: string | null; // required, max 255
-  default_safe_distance_m?: number | null; // optional, default null
+  default_danger_zone_m?: number | null; // optional, default null
 }
 
 export interface MarkTypeResponse {
   id: number;
   type_name: string;
-  default_safe_distance_m: number;
+  default_danger_zone_m: number;
 }
 
 // ==========================
@@ -33,7 +33,7 @@ export interface MarkCreateRequest {
   device_id: string; // required
   mark_name: string; // required
   persist_mqtt?: boolean; // 不传后端给 false
-  safe_distance_m?: number | null; // 传 null 表示“使用类型默认值”
+  danger_zone_m?: number | null; // 传 null 表示“使用类型默认值”
   mark_type_id?: number; // 不传后端给 1
   tags?: string[]; // 不传表示空数组
 }
@@ -43,7 +43,7 @@ export interface MarkUpdateRequest {
   device_id?: string;
   mark_name?: string;
   persist_mqtt?: boolean;
-  safe_distance_m?: number;
+  danger_zone_m?: number;
   mark_type_id?: number;
   /** 传 null/undefined 表示不改；传空数组表示清空 */
   tags?: string[] | null;
@@ -55,7 +55,7 @@ export interface MarkResponse {
   device_id: string;
   mark_name: string;
   persist_mqtt: boolean;
-  safe_distance_m: number | null;
+  danger_zone_m: number | null;
   mark_type: MarkTypeResponse | null;
   tags: MarkTagResponse[];
   created_at: string; // ISO 8601 时间字符串

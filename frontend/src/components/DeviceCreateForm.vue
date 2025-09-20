@@ -22,7 +22,7 @@ const form = reactive<MarkCreateRequest>({
   device_id: "",
   mark_name: "",
   persist_mqtt: undefined,
-  safe_distance_m: null,
+  danger_zone_m: null,
   mark_type_id: undefined,
   tags: undefined,
 });
@@ -64,7 +64,7 @@ const resetForm = () => {
   form.device_id = "";
   form.mark_name = "";
   form.persist_mqtt = undefined;
-  form.safe_distance_m = null;
+  form.danger_zone_m = null;
   form.mark_type_id = undefined;
   form.tags = undefined; // 或设为 [] 如果你希望清空标签但保留字段
 };
@@ -90,14 +90,14 @@ const resetForm = () => {
     <label for="safe-distance" class="mb-1 block text-sm font-medium"> 安全距离 (米) </label>
     <Input
       id="safe-distance"
-      :value="form.safe_distance_m ?? ''"
+      :value="form.danger_zone_m ?? ''"
       type="number"
       step="0.5"
       placeholder="留空表示使用类型默认值"
       @input="
         ($event.target as HTMLInputElement).value === ''
-          ? (form.safe_distance_m = null)
-          : (form.safe_distance_m = parseFloat(($event.target as HTMLInputElement).value))
+          ? (form.danger_zone_m = null)
+          : (form.danger_zone_m = parseFloat(($event.target as HTMLInputElement).value))
       "
     />
     <p class="mt-1 text-xs text-gray-500">留空表示使用该类型的默认安全距离。</p>

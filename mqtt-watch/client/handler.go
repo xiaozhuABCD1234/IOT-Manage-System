@@ -102,7 +102,7 @@ func (m *MqttCallback) saveLocation(c mqtt.Client, msg mqtt.Message) {
 		case "RTK":
 			rtk = &locMsg.Sens[i]
 		case "UWB":
-			uwb = &locMsg.Sens[i] // 原来是 rtk = &locMsg.Sens[i]，属于笔误
+			uwb = &locMsg.Sens[i]
 		}
 	}
 	indoor := uwb != nil && len(uwb.V) >= 2
