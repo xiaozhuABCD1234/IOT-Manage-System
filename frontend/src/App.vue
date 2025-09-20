@@ -19,9 +19,33 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import type { RefreshTokenRequest, RefreshTokenResponse } from "@/api/user";
+import { userApi } from "@/api/user";
 import { Toaster } from "@/components/ui/sonner";
 import "vue-sonner/style.css"; // vue-sonner v2 requires this import
 import HomeFooter from "./components/layout/SiteFooter.vue";
 import MenuFooter from "./components/layout/BottomNav.vue";
 import HomeHeader from "./components/layout/AppHeader.vue";
+
+onMounted(async () => {
+  const refreshToken = localStorage.getItem("refresh_token");
+  const loginTime = Number(localStorage.getItem("login_token_time") || 0);
+
+  // 1. 未登录
+  if (!refreshToken || Date.now() - loginTime < 18 * 3600 * 1000) return;
+
+  try {
+    const resp = await userApi.refreshToken({ refresh_token: refreshToken });
+    const newAccessToken = resp.data.data.access_token;
+
+    localStorage.setItem("access_token", newAccessToken);
+    localStorage.setItem("login_token_time", Date.now().toString());
+  } catch {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("login_token_time");
+  }
+});
 </script>

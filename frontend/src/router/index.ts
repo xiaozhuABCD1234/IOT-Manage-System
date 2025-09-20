@@ -75,4 +75,30 @@ const router = createRouter({
   routes,
 });
 
+/* ------------ 登录守卫 ------------ */
+const LOGIN_PATH = "/login";
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+
+router.beforeEach((to) => {
+  // 登录页本身无需守卫
+  if (to.path === LOGIN_PATH) return true;
+
+  const token = localStorage.getItem("access_token");
+  const loginTime = Number(localStorage.getItem("refresh_token_time") || 0);
+
+  // 1. 未登录
+  if (!token) return { path: LOGIN_PATH, query: { redirect: to.fullPath } };
+
+  // 2. 登录已超 7 天
+  if (Date.now() - loginTime >= SEVEN_DAYS) {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("refresh_token_time");
+    return { path: LOGIN_PATH, query: { redirect: to.fullPath } };
+  }
+
+  // 3. 放行
+  return true;
+});
+
 export default router;

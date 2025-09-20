@@ -107,6 +107,8 @@ async function onSubmit() {
 
     localStorage.setItem("access_token", resp.data.access_token);
     localStorage.setItem("refresh_token", resp.data.refresh_token);
+    localStorage.setItem("access_token_time", Date.now().toString());
+    localStorage.setItem("refresh_token_time", Date.now().toString());
 
     // 成功提示
     // 注意：shadcn-vue 没有内置 Message，可替换为 Toast 或使用第三方如 notivue2 / sonner
@@ -139,6 +141,9 @@ async function onSubmit() {
 onMounted(() => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
+  localStorage.removeItem("refresh_token_time");
+  localStorage.removeItem("refresh_token_time");
+
   document.title = "请登录";
 });
 </script>
