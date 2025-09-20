@@ -18,9 +18,7 @@
 
       <!-- 右侧登录表单 -->
       <div class="w-full p-8 md:w-1/2">
-        <h1 class="font-maplemono text-center text-2xl font-bold text-gray-800 dark:text-gray-100">
-          登录
-        </h1>
+        <h1 class="text-center text-2xl font-bold text-gray-800 dark:text-gray-100">登录</h1>
 
         <!-- 登录表单 -->
         <form @submit.prevent="onSubmit" class="space-y-6">

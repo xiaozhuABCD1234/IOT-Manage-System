@@ -88,21 +88,17 @@ onMounted(async () => {
               <div class="flex flex-col gap-4 py-4 md:w-1/2">
                 <!-- 用户名 -->
                 <div class="flex items-center gap-4">
-                  <Label for="username" class="font-maplemono w-20 shrink-0 text-right"
-                    >用户名</Label
-                  >
+                  <Label for="username" class="w-20 shrink-0 text-right">用户名</Label>
                   <Input id="username" class="flex-1" type="text" placeholder="请输入新用户名" />
                 </div>
 
                 <!-- 密码 -->
                 <div class="flex items-center gap-4">
-                  <Label for="password" class="font-maplemono w-20 shrink-0 text-right">密码</Label>
+                  <Label for="password" class="w-20 shrink-0 text-right">密码</Label>
                   <Input id="password" class="flex-1" type="password" placeholder="请输入新密码" />
                 </div>
                 <div class="flex items-center gap-4">
-                  <Label for="password_check" class="font-maplemono w-20 shrink-0 text-right"
-                    >确认密码</Label
-                  >
+                  <Label for="password_check" class="w-20 shrink-0 text-right">确认密码</Label>
                   <Input
                     id="password_check"
                     class="flex-1"

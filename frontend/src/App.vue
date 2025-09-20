@@ -7,9 +7,7 @@
       <HomeHeader />
     </header>
 
-    <main
-      class="font-maplemono h-[calc(100vh-3rem)] min-h-[calc(100vh-3rem)] bg-gray-100 dark:bg-gray-800"
-    >
+    <main class="h-[calc(100vh-3rem)] min-h-[calc(100vh-3rem)] bg-gray-100 dark:bg-gray-800">
       <router-view />
       <footer class="h-12 bg-blue-400 dark:bg-sky-900">
         <HomeFooter />

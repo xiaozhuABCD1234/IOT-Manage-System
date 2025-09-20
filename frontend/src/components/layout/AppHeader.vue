@@ -16,7 +16,7 @@ import ThemeToggle from "./RightControlStrip.vue";
 </script>
 
 <template>
-  <div class="font-maplemono bg-accent flex h-full w-full items-center justify-between space-x-4">
+  <div class="bg-accent flex h-full w-full items-center justify-between space-x-4">
     <div class="flex">
       <HomeButton class="mr-2 hidden md:flex"></HomeButton>
       <NavigationMenu>
@@ -129,7 +129,6 @@ import ThemeToggle from "./RightControlStrip.vue";
                       <div class="flex items-center justify-between text-sm font-medium">
                         标记状态 <History class="h-4 w-4" />
                       </div>
-
                     </RouterLink>
                   </NavigationMenuLink>
                 </li>
@@ -154,7 +153,6 @@ import ThemeToggle from "./RightControlStrip.vue";
                       <div class="flex items-center justify-between text-sm font-medium">
                         标记列表 <List class="h-4 w-4" />
                       </div>
-
                     </RouterLink>
                   </NavigationMenuLink>
                 </li>

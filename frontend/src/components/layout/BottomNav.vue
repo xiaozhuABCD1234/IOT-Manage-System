@@ -9,7 +9,7 @@
       :class="[
         'flex flex-1 flex-col items-center justify-center text-gray-600',
         'hover:text-blue-500 focus:outline-none',
-        active === idx && 'font-maplemono text-blue-600',
+        active === idx && 'text-blue-600',
         'dark:text-gray-400 dark:hover:text-blue-400',
         active === idx && 'dark:text-blue-400',
       ]"
