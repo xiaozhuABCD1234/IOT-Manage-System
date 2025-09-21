@@ -44,14 +44,14 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/MarkListView.vue"),
   },
   {
-    path: "/types/:typeId",
+    path: "/type/:typeId",
     name: "TypeMarks",
-    component: () => import("@/views/TypeDetialView.vue"),
+    component: () => import("@/views/TypeDetailsView.vue"),
   },
   {
-    path: "/tags/:typeId",
-    name: "TypeMarks",
-    component: () => import("@/views/TagDetialView.vue"),
+    path: "/tag/:tagId",
+    name: "TypeTag",
+    component: () => import("@/views/TagDetailsView.vue"),
   },
   {
     path: "/profile",
@@ -64,7 +64,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/AboutView.vue"),
   },
   {
-    path: "/W",
+    path: "/WS",
     name: "w",
     component: () => import("@/views/WaringView.vue"),
   },

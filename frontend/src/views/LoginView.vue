@@ -33,7 +33,6 @@
             type="text"
             placeholder="请输入用户名"
             maxlength="32"
-            class="font-maplemono"
           />
 
           <!-- 密码 -->
@@ -118,8 +117,8 @@ async function onSubmit() {
     });
 
     document.title = "智慧监理平台";
-    // router.replace("/");
-    router.push("/");
+    router.replace("/");
+    // router.push("/");
   } catch (e: unknown) {
     // 已被拦截器处理
     const handled = (e as unknown as { _handled: boolean })?._handled;

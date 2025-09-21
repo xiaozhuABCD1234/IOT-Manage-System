@@ -6,8 +6,8 @@
     </CardHeader>
     <CardContent>
       <div class="flex flex-wrap gap-2">
-        <Badge v-for="tag in tags" :key="tag.id">
-          {{ tag.tag_name }}
+        <Badge v-for="tag in tags" :key="tag.id" class="h-8 w-auto text-base">
+          # {{ tag.tag_name }}
         </Badge>
       </div>
     </CardContent>
