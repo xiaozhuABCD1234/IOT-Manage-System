@@ -12,9 +12,6 @@
         </span></CardDescription
       >
     </CardHeader>
-    <CardContent class="grid grid-cols-2 gap-2 text-sm">
-      
-    </CardContent>
   </Card>
 </template>
 

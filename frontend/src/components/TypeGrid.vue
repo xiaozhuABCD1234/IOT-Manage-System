@@ -13,9 +13,11 @@
         :to="`/type/${t.id}`"
         class="block rounded-lg focus:ring-2 focus:ring-offset-2 focus:outline-none"
       >
-        <Card class="cursor-pointer p-3 transition-shadow hover:shadow-md">
-          <h3 class="text-sm font-semibold">{{ t.type_name }}</h3>
-          <p class="text-muted-foreground text-xs">安全距离：{{ t.default_danger_zone_m }} m</p>
+        <Card
+          class="flex cursor-pointer flex-row items-center justify-between p-3 transition-shadow hover:shadow-md"
+        >
+          <div>{{ t.type_name }}</div>
+          <div class="text-muted-foreground">{{ t.default_danger_zone_m }}m</div>
         </Card>
       </RouterLink>
     </CardContent>
