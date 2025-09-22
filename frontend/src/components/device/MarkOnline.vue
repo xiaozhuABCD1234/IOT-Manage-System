@@ -1,11 +1,23 @@
 <template>
-  <div class="h-full w-full p-2">
-    <h1 class="mb-4 text-2xl font-bold whitespace-nowrap">标记在线状态</h1>
-    <MarkOnlineGrid :marks="store.markList" :device-names="names" />
-  </div>
+  <Card class="h-full w-full">
+    <CardHeader>
+      <CardTitle>标记在线状态</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <MarkOnlineGrid :marks="store.markList" :device-names="names" />
+    </CardContent>
+  </Card>
 </template>
 
 <script setup lang="ts">
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { onMounted, onUnmounted, ref } from "vue";
 import { connectMQTT, disconnectMQTT, parseOnlineMessage, TOPIC_ONLINE } from "@/utils/mqtt";
 import type { MqttClient } from "mqtt";

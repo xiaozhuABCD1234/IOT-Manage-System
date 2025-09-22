@@ -2,7 +2,6 @@
   <Card class="h-full w-full">
     <CardHeader>
       <CardTitle>类型列表</CardTitle>
-      <CardDescription></CardDescription>
     </CardHeader>
     <CardContent
       class="grid gap-4"
