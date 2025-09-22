@@ -31,7 +31,7 @@ export function createDeviceStateMachine(marks: Ref<MarkOnline[]>) {
     }
 
     timerMap.set(data.id, window.setTimeout(() => setOnlineFalse(data.id), 5000));
-    offlineTimerMap.set(data.id, window.setTimeout(() => removeDevice(data.id), 60_000));
+    offlineTimerMap.set(data.id, window.setTimeout(() => removeDevice(data.id), 30_000));
 
     sortMarks(marks.value);   // 即时排序
   }

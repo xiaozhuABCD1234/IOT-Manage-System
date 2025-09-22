@@ -26,7 +26,7 @@ const MQTT_OPTS = {
   },
 };
 
-// let client: MqttClient | null = null;
+let Client: MqttClient | null = null;
 
 /** 建立连接并返回客户端 */
 export function connectMQTT(): MqttClient {
@@ -42,6 +42,7 @@ export function connectMQTT(): MqttClient {
   // client.on("message", (topic, payload) => {
   //   console.log(`收到 ${topic}:`, payload.toString());
   // });
+  Client = client;
 
   return client;
 }
@@ -79,7 +80,7 @@ export interface MarkOnline {
   id: string;
   online: boolean;
   topic: string;
-  // name?: string;
+  st?: number;
 }
 
 export interface GeoFix {
@@ -97,9 +98,9 @@ export interface UWBFix {
 export const parseMessage = (topic: string, payload: Buffer): GeoFix | null => {
   const data = JSON.parse(payload.toString()) as Msg;
 
-  const rtkSen = data.sens.find((s) => s.n === 'RTK');
+  const rtkSen = data.sens.find((s) => s.n === "RTK");
   if (!rtkSen || !Array.isArray(rtkSen.v) || rtkSen.v.length !== 2) {
-    throw new Error('缺少 RTK 字段或格式错误');
+    throw new Error("缺少 RTK 字段或格式错误");
   }
 
   const [lngWGS, latWGS] = rtkSen.v as [number, number];
@@ -107,15 +108,11 @@ export const parseMessage = (topic: string, payload: Buffer): GeoFix | null => {
   /* ====== 新增：0,0 过滤 ====== */
   if (lngWGS === 0 && latWGS === 0) {
     // 视业务需求 return null 或抛错
-    return null;          // 选择“不返回”
+    return null; // 选择“不返回”
     // throw new Error('RTK 原始坐标为 0,0，已丢弃');
   }
 
-  const [lngGCJ, latGCJ] = gcoord.transform(
-    [lngWGS, latWGS],
-    gcoord.WGS84,
-    gcoord.GCJ02
-  );
+  const [lngGCJ, latGCJ] = gcoord.transform([lngWGS, latWGS], gcoord.WGS84, gcoord.GCJ02);
 
   return { id: data.id, lng: lngGCJ, lat: latGCJ };
 };
@@ -156,3 +153,8 @@ export const parseOnlineMessage = (topic: string, payload: Buffer): MarkOnline =
 
   return { id, online: true, topic };
 };
+
+// Client.on("message", (topic, payload) => {
+//   const data = parseOnlineMessage(topic, payload);
+//   // store.onMessage(data);
+// });

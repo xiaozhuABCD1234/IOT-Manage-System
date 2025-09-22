@@ -5,7 +5,7 @@
       <CardDescription></CardDescription>
     </CardHeader>
     <CardContent
-      class="grid gap-4 p-4"
+      class="grid gap-4"
       :style="{ gridTemplateColumns: `repeat(auto-fill, minmax(${cardMinW}px, 1fr))` }"
     >
       <RouterLink
