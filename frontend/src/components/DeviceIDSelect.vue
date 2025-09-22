@@ -27,10 +27,8 @@ import {
 
 import { onMounted, onUnmounted, ref, computed, watch } from "vue";
 import { connectMQTT, disconnectMQTT, parseOnlineMessage, TOPIC_ONLINE } from "@/utils/mqtt";
-import type { MarkOnline } from "@/utils/mqtt";
 import type { MqttClient } from "mqtt";
 import { getAllDeviceIDToName } from "@/api/mark";
-import { createDeviceStateMachine } from "@/utils/deviceState";
 import { useMarksStore } from "@/stores/marks";
 
 const store = useMarksStore();
