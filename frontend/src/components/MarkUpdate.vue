@@ -24,6 +24,17 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { toast } from "vue-sonner";
+import { useRouter, useRoute } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
+
+const reloadCurrentPage = () =>
+  router.replace({
+    path: route.fullPath,
+    force: true, // Vue-Router 4.2+ 支持
+    replace: true, // 不产生新历史记录
+  });
 
 /* ==========  props / emit  ========== */
 const props = defineProps<{
@@ -57,6 +68,7 @@ const handleSubmit = async () => {
   try {
     const { data } = await updateMark(props.mark.id, payload);
     toast.success("标记已更新");
+    reloadCurrentPage();
   } catch (e: any) {
     toast.error(e?.response?.data?.message || "更新失败");
   } finally {
@@ -129,8 +141,8 @@ const handleSubmit = async () => {
       </div>
 
       <DrawerFooter class="mx-auto flex flex-row justify-between">
-        <Button @click="handleSubmit">修改</Button>
         <DrawerClose as-child>
+          <Button @click="handleSubmit">修改</Button>
           <Button variant="outline"> 取消 </Button>
         </DrawerClose>
       </DrawerFooter>
