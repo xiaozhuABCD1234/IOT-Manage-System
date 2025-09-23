@@ -40,7 +40,6 @@ export interface MarkCreateRequest {
 
 /** 仅更新用：所有字段可选；传 null/undefined 表示不修改，传空数组表示清空 */
 export interface MarkUpdateRequest {
-  device_id?: string;
   mark_name?: string;
   persist_mqtt?: boolean;
   danger_zone_m?: number;

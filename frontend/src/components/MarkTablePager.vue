@@ -46,6 +46,19 @@
                 mark.last_online_at ? new Date(mark.last_online_at).toLocaleString() : "从未上线"
               }}
             </TableCell>
+            <TableCell class="text-right">
+              <Popover>
+                <PopoverTrigger as-child>
+                  <Button variant="outline" size="icon"> <ChevronDown /> </Button>
+                </PopoverTrigger>
+                <PopoverContent class="flex w-auto flex-col items-center justify-center gap-1 p-0">
+                  <MarkUpdate :mark="mark"
+                    ><Button variant="outline" size="icon"> <Pen /> </Button
+                  ></MarkUpdate>
+                  <Button variant="outline" size="icon" class="text-red-500"> <Trash /> </Button>
+                </PopoverContent>
+              </Popover>
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>
@@ -83,6 +96,31 @@
 import { ref, watchEffect } from "vue";
 import type { MarkResponse } from "@/types/mark";
 import type { ListParams } from "@/api/mark";
+import { ChevronDown, Ellipsis, Pen, Trash } from "lucide-vue-next";
+import { Button } from "@/components/ui/button";
+// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import DangerTypeSelect from "@/components/TypeSelect.vue";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import {
+  TagsInput,
+  TagsInputInput,
+  TagsInputItem,
+  TagsInputItemDelete,
+  TagsInputItemText,
+} from "@/components/ui/tags-input";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import MarkUpdate from "./MarkUpdate.vue";
 import {
   Table,
   TableBody,

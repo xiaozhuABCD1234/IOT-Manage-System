@@ -29,7 +29,7 @@ const form = reactive<MarkCreateRequest>({
 
 // === 提交处理函数 ===
 const handleSubmit = async () => {
-  // 🔹 前端基础验证
+  // 前端基础验证
   if (!form.device_id) {
     toast.error("请选择设备 ID");
     return;
@@ -39,13 +39,13 @@ const handleSubmit = async () => {
     return;
   }
 
-  // 🔹 构造请求体：只包含非 undefined 字段（null 保留）
+  // 构造请求体：只包含非 undefined 字段（null 保留）
   const payload = Object.fromEntries(
     Object.entries(form).filter(([_, value]) => value !== undefined),
   ) as unknown as MarkCreateRequest;
   console.log("正在提交:", payload);
 
-  // 🔹 发送请求
+  // 发送请求
   try {
     await createMark(payload);
     toast.success(`标记 "${form.mark_name}" 创建成功！`);

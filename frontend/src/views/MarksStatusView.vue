@@ -20,5 +20,5 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import MarksOnline from "@/components/device/MarkOnline.vue";
 import TypeGrid from "@/components/TypeGrid.vue";
 import TagGrid from "@/components/TagGrid.vue";
-import DeviceCreate from "@/components/DeviceCreateForm.vue";
+import DeviceCreate from "@/components/MarkCreate.vue";
 </script>
