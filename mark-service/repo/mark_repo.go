@@ -91,19 +91,32 @@ func (r *markRepo) ListMarkWithCount(offset, limit int, preload bool) ([]model.M
 
 // Update 更新 Mark 本身及其标签
 func (r *markRepo) UpdateMark(mark *model.Mark, tagNames []string) error {
-	// 1. 更新基础字段
-	if err := r.db.Save(mark).Error; err != nil {
+	// 1. 先写业务字段
+	if err := r.db.Model(&model.Mark{}).
+		Where("id = ?", mark.ID).
+		Updates(map[string]interface{}{
+			"mark_name":       mark.MarkName,
+			"device_id":       mark.DeviceID,
+			"mqtt_topic":      mark.MqttTopic,
+			"persist_mqtt":    mark.PersistMQTT,
+			"safe_distance_m": mark.SafeDistanceM,
+			"mark_type_id":    mark.MarkTypeID,
+		}).Error; err != nil {
 		return err
 	}
-	// 2. 更新标签
+
+	// 2. 再管标签
 	if tagNames != nil {
 		tags, err := r.getOrCreateTags(tagNames)
 		if err != nil {
 			return err
 		}
-		if err := r.db.Model(mark).Association("Tags").Replace(tags); err != nil {
+		// 重新加载一次指针，避免旧快照
+		var fresh model.Mark
+		if err := r.db.First(&fresh, mark.ID).Error; err != nil {
 			return err
 		}
+		return r.db.Model(&fresh).Association("Tags").Replace(tags)
 	}
 	return nil
 }
