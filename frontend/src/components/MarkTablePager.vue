@@ -2,7 +2,7 @@
   <div class="flex w-full flex-col">
     <!-- 表格 -->
     <ScrollArea class="mx-auto mb-4 h-160 w-full max-w-4xl rounded-md border">
-      <Table>
+      <Table class="bg-card">
         <TableHeader>
           <TableRow>
             <TableHead>设备ID</TableHead>
