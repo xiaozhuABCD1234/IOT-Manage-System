@@ -45,7 +45,7 @@ const props = defineProps<{
 const form = reactive<MarkUpdateRequest>({
   mark_name: props.mark.mark_name,
   persist_mqtt: props.mark.persist_mqtt,
-  danger_zone_m: props.mark.danger_zone_m ?? undefined,
+  danger_zone_m: props.mark.danger_zone_m || -1,
   mark_type_id: props.mark.mark_type?.id,
   tags: (props.mark.tags ?? []).map((t) => t.tag_name), // 安全+简洁
 });
@@ -103,7 +103,7 @@ const handleSubmit = async () => {
         <div class="mb-5">
           <label class="mb-1 block text-sm font-medium">安全距离（米）</label>
           <Input
-            :value="form.danger_zone_m ?? ''"
+            v-model="form.danger_zone_m"
             type="number"
             step="0.1"
             placeholder="留空表示使用类型默认值"
