@@ -3,12 +3,12 @@ package model
 // MarkTypeCreateRequest 用于创建或更新标记类型
 type MarkTypeCreateRequest struct {
 	TypeName             string   `json:"type_name" validate:"required,max=255"`
-	DefaultSafeDistanceM *float64 `json:"default_safe_distance_m"`
+	DefaultSafeDistanceM *float64 `json:"default_danger_zone_m"`
 }
 
 type MarkTypeUpdateRequest struct {
 	TypeName             *string  `json:"type_name" validate:"omitempty,max=255"`
-	DefaultSafeDistanceM *float64 `json:"default_safe_distance_m"`
+	DefaultSafeDistanceM *float64 `json:"default_danger_zone_m"`
 }
 
 // MarkTagRequest 用于创建或更新标记标签
@@ -22,7 +22,7 @@ type MarkRequest struct {
 	MarkName      string   `json:"mark_name" validate:"required,max=255"`
 	MqttTopic     []string `json:"mqtt_topic" validate:"max=65535"`
 	PersistMQTT   *bool    `json:"persist_mqtt,omitempty"`
-	SafeDistanceM *float64 `json:"safe_distance_m,omitempty"`
+	SafeDistanceM *float64 `json:"danger_zone_m,omitempty"`
 	MarkTypeID    *int     `json:"mark_type_id,omitempty"`
 	Tags          []string `json:"tags,omitempty"`
 }
@@ -33,7 +33,7 @@ type MarkUpdateRequest struct {
 	MarkName      *string  `json:"mark_name,omitempty" validate:"omitempty,max=255"`
 	MqttTopic     []string `json:"mqtt_topic,omitempty" validate:"omitempty,max=65535"`
 	PersistMQTT   *bool    `json:"persist_mqtt,omitempty"`
-	SafeDistanceM *float64 `json:"safe_distance_m,omitempty"`
+	SafeDistanceM *float64 `json:"danger_zone_m,omitempty"`
 	MarkTypeID    *int     `json:"mark_type_id,omitempty"`
 	Tags          []string `json:"tags,omitempty"`
 }
