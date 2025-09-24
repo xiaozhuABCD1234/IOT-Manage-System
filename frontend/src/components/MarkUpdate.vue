@@ -70,7 +70,6 @@ const handleSubmit = async () => {
     toast.success("标记已更新");
     reloadCurrentPage();
   } catch (e: any) {
-    toast.error(e?.response?.data?.message || "更新失败");
   } finally {
   }
 };

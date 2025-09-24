@@ -55,7 +55,7 @@ export async function updateMark(id: string, data: MarkUpdateRequest) {
 
 /* 删除标记 */
 export async function deleteMark(id: string) {
-  return request.delete<ApiResponse<null>>(`${URLS.marks}/${id}`);
+  return request.delete<ApiResponse<null>>(`${URLS.marks}${id}`);
 }
 
 /* 更新标记最后在线时间 */

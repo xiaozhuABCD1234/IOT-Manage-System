@@ -7,9 +7,10 @@
           <TableRow>
             <TableHead>设备ID</TableHead>
             <TableHead>标签名称</TableHead>
+            <TableHead>危险范围</TableHead>
             <TableHead>类型</TableHead>
             <TableHead>标签</TableHead>
-            <TableHead>最后在线时间</TableHead>
+            <TableHead class="hidden md:table-cell">最后在线时间</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -21,6 +22,9 @@
           >
             <TableCell>{{ mark.device_id }}</TableCell>
             <TableCell>{{ mark.mark_name }}</TableCell>
+            <TableCell>
+              {{ mark.danger_zone_m != -1 ? mark.danger_zone_m + "m" : "-" }}
+            </TableCell>
             <TableCell>
               <RouterLink
                 v-if="mark.mark_type"
@@ -41,7 +45,7 @@
                 <span v-else>-</span>
               </div>
             </TableCell>
-            <TableCell>
+            <TableCell class="hidden md:table-cell">
               {{
                 mark.last_online_at ? new Date(mark.last_online_at).toLocaleString() : "从未上线"
               }}
@@ -51,11 +55,11 @@
                 <PopoverTrigger as-child>
                   <Button variant="outline" size="icon"> <ChevronDown /> </Button>
                 </PopoverTrigger>
-                <PopoverContent class="flex w-auto flex-col items-center justify-center gap-1 p-0">
+                <PopoverContent class="flex w-auto flex-col items-center justify-center gap-2 p-2">
                   <MarkUpdate :mark="mark"
                     ><Button variant="outline" size="icon"> <Pen /> </Button
                   ></MarkUpdate>
-                  <Button variant="outline" size="icon" class="text-red-500"> <Trash /> </Button>
+                  <MarkDelete :id="mark.id"></MarkDelete>
                 </PopoverContent>
               </Popover>
             </TableCell>
@@ -98,29 +102,9 @@ import type { MarkResponse } from "@/types/mark";
 import type { ListParams } from "@/api/mark";
 import { ChevronDown, Ellipsis, Pen, Trash } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
-// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import DangerTypeSelect from "@/components/TypeSelect.vue";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import {
-  TagsInput,
-  TagsInputInput,
-  TagsInputItem,
-  TagsInputItemDelete,
-  TagsInputItemText,
-} from "@/components/ui/tags-input";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import MarkUpdate from "./MarkUpdate.vue";
+import MarkDelete from "./MarkDelete.vue";
 import {
   Table,
   TableBody,
