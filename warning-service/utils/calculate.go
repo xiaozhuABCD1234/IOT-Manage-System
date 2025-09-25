@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"math"
 
 	"IOT-Manage-System/warning-service/model"
@@ -28,7 +29,7 @@ func CalculateRTK(l1, l2 model.RTKLoc) float64 {
 func CalculateUWB(l1, l2 model.UWBLoc) float64 {
 	dx := (l1.X - l2.X) / 100.0
 	dy := (l1.Y - l2.Y) / 100.0
-	return math.Sqrt(dx*dx + dy*dy)
+	distance := math.Sqrt(dx*dx + dy*dy)
+	log.Printf("UWB distance: %f", distance)
+	return distance
 }
-
-

@@ -54,13 +54,14 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 	}
 
 	// 写 RTK
-	if rtkS != nil && len(rtkS.V) >= 2 {
+	if rtkS != nil && len(rtkS.V) >= 2 && rtkS.V[0] != 0 && rtkS.V[1] != 0 {
 		l.MemRepo.SetRTK(&model.RTKLoc{
 			ID:     msg.ID,
 			Indoor: uwbS != nil,
 			Lon:    rtkS.V[0],
 			Lat:    rtkS.V[1],
 		})
+		// log.Printf("[DEBUG] 收到 RTK 定位消息  deviceID=%s  lon=%f  lat=%f", msg.ID, rtkS.V[0], rtkS.V[1])
 	}
 
 	// 写 UWB
@@ -70,6 +71,7 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 			X:  uwbS.V[0],
 			Y:  uwbS.V[1],
 		})
+		// log.Printf("[DEBUG] 收到 UWB 定位消息  deviceID=%s  x=%f  y=%f", msg.ID, uwbS.V[0], uwbS.V[1])
 	}
 
 }
@@ -119,7 +121,7 @@ func (l *Locator) Online(c mqtt.Client, m mqtt.Message) {
 
 func (l *Locator) StartDistanceChecker() {
 	go func() {
-		ticker := time.NewTicker(500 * time.Millisecond)
+		ticker := time.NewTicker(100 * time.Millisecond)
 		defer ticker.Stop()
 		for range ticker.C {
 			l.batchCheckRTK()
@@ -155,26 +157,33 @@ func (l *Locator) batchCheckRTK() {
 }
 
 func (l *Locator) batchCheckUWB() {
-	// 把当前全量 RTK 快照出来
+	// 把当前全量 UWB 快照出来
 	snapshot := l.MemRepo.UWBSnapshot()
 	ids := make([]string, 0, len(snapshot))
 	for id := range snapshot {
 		ids = append(ids, id)
 	}
 	for i := 0; i < len(ids); i++ {
-		dangerZone := l.DangerZone.Get(snapshot[ids[i]].ID)
+		// dangerZone := l.DangerZone.Get(snapshot[ids[i]].ID)
+		dangerZone, _ := l.MarkRepo.GetDangerZoneM(snapshot[ids[i]].ID)
+
+		log.Println("dangerZone:", dangerZone)
 		for j := i + 1; j < len(ids); j++ {
 			a, b := snapshot[ids[i]], snapshot[ids[j]]
 			safe := l.SafeDist.Get(a.ID, b.ID)
 			if safe <= 0 || dangerZone > 0 {
 				if utils.CalculateUWB(*a, *b) < dangerZone {
-					SendWarning(a.ID, true)
-					SendWarning(b.ID, true)
+					go SendWarning(a.ID, true)
+					go SendWarning(b.ID, true)
+					log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, utils.CalculateUWB(*a, *b), safe)
 				}
+				// SendWarning(a.ID, true)
+				// SendWarning(b.ID, true)
 			}
 			if utils.CalculateUWB(*a, *b) < safe {
-				SendWarning(a.ID, true)
-				SendWarning(b.ID, true)
+				go SendWarning(a.ID, true)
+				go SendWarning(b.ID, true)
+				log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, utils.CalculateUWB(*a, *b), safe)
 			}
 		}
 	}

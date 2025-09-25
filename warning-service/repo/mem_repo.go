@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"log"
 	"sync"
 	// "time"
 
@@ -154,6 +155,7 @@ func (d *DangerZone) Get(id string) float64 {
 	if v, ok := d.m[id]; ok {
 		return v
 	}
+	log.Printf("DangerZone.Get(%s) not found", id)
 	return -1
 }
 

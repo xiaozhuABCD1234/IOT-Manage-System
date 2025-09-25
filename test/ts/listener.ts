@@ -15,6 +15,6 @@ client.on("connect", () => {
 
 	/* 2. 打印收到的回声数据 */
 	client.on("message", (topic, payload) => {
-		console.log(`📨 收到 ${topic}:`, payload.toString());
+		console.log(Date.now(), `📨 收到 ${topic}:`, payload.toString());
 	});
 });

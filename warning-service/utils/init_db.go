@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -22,7 +23,15 @@ func InitDB() (*gorm.DB, error) {
 
 	for i := 0; i <= config.C.PSQLConfig.MaxRetries; i++ {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-			Logger: logger.Default.LogMode(logger.Info),
+			Logger: logger.New(
+				log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+				logger.Config{
+					SlowThreshold:             200 * time.Millisecond, // 慢查询阈值
+					LogLevel:                  logger.Error,            // 级别
+					IgnoreRecordNotFoundError: true,                   // 屏蔽 ErrRecordNotFound
+					Colorful:                  true,                   // 彩色
+				},
+			),
 		})
 		if err == nil {
 			log.Println("数据库连接成功")

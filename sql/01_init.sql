@@ -42,15 +42,15 @@ CREATE TABLE IF NOT EXISTS mark_tag_relation
 -- 2. 创建 mark_pair_safe_distance 表
 CREATE TABLE IF NOT EXISTS mark_pair_safe_distance
 (
-    mark1_id    UUID NOT NULL,
-    mark2_id    UUID NOT NULL,
-    distance_m  DOUBLE PRECISION NOT NULL,
+    mark1_id   UUID             NOT NULL,
+    mark2_id   UUID             NOT NULL,
+    distance_m DOUBLE PRECISION NOT NULL,
     PRIMARY KEY (mark1_id, mark2_id),
     -- 保证 (mark1, mark2) 与 (mark2, mark1) 不会同时存在
     CHECK (mark1_id < mark2_id),
     -- 外键约束
-    FOREIGN KEY (mark1_id) REFERENCES marks(id) ON DELETE CASCADE,
-    FOREIGN KEY (mark2_id) REFERENCES marks(id) ON DELETE CASCADE
+    FOREIGN KEY (mark1_id) REFERENCES marks (id) ON DELETE CASCADE,
+    FOREIGN KEY (mark2_id) REFERENCES marks (id) ON DELETE CASCADE
 );
 
 CREATE TYPE user_type_enum AS ENUM ('user', 'admin','root');
@@ -63,6 +63,17 @@ CREATE TABLE IF NOT EXISTS users
     user_type  user_type_enum NOT NULL DEFAULT 'user',
     created_at TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS base_stations
+(
+    id           UUID             NOT NULL DEFAULT gen_random_uuid(),
+    station_name VARCHAR(255)     NOT NULL,
+    location_x   DOUBLE PRECISION NOT NULL,
+    location_y   DOUBLE PRECISION NOT NULL,
+    created_at   TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+    updated_at   TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id)
 );
 
