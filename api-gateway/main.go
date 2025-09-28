@@ -12,15 +12,14 @@ import (
 )
 
 func main() {
-	userServiceURL := utils.GetEnv("USER_SERVICE_URL", "user-service:8001")
-	markServiceUrl := utils.GetEnv("MARK_SERVICE_URL", "mark-service:8004")
-	mqttServiceUrl := utils.GetEnv("MQTT_SERVICE_URL", "mqtt-service:8003")
 	r := gin.Default()
 	r.RedirectTrailingSlash = false // 关闭 301
 	r.Use(middleware.Cors())
-	r.Any("/api/v1/users/refresh", fixedProxyHandler(userServiceURL))
 	r.Use(middleware.JWTMiddleware())
 
+	userServiceURL := utils.GetEnv("USER_SERVICE_URL", "user-service:8001")
+	markServiceUrl := utils.GetEnv("MARK_SERVICE_URL", "mark-service:8004")
+	mqttServiceUrl := utils.GetEnv("MQTT_SERVICE_URL", "mqtt-service:8003")
 	log.Println(userServiceURL)
 	log.Printf("用户 服务地址: %s", userServiceURL)
 	r.Any("/api/v1/users/*proxyPath", createProxyHandler(userServiceURL))
@@ -58,34 +57,6 @@ func createProxyHandler(raw string) gin.HandlerFunc {
 			c.Request.Header.Set("X-UserType", c.GetHeader("X-UserType"))
 		}
 
-		proxy.ServeHTTP(c.Writer, c.Request)
-	}
-}
-
-// 新增：固定地址代理（去掉路径重写，直接转发）
-func fixedProxyHandler(raw string) gin.HandlerFunc {
-	// if !strings.HasPrefix(addr, "http://") && !strings.HasPrefix(addr, "https://") {
-	// 	addr = "http://" + addr
-	// }
-	// target, err := url.Parse(addr)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// 自动补全协议
-	if !strings.HasPrefix(raw, "http://") && !strings.HasPrefix(raw, "https://") {
-		raw = "http://" + raw
-	}
-	target, err := url.Parse(raw)
-	if err != nil {
-		panic(err) // 启动时直接报错，避免运行时才发现
-	}
-	proxy := httputil.NewSingleHostReverseProxy(target)
-	return func(c *gin.Context) {
-		if uid := c.GetHeader("X-UserID"); uid != "" {
-			c.Request.Header.Set("X-UserID", uid)
-			c.Request.Header.Set("X-UserName", c.GetHeader("X-UserName"))
-			c.Request.Header.Set("X-UserType", c.GetHeader("X-UserType"))
-		}
 		proxy.ServeHTTP(c.Writer, c.Request)
 	}
 }
