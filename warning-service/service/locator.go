@@ -82,7 +82,7 @@ func (l *Locator) Online(c mqtt.Client, m mqtt.Message) {
 		log.Println("[WARN] json err:", err)
 		return
 	}
-	log.Println("[INFO] 设备在线", msg.ID)
+	// log.Println("[INFO] 设备在线", msg.ID)
 	l.MarkRepo.SetOnline(msg.ID, time.Now())
 }
 
@@ -121,7 +121,7 @@ func (l *Locator) Online(c mqtt.Client, m mqtt.Message) {
 
 func (l *Locator) StartDistanceChecker() {
 	go func() {
-		ticker := time.NewTicker(100 * time.Millisecond)
+		ticker := time.NewTicker(500 * time.Millisecond)
 		defer ticker.Stop()
 		for range ticker.C {
 			l.batchCheckRTK()
@@ -171,19 +171,18 @@ func (l *Locator) batchCheckUWB() {
 		for j := i + 1; j < len(ids); j++ {
 			a, b := snapshot[ids[i]], snapshot[ids[j]]
 			safe := l.SafeDist.Get(a.ID, b.ID)
-			if safe <= 0 || dangerZone > 0 {
+			log.Printf("safe_distance: %f", safe)
+			if safe <= 0 {
 				if utils.CalculateUWB(*a, *b) < dangerZone {
+					go SendWarning(a.ID, true)
+					go SendWarning(b.ID, true)
+				}
+			} else {
+				if utils.CalculateUWB(*a, *b) < safe {
 					go SendWarning(a.ID, true)
 					go SendWarning(b.ID, true)
 					log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, utils.CalculateUWB(*a, *b), safe)
 				}
-				// SendWarning(a.ID, true)
-				// SendWarning(b.ID, true)
-			}
-			if utils.CalculateUWB(*a, *b) < safe {
-				go SendWarning(a.ID, true)
-				go SendWarning(b.ID, true)
-				log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, utils.CalculateUWB(*a, *b), safe)
 			}
 		}
 	}
