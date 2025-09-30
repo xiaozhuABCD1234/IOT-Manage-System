@@ -2,6 +2,7 @@ package service
 
 import (
 	"log"
+	"math"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -138,19 +139,27 @@ func (l *Locator) batchCheckRTK() {
 		ids = append(ids, id)
 	}
 	for i := 0; i < len(ids); i++ {
-		dangerZone := l.DangerZone.Get(snapshot[ids[i]].ID)
 		for j := i + 1; j < len(ids); j++ {
 			a, b := snapshot[ids[i]], snapshot[ids[j]]
+			distance := utils.CalculateRTK(*a, *b)
+			log.Printf("[DEBUG] %s间%s距离: %f", a.ID, b.ID, distance)
 			safe := l.SafeDist.Get(a.ID, b.ID)
-			if safe <= 0 || dangerZone > 0 {
-				if utils.CalculateRTK(*a, *b) < dangerZone {
-					SendWarning(a.ID, true)
-					SendWarning(b.ID, true)
-				}
+			log.Printf("[DEBUG] %s间%s安全距离: %f", a.ID, b.ID, safe)
+			// 优先使用安全距离检查
+			if safe > 0 && distance < safe {
+				log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)
+				go SendWarning(a.ID, true)
+				go SendWarning(b.ID, true)
 			}
-			if utils.CalculateRTK(*a, *b) < safe {
-				SendWarning(a.ID, true)
-				SendWarning(b.ID, true)
+			// 安全距离未设置时，检查危险区域
+			dangerZoneA := l.DangerZone.Get(a.ID)
+			dangerZoneB := l.DangerZone.Get(b.ID)
+			// 使用两个设备中较大的危险区域作为判断标准
+			dangerZone := math.Max(dangerZoneA, dangerZoneB)
+			if dangerZone > 0 && distance < dangerZone {
+				log.Printf("[DEBUG] 设备间距离 小于危险距离  deviceID1=%s  deviceID2=%s  distance=%f  danger_distance=%f", a.ID, b.ID, distance, dangerZone)
+				go SendWarning(a.ID, true)
+				go SendWarning(b.ID, true)
 			}
 		}
 	}
@@ -164,25 +173,27 @@ func (l *Locator) batchCheckUWB() {
 		ids = append(ids, id)
 	}
 	for i := 0; i < len(ids); i++ {
-		// dangerZone := l.DangerZone.Get(snapshot[ids[i]].ID)
-		dangerZone, _ := l.MarkRepo.GetDangerZoneM(snapshot[ids[i]].ID)
-
-		log.Println("dangerZone:", dangerZone)
 		for j := i + 1; j < len(ids); j++ {
 			a, b := snapshot[ids[i]], snapshot[ids[j]]
+			distance := utils.CalculateUWB(*a, *b)
+			log.Printf("[DEBUG] %s间%s距离: %f", a.ID, b.ID, distance)
 			safe := l.SafeDist.Get(a.ID, b.ID)
-			log.Printf("safe_distance: %f", safe)
-			if safe <= 0 {
-				if utils.CalculateUWB(*a, *b) < dangerZone {
-					go SendWarning(a.ID, true)
-					go SendWarning(b.ID, true)
-				}
-			} else {
-				if utils.CalculateUWB(*a, *b) < safe {
-					go SendWarning(a.ID, true)
-					go SendWarning(b.ID, true)
-					log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, utils.CalculateUWB(*a, *b), safe)
-				}
+			log.Printf("[DEBUG] %s间%s安全距离: %f", a.ID, b.ID, safe)
+			// 优先使用安全距离检查
+			if safe > 0 && distance < safe {
+				log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)
+				go SendWarning(a.ID, true)
+				go SendWarning(b.ID, true)
+			}
+			// 安全距离未设置时，检查危险区域
+			dangerZoneA := l.DangerZone.Get(a.ID)
+			dangerZoneB := l.DangerZone.Get(b.ID)
+			// 使用两个设备中较大的危险区域作为判断标准
+			dangerZone := math.Max(dangerZoneA, dangerZoneB)
+			if dangerZone > 0 && distance < dangerZone {
+				log.Printf("[DEBUG] 设备间距离 小于危险距离  deviceID1=%s  deviceID2=%s  distance=%f  danger_distance=%f", a.ID, b.ID, distance, dangerZone)
+				go SendWarning(a.ID, true)
+				go SendWarning(b.ID, true)
 			}
 		}
 	}

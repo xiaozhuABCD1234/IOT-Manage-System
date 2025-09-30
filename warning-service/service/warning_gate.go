@@ -17,9 +17,9 @@ func SendWarning(deviceID string, on bool) {
 	var token mqtt.Token
 	switch on {
 	case true:
-		token = utils.MQTTClient.Publish("warning/"+deviceID, 2, false, "1")
+		token = utils.MQTTClient.Publish("warning/"+deviceID, 0, false, "1")
 	case false:
-		token = utils.MQTTClient.Publish("warning/"+deviceID, 2, false, "0")
+		token = utils.MQTTClient.Publish("warning/"+deviceID, 0, false, "0")
 	}
 	token.Wait()
 	if err := token.Error(); err != nil {
