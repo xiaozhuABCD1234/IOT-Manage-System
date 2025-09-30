@@ -40,7 +40,7 @@ func (p *DistancePoller) Stop() {
 func (p *DistancePoller) loop() {
 	defer close(p.done)
 	defer p.tick.Stop()
-
+	log.Printf("DistancePoller: dz instance = %p", p.dz)
 	for {
 		select {
 		case <-p.tick.C:
@@ -71,7 +71,10 @@ func (p *DistancePoller) loop() {
 
 			// 4. 更新内存
 			p.sd.SetBatch(pairs)
+			// log.Printf("DistancePoller: about to SetBatch dangerZone, online=%v, maps=%d", onlineDeviceIDs, len(maps))
+			// log.Printf("maps content: %+v", maps)
 			p.dz.SetBatch(maps)
+			// log.Printf("DistancePoller: SetBatch done, dangerZone now has %d entries", len(maps))
 
 		case <-p.stop:
 			return

@@ -141,7 +141,11 @@ type DangerZone struct {
 	mu sync.RWMutex
 }
 
-func NewDangerZone() *DangerZone { return &DangerZone{m: make(map[string]float64)} }
+func NewDangerZone() *DangerZone {
+	dz := &DangerZone{m: make(map[string]float64)}
+	// log.Printf("⚡ DangerZone instance created @ %p", dz)
+	return dz
+}
 
 func (d *DangerZone) Set(id string, r float64) {
 	d.mu.Lock()
@@ -152,6 +156,8 @@ func (d *DangerZone) Set(id string, r float64) {
 func (d *DangerZone) Get(id string) float64 {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
+	log.Printf("Business: dz instance = %p", d)
+	log.Printf("Get key=%q", id)
 	if v, ok := d.m[id]; ok {
 		return v
 	}
@@ -162,7 +168,17 @@ func (d *DangerZone) Get(id string) float64 {
 func (d *DangerZone) SetBatch(m map[string]float64) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	d.m = m
+	// 1. 清空旧表
+	for k := range d.m {
+		delete(d.m, k)
+	}
+	// 2. 复用旧表，逐个写入
+	for k, v := range m {
+		d.m[k] = v
+	}
+	if len(m) == 0 {
+		log.Printf("⚠️  DangerZone.SetBatch flushed to EMPTY")
+	}
 }
 
 // type OnlineStatus struct {

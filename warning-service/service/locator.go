@@ -24,12 +24,12 @@ type Locator struct {
 }
 
 // NewLocator 工厂
-func NewLocator(db *gorm.DB) *Locator {
+func NewLocator(db *gorm.DB, SafeDist *repo.SafeDist, DangerZone *repo.DangerZone, MarkRepo *repo.MarkRepo) *Locator {
 	return &Locator{
 		MemRepo:    repo.NewMemRepo(),
-		SafeDist:   repo.NewSafeDist(),
-		DangerZone: repo.NewDangerZone(),
-		MarkRepo:   repo.NewMarkRepo(db),
+		SafeDist:   SafeDist,
+		DangerZone: DangerZone,
+		MarkRepo:   MarkRepo,
 	}
 }
 
@@ -186,7 +186,8 @@ func (l *Locator) batchCheckUWB() {
 				go SendWarning(b.ID, true)
 			}
 			// 安全距离未设置时，检查危险区域
-			dangerZoneA := l.DangerZone.Get(a.ID)
+			// dangerZoneA := l.DangerZone.Get(a.ID)
+			dangerZoneA, _ := l.MarkRepo.GetDangerZoneM(a.ID)
 			dangerZoneB := l.DangerZone.Get(b.ID)
 			// 使用两个设备中较大的危险区域作为判断标准
 			dangerZone := math.Max(dangerZoneA, dangerZoneB)

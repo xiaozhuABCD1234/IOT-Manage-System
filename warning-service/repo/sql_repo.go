@@ -78,8 +78,8 @@ func (r *MarkRepo) GetBatchDangerZoneM(deviceIDs []string) (map[string]float64, 
 
 	// 临时结构体接收查询结果
 	type row struct {
-		DeviceID    string
-		DangerZoneM *float64
+		DeviceID      string
+		SafeDistanceM *float64 // 必须跟列名同名
 	}
 	var rows []row
 
@@ -96,8 +96,8 @@ func (r *MarkRepo) GetBatchDangerZoneM(deviceIDs []string) (map[string]float64, 
 	out := make(map[string]float64, len(rows))
 	for _, v := range rows {
 		val := -1.0 // 默认值：-1 表示使用 mark_types 的默认安全距离
-		if v.DangerZoneM != nil {
-			val = *v.DangerZoneM
+		if v.SafeDistanceM != nil {
+			val = *v.SafeDistanceM
 		}
 		out[v.DeviceID] = val
 	}

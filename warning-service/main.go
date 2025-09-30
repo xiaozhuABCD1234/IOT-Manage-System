@@ -45,7 +45,7 @@ func main() {
 	defer poller.Stop() // 3. 优雅停止
 
 	// 原来的 MQTT 逻辑
-	locator := service.NewLocator(db)
+	locator := service.NewLocator(db, safeDist, dangerZone, markRepo)
 	locator.StartDistanceChecker()
 
 	token := utils.MQTTClient.Subscribe("online/#", 0, locator.Online)
