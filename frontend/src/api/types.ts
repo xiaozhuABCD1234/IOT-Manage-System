@@ -15,4 +15,3 @@ export interface UserListParams {
   page?: number;
   per_page?: number;
 }
-

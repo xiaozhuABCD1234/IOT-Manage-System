@@ -20,7 +20,7 @@
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 import type { RefreshTokenRequest, RefreshTokenResponse } from "@/api/user";
-import { userApi } from "@/api/user";
+import { userApi } from "@/api";
 import { Toaster } from "@/components/ui/sonner";
 import "vue-sonner/style.css"; // vue-sonner v2 requires this import
 import HomeFooter from "./components/layout/SiteFooter.vue";

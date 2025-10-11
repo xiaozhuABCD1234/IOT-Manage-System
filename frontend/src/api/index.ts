@@ -14,6 +14,8 @@ export * as userApi from "./user";
 // 告警 API
 export * as warningApi from "./warning";
 
+// 基站 API
+export * as stationApi from "./station";
+
 // 公共类型
 export type { ListParams, UserListParams } from "./types";
-
