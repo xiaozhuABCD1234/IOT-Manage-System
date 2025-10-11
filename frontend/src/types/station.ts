@@ -16,6 +16,6 @@ export interface StationResp {
   station_name: string;
   location_x: number;
   location_y: number;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }

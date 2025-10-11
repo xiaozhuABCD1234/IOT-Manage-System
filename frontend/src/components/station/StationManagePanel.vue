@@ -345,10 +345,10 @@ async function handleDelete(id: string) {
                 <TableCell>{{ station.location_x }}</TableCell>
                 <TableCell>{{ station.location_y }}</TableCell>
                 <TableCell class="hidden md:table-cell">
-                  {{ new Date(station.createdAt).toLocaleString() }}
+                  {{ new Date(station.created_at).toLocaleString() }}
                 </TableCell>
                 <TableCell class="hidden md:table-cell">
-                  {{ new Date(station.updatedAt).toLocaleString() }}
+                  {{ new Date(station.updated_at).toLocaleString() }}
                 </TableCell>
                 <TableCell class="text-right">
                   <div class="flex justify-end gap-2">

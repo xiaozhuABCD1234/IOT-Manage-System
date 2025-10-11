@@ -78,6 +78,7 @@
       :total="total"
       :default-page="1"
       @update:page="go"
+      class="mt-4"
     >
       <PaginationContent v-slot="{ items }">
         <PaginationPrevious>上一页</PaginationPrevious>

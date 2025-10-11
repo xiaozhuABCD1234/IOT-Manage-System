@@ -9,9 +9,6 @@
 
     <main class="h-[calc(100vh-3rem)] min-h-[calc(100vh-3rem)] bg-gray-100 dark:bg-gray-800">
       <router-view />
-      <footer class="h-12 bg-blue-400 dark:bg-sky-900">
-        <HomeFooter />
-      </footer>
     </main>
   </div>
 </template>
@@ -23,8 +20,6 @@ import type { RefreshTokenRequest, RefreshTokenResponse } from "@/api/user";
 import { userApi } from "@/api";
 import { Toaster } from "@/components/ui/sonner";
 import "vue-sonner/style.css"; // vue-sonner v2 requires this import
-import HomeFooter from "./components/layout/SiteFooter.vue";
-import MenuFooter from "./components/layout/BottomNav.vue";
 import HomeHeader from "./components/layout/AppHeader.vue";
 
 onMounted(async () => {

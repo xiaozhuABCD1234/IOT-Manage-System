@@ -1,9 +1,9 @@
 <!-- src/views/About.vue -->
 <template>
   <div
-    class="min-h-full bg-gradient-to-br from-slate-50 to-slate-100 p-8 dark:from-slate-900 dark:to-slate-800"
+    class="flex min-h-full flex-col bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800"
   >
-    <div class="mx-auto max-w-3xl">
+    <div class="mx-auto w-full max-w-3xl flex-1 p-8">
       <h1 class="mb-2 text-4xl font-bold text-slate-900 dark:text-slate-100">关于项目</h1>
       <p class="mb-8 text-slate-600 dark:text-slate-400">基于现代化技术栈开发的全栈应用</p>
 
@@ -104,5 +104,14 @@
         </div>
       </div>
     </div>
+
+    <!-- 页脚 -->
+    <footer class="h-12 bg-blue-400 dark:bg-sky-900">
+      <HomeFooter />
+    </footer>
   </div>
 </template>
+
+<script setup lang="ts">
+import HomeFooter from "@/components/layout/SiteFooter.vue";
+</script>

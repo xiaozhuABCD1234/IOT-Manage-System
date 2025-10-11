@@ -412,7 +412,7 @@ async function handleDelete(id: string) {
                   }}
                 </TableCell>
                 <TableCell class="hidden md:table-cell">
-                  {{ new Date(mark.createdAt).toLocaleString() }}
+                  {{ new Date(mark.created_at).toLocaleString() }}
                 </TableCell>
                 <TableCell class="text-right">
                   <div class="flex justify-end gap-2">
