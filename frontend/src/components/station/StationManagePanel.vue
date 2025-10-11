@@ -1,4 +1,4 @@
-<!-- StationCreateForm.vue -->
+<!-- src/components/StationManagePanel.vue -->
 <script setup lang="ts">
 import { reactive } from "vue";
 import { required, helpers } from "@vuelidate/validators";

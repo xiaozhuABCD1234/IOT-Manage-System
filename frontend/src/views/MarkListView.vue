@@ -11,6 +11,6 @@
 
 <script setup lang="ts">
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import MarkTablePager from "@/components/MarkTablePager.vue";
+import MarkTablePager from "@/components/mark/MarkTablePager.vue";
 import { listMarks } from "@/api/mark";
 </script>

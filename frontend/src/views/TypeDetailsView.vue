@@ -8,7 +8,7 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { getMarksByTypeID } from "@/api/markType";
-import MarkTablePager from "@/components/MarkTablePager.vue";
+import MarkTablePager from "@/components/mark/MarkTablePager.vue";
 import TypeInfoCard from "@/components/mark/TypeInfoCard.vue";
 import type { MarkTypeResponse } from "@/types/mark";
 import { ref, onMounted } from "vue";

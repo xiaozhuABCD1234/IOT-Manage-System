@@ -103,8 +103,8 @@ import type { ListParams } from "@/api/mark";
 import { ChevronDown, Ellipsis, Pen, Trash } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import MarkUpdate from "./MarkUpdate.vue";
-import MarkDelete from "./MarkDelete.vue";
+import MarkUpdate from "./MarkUpdateForm.vue";
+import MarkDelete from "./MarkDeleteDialog.vue";
 import {
   Table,
   TableBody,

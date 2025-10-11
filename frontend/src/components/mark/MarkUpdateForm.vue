@@ -2,7 +2,7 @@
 import { reactive, watchEffect } from "vue";
 import { updateMark } from "@/api/mark";
 import type { MarkUpdateRequest, MarkResponse } from "@/types/mark";
-import DangerTypeSelect from "@/components/TypeSelect.vue";
+import DangerTypeSelect from "@/components/type/TypeSelect.vue";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";

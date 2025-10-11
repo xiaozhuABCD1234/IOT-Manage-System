@@ -6,5 +6,5 @@
 
 <script setup lang="ts">
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import DeviceCreate from "@/components/MarkCreate.vue";
+import DeviceCreate from "@/components/mark/MarkCreateForm.vue";
 </script>

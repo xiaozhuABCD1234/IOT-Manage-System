@@ -3,7 +3,7 @@
     <ResizablePanel> </ResizablePanel>
     <ResizableHandle />
     <ResizablePanel>
-      <StationMangePanel></StationMangePanel>
+      <StationManagePanel></StationManagePanel>
     </ResizablePanel>
   </ResizablePanelGroup>
 </template>
@@ -11,5 +11,5 @@
 <script setup lang="ts">
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
-import StationMangePanel from "@/components/StationMangePanel.vue";
+import StationManagePanel from "@/components/station/StationManagePanel.vue";
 </script>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import DangerTypeSelect from "@/components/TypeSelect.vue";
-import DeviceIDSelect from "@/components/DeviceIDSelect.vue";
+import DangerTypeSelect from "@/components/type/TypeSelect.vue";
+import DeviceIDSelect from "@/components/device/DeviceIDSelect.vue";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {

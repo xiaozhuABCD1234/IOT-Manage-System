@@ -36,12 +36,12 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/marks/status",
     name: "marks-status",
-    component: () => import("@/views/MarksStatusView.vue"),
+    component: () => import("@/views/MarkStatusView.vue"),
   },
   {
     path: "/marks/manage",
     name: "marks-manage",
-    component: () => import("@/views/MarkManView.vue"),
+    component: () => import("@/views/MarkManageView.vue"),
   },
   {
     path: "/marks/list",
@@ -71,7 +71,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/WS",
     name: "w",
-    component: () => import("@/views/WaringView.vue"),
+    component: () => import("@/views/WarningView.vue"),
   },
 ];
 
