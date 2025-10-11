@@ -5,10 +5,11 @@ import (
 	"IOT-Manage-System/api-gateway/utils"
 	"log"
 
-	"github.com/gin-gonic/gin"
 	"net/http/httputil"
 	"net/url"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -18,17 +19,22 @@ func main() {
 	r.Use(middleware.JWTMiddleware())
 
 	userServiceURL := utils.GetEnv("USER_SERVICE_URL", "user-service:8001")
-	markServiceUrl := utils.GetEnv("MARK_SERVICE_URL", "mark-service:8004")
+	mapServiceUrl := utils.GetEnv("MAP_SERVICE_URL", "map-service:8002")
 	mqttServiceUrl := utils.GetEnv("MQTT_SERVICE_URL", "mqtt-service:8003")
-	log.Println(userServiceURL)
+	markServiceUrl := utils.GetEnv("MARK_SERVICE_URL", "mark-service:8004")
+
 	log.Printf("用户 服务地址: %s", userServiceURL)
+	log.Printf("标记 服务地址: %s", markServiceUrl)
+	
 	r.Any("/api/v1/users/*proxyPath", createProxyHandler(userServiceURL))
-	log.Printf("标记 服务地址: %s", markServiceUrl) // 调试输出
+
 	r.Any("/api/v1/marks/*proxyPath", createProxyHandler(markServiceUrl))
 	r.Any("/api/v1/tags/*proxyPath", createProxyHandler(markServiceUrl))
 	r.Any("/api/v1/types/*proxyPath", createProxyHandler(markServiceUrl))
 
 	r.Any("/api/v1/mqtt/*proxyPath", createProxyHandler(mqttServiceUrl))
+
+	r.Any("/api/v1/station/*proxyPath", createProxyHandler(mapServiceUrl))
 	// Gin？启动！
 	port := utils.GetEnv("PORT", "8000")
 	log.Printf("服务即将启动，监听端口: %s\n", port)

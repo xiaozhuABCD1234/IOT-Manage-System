@@ -9,7 +9,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Separator } from "@/components/ui/separator";
-import { Map, MapPinned, History, Fence, Bookmark, Info, List } from "lucide-vue-next";
+import { Map, MapPinned, History, Fence, Bookmark, Info, List, Podcast } from "lucide-vue-next";
 
 import HomeButton from "@/components/layout/HomeLogo.vue";
 import ThemeToggle from "./RightControlStrip.vue";
@@ -28,16 +28,21 @@ import ThemeToggle from "./RightControlStrip.vue";
             </NavigationMenuTrigger>
             <NavigationMenuContent class="w-[75vw]">
               <ul
-                class="grid w-full gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(0,.75fr)_minmax(0,1fr)]"
+                class="grid w-full gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
               >
-                <li class="row-span-4">
+                <li class="row-span-3">
                   <NavigationMenuLink as-child>
                     <RouterLink
                       class="from-muted/50 to-muted flex h-full w-full flex-col rounded-md bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
                       to="/map"
                     >
-                      <div class="h-[40%] w-full shrink-0">
-                        <Map class="h-fit w-fit" />
+                      <div class="h-[60%] w-full shrink-0">
+                        <!-- <Map class="h-fit w-fit" /> -->
+                        <img
+                          src="@/assets/imgs/mini-map.jpg"
+                          alt="map"
+                          class="h-full w-full rounded-md object-cover"
+                        />
                       </div>
                       <div class="flex flex-1 flex-col justify-start">
                         <div class="mt-4 mb-2 text-lg font-medium">地图总览</div>
@@ -92,6 +97,21 @@ import ThemeToggle from "./RightControlStrip.vue";
                       </div>
                     </RouterLink> </NavigationMenuLink
                   ><Separator />
+                </li>
+
+                <li>
+                  <NavigationMenuLink as-child>
+                    <RouterLink
+                      to="/map/manage"
+                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
+                    >
+                      <div
+                        class="flex items-center justify-between text-sm leading-none font-medium"
+                      >
+                        UWB 基站设置 <Podcast class="h-4 w-4" />
+                      </div>
+                    </RouterLink>
+                  </NavigationMenuLink>
                 </li>
 
                 <li>

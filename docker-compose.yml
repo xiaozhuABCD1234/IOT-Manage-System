@@ -74,8 +74,9 @@ services:
       - iot_net
     environment:
       USER_SERVICE_URL: "user-service:8001"
-      MARK_SERVICE_URL: "mark-service:8004"
+      MAP_SERVICE_URL: "map-service:8002"
       MQTT_SERVICE_URL: "mqtt-watch:8003"
+      MARK_SERVICE_URL: "mark-service:8004"
       JWT_SECRET: "your-secret-key"
       HTTP_PROXY: ""
       http_proxy: ""
@@ -123,6 +124,42 @@ services:
           "--tries=1",
           "--spider",
           "http://localhost:8081/health",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  map-service:
+    image: ghcr.io/xiaozhuabcd1234/iot-manage-system_map-service:latest
+    build:
+      context: ./map-service
+      dockerfile: Dockerfile
+    container_name: iot_map-service
+    restart: unless-stopped
+    networks:
+      - iot_net
+    # depends_on:
+    #   postgres:
+    #     condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: iot_manager_db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      JWT_SECRET: "your-secret-key"
+      TZ: Asia/Shanghai
+    # ports:
+    #   - "8002:8002"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8082/health",
         ]
       interval: 30s
       timeout: 5s

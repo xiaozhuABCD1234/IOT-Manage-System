@@ -23,7 +23,7 @@ client.on("connect", () => {
 		const payload = JSON.stringify({ id: ID, ts: Date.now() });
 		client.publish(
 			"online/" + ID,
-			payload,
+			pload,
 			{ qos: 0, retain: false },
 			(err) => {
 				if (err) return console.error("发布失败", err);

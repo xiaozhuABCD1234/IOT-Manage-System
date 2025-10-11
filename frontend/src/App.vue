@@ -45,5 +45,12 @@ onMounted(async () => {
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("login_token_time");
   }
+  // 2. 登录失败
+  if (!localStorage.getItem("access_token")) {
+    const { path } = useRouter().currentRoute.value;
+    if (path !== "/login") {
+      useRouter().push("/login");
+    }
+  }
 });
 </script>

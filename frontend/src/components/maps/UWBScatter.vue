@@ -30,7 +30,7 @@ const chartRef = ref<HTMLDivElement | null>(null);
 let chart: echarts.ECharts | null = null;
 let bgEl: any = null;
 const bgImg = new Image();
-bgImg.src = new URL("@/assets/imgs/map.png", import.meta.url).href;
+bgImg.src = new URL("@/assets/imgs/uwbmap.png", import.meta.url).href;
 
 // 计算背景图在像素坐标系下的矩形区域
 function calcBgPixelRect(): { x: number; y: number; width: number; height: number } | null {
