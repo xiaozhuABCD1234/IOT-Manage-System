@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { userApi } from "@/api/user";
+import { userApi } from "@/api";
 import { toast } from "vue-sonner";
 
 // 引入 shadcn-vue 组件（需提前通过 CLI 添加）
