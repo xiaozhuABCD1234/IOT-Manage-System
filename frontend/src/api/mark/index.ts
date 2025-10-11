@@ -1,14 +1,8 @@
-// src/api/mark.ts
+// src/api/mark/index.ts
 import request from "@/utils/request";
 import type { ApiResponse } from "@/types/response";
 import type { MarkCreateRequest, MarkUpdateRequest, MarkResponse } from "@/types/mark";
-
-/* ----------------- 分页查询参数 ----------------- */
-export interface ListParams {
-  page?: number;
-  limit?: number;
-  preload?: boolean;
-}
+import type { ListParams } from "../types";
 
 /* ----------------- 常量 ----------------- */
 const URLS = {
@@ -82,4 +76,5 @@ export async function getDeviceIDsByPersistMQTT(persist: boolean) {
   });
 }
 
-export * as markApi from "./mark";
+// 导出类型
+export type { ListParams };

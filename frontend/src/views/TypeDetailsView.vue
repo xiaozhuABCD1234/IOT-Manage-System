@@ -7,12 +7,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { getMarksByTypeID } from "@/api/markType";
+import { getMarksByTypeID, getMarkTypeByID } from "@/api/mark/type";
 import MarkTablePager from "@/components/mark/MarkTablePager.vue";
 import TypeInfoCard from "@/components/mark/TypeInfoCard.vue";
 import type { MarkTypeResponse } from "@/types/mark";
 import { ref, onMounted } from "vue";
-import { getMarkTypeByID } from "@/api/markType";
 
 const route = useRoute();
 

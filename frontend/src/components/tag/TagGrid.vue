@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/card";
 
 import { ref, onMounted } from "vue";
-import { listMarkTags } from "@/api/markTag";
+import { listMarkTags } from "@/api/mark/tag";
 import type { MarkTagResponse } from "@/types/mark";
 
 const tags = ref<MarkTagResponse[]>();

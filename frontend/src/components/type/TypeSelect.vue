@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ref, watch } from "vue";
-import { listMarkTypes } from "@/api/markType";
+import { listMarkTypes } from "@/api/mark/type";
 import type { MarkTypeResponse } from "@/types/mark";
 
 const props = defineProps<{

@@ -1,13 +1,8 @@
-// src/api/markType.ts
+// src/api/mark/type.ts
 import request from "@/utils/request";
 import type { ApiResponse } from "@/types/response";
 import type { MarkTypeRequest, MarkTypeResponse, MarkResponse } from "@/types/mark";
-
-export interface ListParams {
-  page?: number;
-  limit?: number;
-  preload?: boolean;
-}
+import type { ListParams } from "../types";
 
 const URLS = {
   types: "/api/v1/types/",
@@ -57,4 +52,5 @@ export async function getMarksByTypeName(name: string, params: ListParams = {}) 
   });
 }
 
-export * as markTypeApi from "./markType";
+// 导出类型
+export type { ListParams };

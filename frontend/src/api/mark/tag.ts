@@ -1,13 +1,8 @@
-// src/api/markTag.ts
+// src/api/mark/tag.ts
 import request from "@/utils/request";
 import type { ApiResponse } from "@/types/response";
 import type { MarkTagRequest, MarkTagResponse, MarkResponse } from "@/types/mark";
-
-export interface ListParams {
-  page?: number;
-  limit?: number;
-  preload?: boolean;
-}
+import type { ListParams } from "../types";
 
 const URLS = {
   tags: "/api/v1/tags/",
@@ -57,4 +52,5 @@ export async function getMarksByTagName(name: string, params: ListParams = {}) {
   });
 }
 
-export * as markTagApi from "./markTag";
+// 导出类型
+export type { ListParams };

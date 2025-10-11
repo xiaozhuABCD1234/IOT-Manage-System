@@ -1,6 +1,7 @@
 // src/api/user.ts
 import request from "@/utils/request";
 import type { ApiResponse } from "@/types/response";
+import type { UserListParams } from "./types";
 
 /* ----------------- 枚举 ----------------- */
 export enum UserType {
@@ -48,12 +49,6 @@ export interface User {
   updated_at: string;
 }
 
-/* 分页查询参数 */
-export interface ListParams {
-  page?: number;
-  per_page?: number;
-}
-
 /* ----------------- 常量 ----------------- */
 const URLS = {
   users: "/api/v1/users",
@@ -91,8 +86,9 @@ export async function deleteUser(id: string) {
   return request.delete<ApiResponse<null>>(`${URLS.users}/${id}`);
 }
 
-export async function listUsers(params: ListParams = {}) {
+export async function listUsers(params: UserListParams = {}) {
   return request.get<ApiResponse<User[]>>(URLS.users, { params });
 }
 
-export * as userApi from "./user";
+// 导出类型
+export type { UserListParams };

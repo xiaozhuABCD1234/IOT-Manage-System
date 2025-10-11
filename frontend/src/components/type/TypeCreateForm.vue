@@ -32,7 +32,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "vue-sonner";
-import { createMarkType } from "@/api/markType";
+import { createMarkType } from "@/api/mark/type";
 
 const validationSchema = toTypedSchema(
   z.object({

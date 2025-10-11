@@ -99,7 +99,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import type { MarkResponse } from "@/types/mark";
-import type { ListParams } from "@/api/mark";
+import type { ListParams } from "@/api/types";
 import { ChevronDown, Ellipsis, Pen, Trash } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

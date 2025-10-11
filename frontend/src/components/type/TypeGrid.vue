@@ -40,7 +40,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { listMarkTypes } from "@/api/markType";
+import { listMarkTypes } from "@/api/mark/type";
 import type { MarkTypeResponse } from "@/types/mark";
 
 /* ---------- 状态 ---------- */
