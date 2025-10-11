@@ -62,11 +62,3 @@ func StationCreateReqToStation(req *StationCreateReq) *Station {
 	}
 }
 
-// StationUpdateReqToStation 将 StationUpdateReq 转换为 Station
-func StationUpdateReqToStation(req *StationUpdateReq) *Station {
-	return &Station{
-		StationName: *req.StationName,
-		LocationX:   *req.LocationX,
-		LocationY:   *req.LocationY,
-	}
-}

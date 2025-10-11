@@ -73,7 +73,24 @@ func (s *StationService) UpdateStation(id string, req *model.StationUpdateReq) e
 		return err
 	}
 
-	if err := s.stationRepo.UpdateByID(uid, model.StationUpdateReqToStation(req)); err != nil {
+	data, err := s.stationRepo.GetByID(uid)
+	if err != nil {
+		return nil
+	}
+
+	if req.LocationX != nil {
+		data.LocationX = *req.LocationX
+	}
+
+	if req.LocationY != nil {
+		data.LocationY = *req.LocationY
+	}
+
+	if req.StationName != nil {
+		data.StationName = *req.StationName
+	}
+
+	if err := s.stationRepo.UpdateByID(uid, data); err != nil {
 		return s.translateRepoErr(err, "Station")
 	}
 	return nil
