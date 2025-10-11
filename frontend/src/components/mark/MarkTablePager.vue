@@ -1,72 +1,75 @@
 <template>
   <div class="flex w-full flex-col">
     <!-- 表格 -->
-    <ScrollArea class="mx-auto mb-4 h-160 w-full max-w-4xl rounded-md border">
-      <Table class="bg-card">
-        <TableHeader>
-          <TableRow>
-            <TableHead>设备ID</TableHead>
-            <TableHead>标签名称</TableHead>
-            <TableHead>危险范围</TableHead>
-            <TableHead>类型</TableHead>
-            <TableHead>标签</TableHead>
-            <TableHead class="hidden md:table-cell">最后在线时间</TableHead>
-          </TableRow>
-        </TableHeader>
+    <Card class="flex-1">
+      <CardContent class="p-0">
+        <ScrollArea class="h-[calc(100vh-18rem)]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>设备ID</TableHead>
+                <TableHead>标记名称</TableHead>
+                <TableHead>类型</TableHead>
+                <TableHead>安全距离</TableHead>
+                <TableHead>标签</TableHead>
+                <TableHead class="hidden md:table-cell">最后在线</TableHead>
+                <TableHead class="text-right">操作</TableHead>
+              </TableRow>
+            </TableHeader>
 
-        <TableBody>
-          <TableRow
-            v-for="mark in rows"
-            :key="mark.id"
-            class="h-15 border transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            <TableCell>{{ mark.device_id }}</TableCell>
-            <TableCell>{{ mark.mark_name }}</TableCell>
-            <TableCell>
-              {{ mark.danger_zone_m != -1 ? mark.danger_zone_m + "m" : "-" }}
-            </TableCell>
-            <TableCell>
-              <RouterLink
-                v-if="mark.mark_type"
-                :to="`/type/${mark.mark_type.id}`"
-                class="hover:underline"
-              >
-                {{ mark.mark_type.type_name }}
-              </RouterLink>
-              <span v-else>-</span>
-            </TableCell>
-            <TableCell>
-              <div class="flex flex-wrap gap-1">
-                <template v-if="mark.tags?.length">
-                  <Badge v-for="tag in mark.tags" :key="tag.id" variant="outline">
-                    {{ tag.tag_name }}
-                  </Badge>
-                </template>
-                <span v-else>-</span>
-              </div>
-            </TableCell>
-            <TableCell class="hidden md:table-cell">
-              {{
-                mark.last_online_at ? new Date(mark.last_online_at).toLocaleString() : "从未上线"
-              }}
-            </TableCell>
-            <TableCell class="text-right">
-              <Popover>
-                <PopoverTrigger as-child>
-                  <Button variant="outline" size="icon"> <ChevronDown /> </Button>
-                </PopoverTrigger>
-                <PopoverContent class="flex w-auto flex-col items-center justify-center gap-2 p-2">
-                  <MarkUpdate :mark="mark"
-                    ><Button variant="outline" size="icon"> <Pen /> </Button
-                  ></MarkUpdate>
-                  <MarkDelete :id="mark.id"></MarkDelete>
-                </PopoverContent>
-              </Popover>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </ScrollArea>
+            <TableBody>
+              <TableRow v-for="mark in rows" :key="mark.id" class="hover:bg-muted/50">
+                <TableCell class="font-medium">{{ mark.device_id }}</TableCell>
+                <TableCell>{{ mark.mark_name }}</TableCell>
+                <TableCell>
+                  <RouterLink
+                    v-if="mark.mark_type"
+                    :to="`/type/${mark.mark_type.id}`"
+                    class="hover:underline"
+                  >
+                    {{ mark.mark_type.type_name }}
+                  </RouterLink>
+                  <span v-else class="text-muted-foreground">-</span>
+                </TableCell>
+                <TableCell>
+                  {{ mark.danger_zone_m !== -1 ? mark.danger_zone_m + "m" : "-" }}
+                </TableCell>
+                <TableCell>
+                  <div class="flex flex-wrap gap-1">
+                    <template v-if="mark.tags?.length">
+                      <Badge v-for="tag in mark.tags" :key="tag.id" variant="outline">
+                        {{ tag.tag_name }}
+                      </Badge>
+                    </template>
+                    <span v-else class="text-muted-foreground">-</span>
+                  </div>
+                </TableCell>
+                <TableCell class="hidden md:table-cell">
+                  {{
+                    mark.last_online_at
+                      ? new Date(mark.last_online_at).toLocaleString()
+                      : "从未上线"
+                  }}
+                </TableCell>
+                <TableCell class="text-right">
+                  <div class="flex justify-end gap-2">
+                    <!-- 编辑按钮 -->
+                    <MarkUpdate :mark="mark">
+                      <Button variant="outline" size="icon" title="编辑">
+                        <Pen class="h-4 w-4" />
+                      </Button>
+                    </MarkUpdate>
+
+                    <!-- 删除按钮 -->
+                    <MarkDelete :id="mark.id" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </CardContent>
+    </Card>
 
     <!-- 分页 -->
     <Pagination
@@ -100,9 +103,9 @@
 import { ref, watchEffect } from "vue";
 import type { MarkResponse } from "@/types/mark";
 import type { ListParams } from "@/api/types";
-import { ChevronDown, Ellipsis, Pen, Trash } from "lucide-vue-next";
+import { Pen } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Card, CardContent } from "@/components/ui/card";
 import MarkUpdate from "./MarkUpdateForm.vue";
 import MarkDelete from "./MarkDeleteDialog.vue";
 import {

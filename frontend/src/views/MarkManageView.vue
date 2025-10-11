@@ -1,10 +1,9 @@
 <template>
   <div class="h-full w-full">
-    <DeviceCreate />
+    <MarkManagePanel />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import DeviceCreate from "@/components/mark/MarkCreateForm.vue";
+import MarkManagePanel from "@/components/mark/MarkManagePanel.vue";
 </script>

@@ -53,8 +53,11 @@ const handleSubmit = async () => {
     // 可选：重置表单
     // resetForm();
   } catch (error: any) {
-    const msg = error?.response?.data?.message || "创建失败，请稍后重试";
-    toast.error(msg);
+    // 如果错误已经在 request.ts 中处理过，就不再重复提示
+    if (!error._handled) {
+      const msg = error?.response?.data?.message || "创建失败，请稍后重试";
+      toast.error(msg);
+    }
     console.error("创建标记失败:", error);
   }
 };

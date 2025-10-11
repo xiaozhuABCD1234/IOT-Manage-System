@@ -1,7 +1,11 @@
 <template>
   <Card class="h-full w-full">
     <CardHeader>
-      <CardTitle>类型列表</CardTitle>
+      <CardTitle class="flex items-center gap-2">
+        <Layers class="h-5 w-5" />
+        类型列表
+      </CardTitle>
+      <CardDescription>查看所有标记类型及其默认安全距离</CardDescription>
     </CardHeader>
     <CardContent
       class="grid gap-4"
@@ -32,14 +36,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Layers } from "lucide-vue-next";
 import { listMarkTypes } from "@/api/mark/type";
 import type { MarkTypeResponse } from "@/types/mark";
 

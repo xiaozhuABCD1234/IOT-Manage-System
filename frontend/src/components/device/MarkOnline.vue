@@ -1,7 +1,11 @@
 <template>
   <Card class="h-full w-full">
     <CardHeader>
-      <CardTitle>标记在线状态</CardTitle>
+      <CardTitle class="flex items-center gap-2">
+        <Wifi class="h-5 w-5" />
+        标记在线状态
+      </CardTitle>
+      <CardDescription>实时监控所有标记设备的在线情况</CardDescription>
     </CardHeader>
     <CardContent>
       <MarkOnlineGrid :marks="store.markList" :device-names="names" />
@@ -10,14 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Wifi } from "lucide-vue-next";
 import { onMounted, onUnmounted, ref } from "vue";
 import { connectMQTT, disconnectMQTT, parseOnlineMessage, TOPIC_ONLINE } from "@/utils/mqtt";
 import type { MqttClient } from "mqtt";

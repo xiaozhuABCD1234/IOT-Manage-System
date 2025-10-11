@@ -1,16 +1,28 @@
 <template>
-  <div class="flex h-full w-full flex-col items-center justify-start gap-4 md:justify-center">
-    <Card class="mx-auto w-full max-w-4xl">
+  <div class="flex h-full w-full flex-col gap-4 p-4">
+    <!-- 标题卡片 -->
+    <Card>
       <CardHeader>
-        <CardTitle class="text-center text-2xl">所有标记</CardTitle>
+        <div class="flex items-center justify-between">
+          <div>
+            <CardTitle class="flex items-center gap-2">
+              <Tag class="h-5 w-5" />
+              所有标记
+            </CardTitle>
+            <CardDescription>查看和管理所有标记的详细信息</CardDescription>
+          </div>
+        </div>
       </CardHeader>
     </Card>
+
+    <!-- 标记列表 -->
     <MarkTablePager :fetcher="listMarks" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tag } from "lucide-vue-next";
 import MarkTablePager from "@/components/mark/MarkTablePager.vue";
 import { listMarks } from "@/api/mark";
 </script>

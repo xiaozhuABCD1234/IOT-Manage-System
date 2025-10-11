@@ -62,9 +62,12 @@ async function loadStations() {
     const response = await stationApi.listStations();
     stations.value = response.data.data || [];
   } catch (e: any) {
-    toast.error("加载基站列表失败", {
-      description: e.response?.data?.message || e.message,
-    });
+    // 如果错误已经在 request.ts 中处理过，就不再重复提示
+    if (!e._handled) {
+      toast.error("加载基站列表失败", {
+        description: e.response?.data?.message || e.message,
+      });
+    }
   } finally {
     loading.value = false;
   }
@@ -118,8 +121,11 @@ async function handleCreate() {
     createV$.value.$reset();
     await loadStations();
   } catch (e: any) {
-    const errorMsg = e.response?.data?.message || e.message || "创建失败";
-    toast.error("创建基站失败", { description: errorMsg });
+    // 如果错误已经在 request.ts 中处理过，就不再重复提示
+    if (!e._handled) {
+      const errorMsg = e.response?.data?.message || e.message || "创建失败";
+      toast.error("创建基站失败", { description: errorMsg });
+    }
   } finally {
     isCreating.value = false;
   }
@@ -175,8 +181,11 @@ async function handleUpdate() {
     editDialogOpen.value = false;
     await loadStations();
   } catch (e: any) {
-    const errorMsg = e.response?.data?.message || e.message || "更新失败";
-    toast.error("更新基站失败", { description: errorMsg });
+    // 如果错误已经在 request.ts 中处理过，就不再重复提示
+    if (!e._handled) {
+      const errorMsg = e.response?.data?.message || e.message || "更新失败";
+      toast.error("更新基站失败", { description: errorMsg });
+    }
   } finally {
     isUpdating.value = false;
   }
@@ -196,8 +205,11 @@ async function handleDelete(id: string) {
     toast.success("基站删除成功");
     await loadStations();
   } catch (e: any) {
-    const errorMsg = e.response?.data?.message || e.message || "删除失败";
-    toast.error("删除基站失败", { description: errorMsg });
+    // 如果错误已经在 request.ts 中处理过，就不再重复提示
+    if (!e._handled) {
+      const errorMsg = e.response?.data?.message || e.message || "删除失败";
+      toast.error("删除基站失败", { description: errorMsg });
+    }
   } finally {
     isDeleting.value[id] = false;
   }

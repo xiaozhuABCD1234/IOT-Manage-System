@@ -1,17 +1,23 @@
 <template>
   <AlertDialog>
     <AlertDialogTrigger as-child>
-      <Button variant="outline" size="icon" class="text-red-500"> <Trash /> </Button>
+      <Button variant="outline" size="icon" class="text-red-500" title="删除">
+        <Trash class="h-4 w-4" />
+      </Button>
     </AlertDialogTrigger>
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>是否确定删除?</AlertDialogTitle>
-        <AlertDialogDescription> 你将永久删除该条数据，请确认是否继续。 </AlertDialogDescription>
+        <AlertDialogTitle>确认删除标记？</AlertDialogTitle>
+        <AlertDialogDescription>你将永久删除该标记，此操作无法撤销。</AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>取消</AlertDialogCancel>
-        <AlertDialogAction class="bg-red-500" :disabled="deleting" @click="handleDelete">
-          {{ deleting ? "删除中..." : "确认" }}
+        <AlertDialogAction
+          class="bg-red-500 hover:bg-red-600"
+          :disabled="deleting"
+          @click="handleDelete"
+        >
+          {{ deleting ? "删除中..." : "确认删除" }}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
@@ -59,9 +65,12 @@ const handleDelete = async () => {
     await deleteMark(props.id);
     await reloadCurrentPage();
     toast.success("删除成功");
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    toast.error("删除失败");
+    // 如果错误已经在 request.ts 中处理过，就不再重复提示
+    if (!error._handled) {
+      toast.error("删除失败");
+    }
   } finally {
     deleting.value = false;
   }
