@@ -9,6 +9,7 @@ const plugin = Autoplay({ delay: 2000, stopOnMouseEnter: true, stopOnInteraction
   <!-- 全屏轮播 -->
   <Carousel
     class="h-full w-full"
+    :opts="{ loop: true }"
     :plugins="[plugin]"
     @mouseenter="plugin.stop"
     @mouseleave="[plugin.reset(), plugin.play()]"

@@ -84,7 +84,7 @@ func (r *markRepo) ListMarkWithCount(offset, limit int, preload bool) ([]model.M
 	}
 
 	// 再获取分页数据
-	q = q.Offset(offset).Limit(limit)
+	q = q.Offset(offset).Limit(limit).Order("created_at DESC")
 	err := q.Find(&marks).Error
 	return marks, total, err
 }

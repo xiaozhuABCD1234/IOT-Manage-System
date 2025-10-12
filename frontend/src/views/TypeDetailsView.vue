@@ -1,17 +1,20 @@
 <template>
-  <div class="flex h-full w-full flex-col items-center justify-start gap-4 md:justify-center">
-    <TypeInfoCard :typeInfo="typeData" class="mt-4" /> <MarkTablePager :fetcher="fetchByType" />
+  <div class="flex h-full w-full flex-col gap-4 p-4">
+    <!-- 类型信息卡片 -->
+    <TypeInfoCard :typeInfo="typeData" @updated="loadTypeData" />
+
+    <!-- 标记列表 -->
+    <MarkTablePager :fetcher="fetchByType" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { getMarksByTypeID, getMarkTypeByID } from "@/api/mark/type";
 import MarkTablePager from "@/components/mark/MarkTablePager.vue";
 import TypeInfoCard from "@/components/mark/TypeInfoCard.vue";
 import type { MarkTypeResponse } from "@/types/mark";
-import { ref, onMounted } from "vue";
 
 const route = useRoute();
 
@@ -31,7 +34,7 @@ const typeData = ref<MarkTypeResponse>({
   default_danger_zone_m: 5.0,
 });
 
-onMounted(async () => {
+async function loadTypeData() {
   try {
     const res = await getMarkTypeByID(typeId.value);
     if (res.data?.data) {
@@ -40,5 +43,9 @@ onMounted(async () => {
   } catch {
   } finally {
   }
+}
+
+onMounted(async () => {
+  await loadTypeData();
 });
 </script>
