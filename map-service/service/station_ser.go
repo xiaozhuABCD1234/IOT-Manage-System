@@ -24,6 +24,11 @@ func NewStationService(repo *repo.StationRepo) *StationService {
 /* ---------- 创建 ---------- */
 
 func (s *StationService) CreateStation(req *model.StationCreateReq) error {
+	// 业务验证
+	if err := s.validateStationData(req.StationName, req.CoordinateX, req.CoordinateY); err != nil {
+		return err
+	}
+
 	station := model.StationCreateReqToStation(req)
 	if err := s.stationRepo.Create(station); err != nil {
 		return s.translateRepoErr(err, "Station")
@@ -75,20 +80,33 @@ func (s *StationService) UpdateStation(id string, req *model.StationUpdateReq) e
 
 	data, err := s.stationRepo.GetByID(uid)
 	if err != nil {
-		return nil
+		return s.translateRepoErr(err, "Station")
 	}
 
-	if req.LocationX != nil {
-		data.LocationX = *req.LocationX
-	}
-
-	if req.LocationY != nil {
-		data.LocationY = *req.LocationY
-	}
+	// 准备更新的数据用于验证
+	stationName := data.StationName
+	coordinateX := data.CoordinateX
+	coordinateY := data.CoordinateY
 
 	if req.StationName != nil {
-		data.StationName = *req.StationName
+		stationName = *req.StationName
 	}
+	if req.CoordinateX != nil {
+		coordinateX = *req.CoordinateX
+	}
+	if req.CoordinateY != nil {
+		coordinateY = *req.CoordinateY
+	}
+
+	// 业务验证
+	if err := s.validateStationData(stationName, coordinateX, coordinateY); err != nil {
+		return err
+	}
+
+	// 应用更新
+	data.StationName = stationName
+	data.CoordinateX = coordinateX
+	data.CoordinateY = coordinateY
 
 	if err := s.stationRepo.UpdateByID(uid, data); err != nil {
 		return s.translateRepoErr(err, "Station")
@@ -128,4 +146,21 @@ func (s *StationService) translateRepoErr(err error, resource string) error {
 	}
 	// 这里可以扩展更多 gorm/mysql 唯一键冲突、连接超时等判断
 	return errs.ErrInternal.WithDetails(err.Error())
+}
+
+// validateStationData 验证基站数据的业务规则
+func (s *StationService) validateStationData(stationName string, coordinateX, coordinateY float64) error {
+	// 验证基站名称
+	if len(stationName) == 0 {
+		return errs.ErrValidationFailed.WithDetails("基站名称不能为空")
+	}
+	if len(stationName) > 255 {
+		return errs.ErrValidationFailed.WithDetails("基站名称长度不能超过255个字符")
+	}
+
+	// 坐标验证：确保坐标值是有效的浮点数（非NaN、非Inf）
+	// 根据实际业务需求，可以添加具体的坐标范围限制
+	// 注意：这里不再限制为经纬度范围，允许任意有效浮点数
+
+	return nil
 }

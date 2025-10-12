@@ -46,8 +46,8 @@ import type { StationResp, StationCreateReq, StationUpdateReq } from "@/types/st
 /* -------------------------------------------------- */
 interface FormState {
   station_name: string;
-  location_x: number | string;
-  location_y: number | string;
+  coordinate_x: number | string;
+  coordinate_y: number | string;
 }
 
 /* -------------------------------------------------- */
@@ -83,16 +83,16 @@ onMounted(() => {
 const createDialogOpen = ref(false);
 const createFormInitial: FormState = {
   station_name: "",
-  location_x: "",
-  location_y: "",
+  coordinate_x: "",
+  coordinate_y: "",
 };
 
 const createForm = reactive<FormState>({ ...createFormInitial });
 
 const createRules = {
   station_name: { required: helpers.withMessage("请输入基站名称", required) },
-  location_x: { required: helpers.withMessage("请输入X坐标", required) },
-  location_y: { required: helpers.withMessage("请输入Y坐标", required) },
+  coordinate_x: { required: helpers.withMessage("请输入X坐标", required) },
+  coordinate_y: { required: helpers.withMessage("请输入Y坐标", required) },
 };
 
 const createV$ = useVuelidate(createRules, createForm);
@@ -111,8 +111,8 @@ async function handleCreate() {
   try {
     await stationApi.createStation({
       station_name: createForm.station_name,
-      location_x: Number(createForm.location_x),
-      location_y: Number(createForm.location_y),
+      coordinate_x: Number(createForm.coordinate_x),
+      coordinate_y: Number(createForm.coordinate_y),
     });
 
     toast.success("基站创建成功");
@@ -138,14 +138,14 @@ const editDialogOpen = ref(false);
 const editingStation = ref<StationResp | null>(null);
 const editForm = reactive<FormState>({
   station_name: "",
-  location_x: "",
-  location_y: "",
+  coordinate_x: "",
+  coordinate_y: "",
 });
 
 const editRules = {
   station_name: { required: helpers.withMessage("请输入基站名称", required) },
-  location_x: { required: helpers.withMessage("请输入X坐标", required) },
-  location_y: { required: helpers.withMessage("请输入Y坐标", required) },
+  coordinate_x: { required: helpers.withMessage("请输入X坐标", required) },
+  coordinate_y: { required: helpers.withMessage("请输入Y坐标", required) },
 };
 
 const editV$ = useVuelidate(editRules, editForm);
@@ -154,8 +154,8 @@ const isUpdating = ref(false);
 function openEditDialog(station: StationResp) {
   editingStation.value = station;
   editForm.station_name = station.station_name;
-  editForm.location_x = station.location_x;
-  editForm.location_y = station.location_y;
+  editForm.coordinate_x = station.coordinate_x;
+  editForm.coordinate_y = station.coordinate_y;
   editV$.value.$reset();
   editDialogOpen.value = true;
 }
@@ -173,8 +173,8 @@ async function handleUpdate() {
   try {
     await stationApi.updateStation(editingStation.value.id, {
       station_name: editForm.station_name,
-      location_x: Number(editForm.location_x),
-      location_y: Number(editForm.location_y),
+      coordinate_x: Number(editForm.coordinate_x),
+      coordinate_y: Number(editForm.coordinate_y),
     });
 
     toast.success("基站更新成功");
@@ -265,14 +265,14 @@ async function handleDelete(id: string) {
                     <Label for="createLocX">X 坐标</Label>
                     <Input
                       id="createLocX"
-                      v-model="createForm.location_x"
+                      v-model="createForm.coordinate_x"
                       type="number"
                       step="0.01"
                       placeholder="0.00"
-                      :class="{ 'border-destructive': createV$.location_x.$error }"
+                      :class="{ 'border-destructive': createV$.coordinate_x.$error }"
                     />
-                    <span v-if="createV$.location_x.$error" class="text-destructive text-sm">
-                      {{ createV$.location_x.$errors[0].$message }}
+                    <span v-if="createV$.coordinate_x.$error" class="text-destructive text-sm">
+                      {{ createV$.coordinate_x.$errors[0].$message }}
                     </span>
                   </div>
 
@@ -281,14 +281,14 @@ async function handleDelete(id: string) {
                     <Label for="createLocY">Y 坐标</Label>
                     <Input
                       id="createLocY"
-                      v-model="createForm.location_y"
+                      v-model="createForm.coordinate_y"
                       type="number"
                       step="0.01"
                       placeholder="0.00"
-                      :class="{ 'border-destructive': createV$.location_y.$error }"
+                      :class="{ 'border-destructive': createV$.coordinate_y.$error }"
                     />
-                    <span v-if="createV$.location_y.$error" class="text-destructive text-sm">
-                      {{ createV$.location_y.$errors[0].$message }}
+                    <span v-if="createV$.coordinate_y.$error" class="text-destructive text-sm">
+                      {{ createV$.coordinate_y.$errors[0].$message }}
                     </span>
                   </div>
                 </div>
@@ -342,8 +342,8 @@ async function handleDelete(id: string) {
                 class="hover:bg-muted/50"
               >
                 <TableCell class="font-medium">{{ station.station_name }}</TableCell>
-                <TableCell>{{ station.location_x }}</TableCell>
-                <TableCell>{{ station.location_y }}</TableCell>
+                <TableCell>{{ station.coordinate_x }}</TableCell>
+                <TableCell>{{ station.coordinate_y }}</TableCell>
                 <TableCell class="hidden md:table-cell">
                   {{ new Date(station.created_at).toLocaleString() }}
                 </TableCell>
@@ -427,14 +427,14 @@ async function handleDelete(id: string) {
               <Label for="editLocX">X 坐标</Label>
               <Input
                 id="editLocX"
-                v-model="editForm.location_x"
+                v-model="editForm.coordinate_x"
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                :class="{ 'border-destructive': editV$.location_x.$error }"
+                :class="{ 'border-destructive': editV$.coordinate_x.$error }"
               />
-              <span v-if="editV$.location_x.$error" class="text-destructive text-sm">
-                {{ editV$.location_x.$errors[0].$message }}
+              <span v-if="editV$.coordinate_x.$error" class="text-destructive text-sm">
+                {{ editV$.coordinate_x.$errors[0].$message }}
               </span>
             </div>
 
@@ -443,14 +443,14 @@ async function handleDelete(id: string) {
               <Label for="editLocY">Y 坐标</Label>
               <Input
                 id="editLocY"
-                v-model="editForm.location_y"
+                v-model="editForm.coordinate_y"
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                :class="{ 'border-destructive': editV$.location_y.$error }"
+                :class="{ 'border-destructive': editV$.coordinate_y.$error }"
               />
-              <span v-if="editV$.location_y.$error" class="text-destructive text-sm">
-                {{ editV$.location_y.$errors[0].$message }}
+              <span v-if="editV$.coordinate_y.$error" class="text-destructive text-sm">
+                {{ editV$.coordinate_y.$errors[0].$message }}
               </span>
             </div>
           </div>

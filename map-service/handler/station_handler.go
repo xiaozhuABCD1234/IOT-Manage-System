@@ -25,6 +25,11 @@ func (h *StationHandler) CreateStation(c *fiber.Ctx) error {
 		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "参数解析失败")
 	}
 
+	// 验证参数
+	if err := utils.ValidateStruct(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
 	if err := h.stationService.CreateStation(req); err != nil {
 		return err // 统一错误处理见 global_error_handler
 	}
@@ -60,6 +65,11 @@ func (h *StationHandler) UpdateStation(c *fiber.Ctx) error {
 	req := new(model.StationUpdateReq)
 	if err := c.BodyParser(req); err != nil {
 		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "参数解析失败")
+	}
+
+	// 验证参数
+	if err := utils.ValidateStruct(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 
 	if err := h.stationService.UpdateStation(id, req); err != nil {

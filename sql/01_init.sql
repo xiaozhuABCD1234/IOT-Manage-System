@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS mark_pair_safe_distance
     FOREIGN KEY (mark2_id) REFERENCES marks (id) ON DELETE CASCADE
 );
 
-CREATE TYPE user_type_enum AS ENUM ('user', 'admin','root');
+CREATE TYPE user_type_enum AS ENUM ('user', 'admin', 'root');
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -61,8 +61,8 @@ CREATE TABLE IF NOT EXISTS users
     username   VARCHAR(255)   NOT NULL UNIQUE,
     pwd_hash   VARCHAR(255)   NOT NULL,
     user_type  user_type_enum NOT NULL DEFAULT 'user',
-    created_at TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ    NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ    NOT NULL DEFAULT now(),
     PRIMARY KEY (id)
 );
 
@@ -72,20 +72,63 @@ CREATE TABLE IF NOT EXISTS base_stations
     station_name VARCHAR(255)     NOT NULL,
     location_x   DOUBLE PRECISION NOT NULL,
     location_y   DOUBLE PRECISION NOT NULL,
-    created_at   TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
-    updated_at   TIMESTAMPTZ      NOT NULL DEFAULT NOW(),
+    created_at   TIMESTAMPTZ      NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMPTZ      NOT NULL DEFAULT now(),
     PRIMARY KEY (id)
 );
 
 -- 添加索引以提高查询性能
-CREATE INDEX IF NOT EXISTS idx_marks_type_id ON marks (mark_type_id);
-CREATE INDEX IF NOT EXISTS idx_marks_device_id ON marks (device_id);
-CREATE INDEX IF NOT EXISTS idx_marks_created_at ON marks (created_at);
-CREATE INDEX IF NOT EXISTS idx_marks_last_online ON marks (last_online_at);
-CREATE INDEX IF NOT EXISTS idx_mark_tag_relation_tag_id ON mark_tag_relation (tag_id);
-CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
--- 单独索引（如果查询频繁）
-CREATE INDEX IF NOT EXISTS idx_marks_persist_mqtt ON marks (persist_mqtt);
 
--- 或者更高效的复合索引（覆盖索引）
-CREATE INDEX IF NOT EXISTS idx_marks_persist_device ON marks (persist_mqtt, device_id);
+-- marks 表索引
+CREATE INDEX IF NOT EXISTS idx_marks_type_id ON marks (mark_type_id);
+CREATE INDEX IF NOT EXISTS idx_marks_created_at_desc ON marks (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_marks_last_online_desc ON marks (last_online_at DESC) WHERE last_online_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_marks_persist_mqtt ON marks (persist_mqtt) WHERE persist_mqtt = true;
+-- 复合索引：用于同时筛选类型和时间的查询
+CREATE INDEX IF NOT EXISTS idx_marks_type_created ON marks (mark_type_id, created_at DESC);
+
+-- mark_tag_relation 表索引
+CREATE INDEX IF NOT EXISTS idx_mark_tag_relation_tag_id ON mark_tag_relation (tag_id);
+
+-- base_stations 表索引
+CREATE INDEX IF NOT EXISTS idx_base_stations_name ON base_stations (station_name);
+CREATE INDEX IF NOT EXISTS idx_base_stations_created_at_desc ON base_stations (created_at DESC);
+-- 空间查询索引（如果需要按位置范围查询）
+CREATE INDEX IF NOT EXISTS idx_base_stations_location ON base_stations (location_x, location_y);
+
+-- 创建自制地图表
+CREATE TABLE IF NOT EXISTS custom_maps
+(
+    id          UUID             NOT NULL DEFAULT gen_random_uuid(),
+    map_name    VARCHAR(255)     NOT NULL,
+    image_path  VARCHAR(500)     NOT NULL,
+    x_min       DOUBLE PRECISION NOT NULL,
+    x_max       DOUBLE PRECISION NOT NULL,
+    y_min       DOUBLE PRECISION NOT NULL,
+    y_max       DOUBLE PRECISION NOT NULL,
+    center_x    DOUBLE PRECISION NOT NULL,
+    center_y    DOUBLE PRECISION NOT NULL,
+    description TEXT,
+    created_at  TIMESTAMPTZ      NOT NULL DEFAULT now(),
+    updated_at  TIMESTAMPTZ      NOT NULL DEFAULT now(),
+    PRIMARY KEY (id)
+);
+
+-- custom_maps 表索引
+CREATE INDEX IF NOT EXISTS idx_custom_maps_map_name ON custom_maps (map_name);
+CREATE INDEX IF NOT EXISTS idx_custom_maps_created_at_desc ON custom_maps (created_at DESC);
+
+-- 添加注释
+COMMENT ON TABLE custom_maps IS '自制地图底图表';
+COMMENT ON COLUMN custom_maps.id IS '主键ID';
+COMMENT ON COLUMN custom_maps.map_name IS '地图名称';
+COMMENT ON COLUMN custom_maps.image_path IS '图片存储路径';
+COMMENT ON COLUMN custom_maps.x_min IS 'X坐标系最小值';
+COMMENT ON COLUMN custom_maps.x_max IS 'X坐标系最大值';
+COMMENT ON COLUMN custom_maps.y_min IS 'Y坐标系最小值';
+COMMENT ON COLUMN custom_maps.y_max IS 'Y坐标系最大值';
+COMMENT ON COLUMN custom_maps.center_x IS '地图中心点X坐标';
+COMMENT ON COLUMN custom_maps.center_y IS '地图中心点Y坐标';
+COMMENT ON COLUMN custom_maps.description IS '地图描述（可选）';
+COMMENT ON COLUMN custom_maps.created_at IS '创建时间';
+COMMENT ON COLUMN custom_maps.updated_at IS '更新时间';
