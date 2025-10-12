@@ -156,3 +156,4 @@ func (r *PolygonFenceRepo) GetBoundingBox(id uuid.UUID) (xMin, yMin, xMax, yMax 
 	`, id).Row().Scan(&xMin, &yMin, &xMax, &yMax)
 	return
 }
+

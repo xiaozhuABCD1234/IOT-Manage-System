@@ -17,5 +17,11 @@ export * as warningApi from "./warning";
 // 基站 API
 export * as stationApi from "./station";
 
+// 自制地图 API
+export * as customMapApi from "./customMap";
+
+// 多边形围栏 API
+export * as polygonFenceApi from "./polygonFence";
+
 // 公共类型
 export type { ListParams, UserListParams } from "./types";
