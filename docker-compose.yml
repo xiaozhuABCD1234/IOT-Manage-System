@@ -149,8 +149,8 @@ services:
       DB_PASSWORD: password
       JWT_SECRET: "your-secret-key"
       TZ: Asia/Shanghai
-    # ports:
-    #   - "8002:8002"
+    ports:
+      - "8002:8002"
     healthcheck:
       test:
         [

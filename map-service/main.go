@@ -16,7 +16,7 @@ import (
 func main() {
 	app := fiber.New(fiber.Config{
 		Prefork:            false,
-		StrictRouting:      true,
+		StrictRouting:      false,
 		AppName:            "地图数据服务 v0.0.2",
 		CaseSensitive:      true,
 		DisableDefaultDate: true,
@@ -47,6 +47,10 @@ func main() {
 	customMapService := service.NewCustomMapService(customMapRepo)
 	customMapHandler := handler.NewCustomMapHandler(customMapService)
 
+	polygonFenceRepo := repo.NewPolygonFenceRepo(db)
+	polygonFenceService := service.NewPolygonFenceService(polygonFenceRepo)
+	polygonFenceHandler := handler.NewPolygonFenceHandler(polygonFenceService)
+
 	// 健康检查
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok", "service": app.Config().AppName})
@@ -75,6 +79,16 @@ func main() {
 	customMap.Get("/:id", customMapHandler.GetCustomMap)          // 单条查询
 	customMap.Put("/:id", customMapHandler.UpdateCustomMap)       // 更新
 	customMap.Delete("/:id", customMapHandler.DeleteCustomMap)    // 删除
+
+	// 多边形围栏相关路由
+	polygonFence := v1.Group("/polygon-fence")
+	polygonFence.Post("/", polygonFenceHandler.CreatePolygonFence)             // 创建围栏
+	polygonFence.Get("/", polygonFenceHandler.ListPolygonFences)               // 获取围栏列表（支持 ?active_only=true）
+	polygonFence.Get("/:id", polygonFenceHandler.GetPolygonFence)              // 获取单个围栏
+	polygonFence.Put("/:id", polygonFenceHandler.UpdatePolygonFence)           // 更新围栏
+	polygonFence.Delete("/:id", polygonFenceHandler.DeletePolygonFence)        // 删除围栏
+	polygonFence.Post("/:id/check", polygonFenceHandler.CheckPointInFence)     // 检查点是否在指定围栏内
+	polygonFence.Post("/check-all", polygonFenceHandler.CheckPointInAllFences) // 检查点在哪些围栏内
 
 	// 启动服务器
 	port := utils.GetEnv("PORT", "8002")

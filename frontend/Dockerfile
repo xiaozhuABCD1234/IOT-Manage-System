@@ -1,5 +1,5 @@
 # 构建阶段
-FROM docker.io/library/node:iron-slim AS builder
+FROM docker.io/library/node:trixie-slim AS builder
 
 ARG VITE_API_BASE
 ARG VITE_AMAP_KEY

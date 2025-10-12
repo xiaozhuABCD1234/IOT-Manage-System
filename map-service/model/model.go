@@ -66,7 +66,7 @@ func StationCreateReqToStation(req *StationCreateReq) *Station {
 type CustomMap struct {
 	ID          uuid.UUID `gorm:"column:id;type:uuid;primaryKey;default:gen_random_uuid()"`
 	MapName     string    `gorm:"column:map_name;type:varchar(255);not null"`
-	ImagePath   string    `gorm:"column:image_path;type:varchar(500);not null"`
+	ImagePath   string    `gorm:"column:image_path;type:varchar(500)"` // 允许为空
 	XMin        float64   `gorm:"column:x_min;type:double precision;not null"`
 	XMax        float64   `gorm:"column:x_max;type:double precision;not null"`
 	YMin        float64   `gorm:"column:y_min;type:double precision;not null"`
@@ -84,6 +84,8 @@ func (CustomMap) TableName() string {
 
 type CustomMapCreateReq struct {
 	MapName     string  `json:"map_name" validate:"required,min=1,max=255"`
+	ImageBase64 string  `json:"image_base64,omitempty"`                                                    // Base64编码的图片数据（可选）
+	ImageExt    string  `json:"image_ext,omitempty" validate:"omitempty,oneof=.jpg .jpeg .png .gif .webp"` // 图片扩展名（如果提供图片则必填）
 	XMin        float64 `json:"x_min" validate:"required"`
 	XMax        float64 `json:"x_max" validate:"required"`
 	YMin        float64 `json:"y_min" validate:"required"`
@@ -95,6 +97,8 @@ type CustomMapCreateReq struct {
 
 type CustomMapUpdateReq struct {
 	MapName     *string  `json:"map_name,omitempty" validate:"omitempty,min=1,max=255"`
+	ImageBase64 *string  `json:"image_base64,omitempty"`                                                    // Base64编码的图片数据（可选）
+	ImageExt    *string  `json:"image_ext,omitempty" validate:"omitempty,oneof=.jpg .jpeg .png .gif .webp"` // 图片扩展名（如果更新图片则必填）
 	XMin        *float64 `json:"x_min,omitempty" validate:"omitempty"`
 	XMax        *float64 `json:"x_max,omitempty" validate:"omitempty"`
 	YMin        *float64 `json:"y_min,omitempty" validate:"omitempty"`
@@ -122,11 +126,15 @@ type CustomMapResp struct {
 
 // CustomMapToCustomMapResp 将 CustomMap 转换为 CustomMapResp
 func CustomMapToCustomMapResp(customMap *CustomMap, baseURL string) *CustomMapResp {
+	imageURL := ""
+	if customMap.ImagePath != "" {
+		imageURL = baseURL + customMap.ImagePath
+	}
 	return &CustomMapResp{
 		ID:          customMap.ID.String(),
 		MapName:     customMap.MapName,
 		ImagePath:   customMap.ImagePath,
-		ImageURL:    baseURL + customMap.ImagePath,
+		ImageURL:    imageURL,
 		XMin:        customMap.XMin,
 		XMax:        customMap.XMax,
 		YMin:        customMap.YMin,
@@ -137,4 +145,65 @@ func CustomMapToCustomMapResp(customMap *CustomMap, baseURL string) *CustomMapRe
 		CreatedAt:   customMap.CreatedAt,
 		UpdatedAt:   customMap.UpdatedAt,
 	}
+}
+
+// PolygonFence 多边形电子围栏
+type PolygonFence struct {
+	ID          uuid.UUID `gorm:"column:id;type:uuid;primaryKey;default:gen_random_uuid()"`
+	FenceName   string    `gorm:"column:fence_name;type:varchar(255);not null;uniqueIndex"`
+	Geometry    string    `gorm:"column:geometry;type:geometry(POLYGON,0);not null"` // WKT格式
+	Description string    `gorm:"column:description;type:text"`
+	IsActive    bool      `gorm:"column:is_active;default:true"`
+	CreatedAt   time.Time `gorm:"column:created_at;not null;autoCreateTime"`
+	UpdatedAt   time.Time `gorm:"column:updated_at;not null;autoUpdateTime"`
+}
+
+func (PolygonFence) TableName() string {
+	return "polygon_fences"
+}
+
+// Point 坐标点
+type Point struct {
+	X float64 `json:"x" validate:"required"`
+	Y float64 `json:"y" validate:"required"`
+}
+
+// PolygonFenceCreateReq 创建多边形围栏请求
+type PolygonFenceCreateReq struct {
+	FenceName   string  `json:"fence_name" validate:"required,min=1,max=255"`
+	Points      []Point `json:"points" validate:"required,min=3"` // 至少3个点才能构成多边形
+	Description string  `json:"description,omitempty" validate:"omitempty,max=1000"`
+}
+
+// PolygonFenceUpdateReq 更新多边形围栏请求
+type PolygonFenceUpdateReq struct {
+	FenceName   *string  `json:"fence_name,omitempty" validate:"omitempty,min=1,max=255"`
+	Points      *[]Point `json:"points,omitempty" validate:"omitempty,min=3"`
+	Description *string  `json:"description,omitempty" validate:"omitempty,max=1000"`
+	IsActive    *bool    `json:"is_active,omitempty"`
+}
+
+// PolygonFenceResp 多边形围栏响应
+type PolygonFenceResp struct {
+	ID          string    `json:"id"`
+	FenceName   string    `json:"fence_name"`
+	Points      []Point   `json:"points"` // 多边形顶点
+	Description string    `json:"description"`
+	IsActive    bool      `json:"is_active"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// PointCheckReq 检查点是否在围栏内的请求
+type PointCheckReq struct {
+	X float64 `json:"x" validate:"required"`
+	Y float64 `json:"y" validate:"required"`
+}
+
+// PointCheckResp 检查点是否在围栏内的响应
+type PointCheckResp struct {
+	IsInside   bool     `json:"is_inside"`
+	FenceID    string   `json:"fence_id,omitempty"`
+	FenceName  string   `json:"fence_name,omitempty"`
+	FenceNames []string `json:"fence_names,omitempty"` // 如果在多个围栏内
 }

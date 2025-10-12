@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS custom_maps
 (
     id          UUID             NOT NULL DEFAULT gen_random_uuid(),
     map_name    VARCHAR(255)     NOT NULL,
-    image_path  VARCHAR(500)     NOT NULL,
+    image_path  VARCHAR(500),
     x_min       DOUBLE PRECISION NOT NULL,
     x_max       DOUBLE PRECISION NOT NULL,
     y_min       DOUBLE PRECISION NOT NULL,
@@ -137,19 +137,20 @@ COMMENT ON COLUMN custom_maps.updated_at IS '更新时间';
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 -- 创建多边形围栏表
-CREATE TABLE polygon_fences (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    fence_name VARCHAR(255) NOT NULL UNIQUE,
-    geometry GEOMETRY(POLYGON, 0) NOT NULL, -- 只存储多边形
+CREATE TABLE polygon_fences
+(
+    id          UUID PRIMARY KEY              DEFAULT gen_random_uuid(),
+    fence_name  VARCHAR(255)         NOT NULL UNIQUE,
+    geometry    GEOMETRY(POLYGON, 0) NOT NULL, -- 只存储多边形
     description TEXT,
-    is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    is_active   BOOLEAN                       DEFAULT true,
+    created_at  TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 创建空间索引，提高查询性能
-CREATE INDEX idx_polygon_fences_geometry ON polygon_fences USING GIST(geometry);
+CREATE INDEX idx_polygon_fences_geometry ON polygon_fences USING GIST (geometry);
 
 -- 创建索引加速名称查询
-CREATE INDEX idx_polygon_fences_name ON polygon_fences(fence_name);
-CREATE INDEX idx_polygon_fences_active ON polygon_fences(is_active);
+CREATE INDEX idx_polygon_fences_name ON polygon_fences (fence_name);
+CREATE INDEX idx_polygon_fences_active ON polygon_fences (is_active);

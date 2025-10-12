@@ -62,6 +62,8 @@ var (
 	ErrValidationFailed = &AppError{"VALIDATION_FAILED", "数据校验失败", 400, nil}
 	ErrCaptchaFailed    = &AppError{"CAPTCHA_FAILED", "验证码错误", 400, nil}
 	ErrTooManyRequests  = &AppError{"TOO_MANY_REQUESTS", "请求过于频繁", 429, nil}
+	ErrInvalidID        = &AppError{"INVALID_ID", "无效的ID", 400, nil}
+	ErrDuplicateEntry   = &AppError{"DUPLICATE_ENTRY", "数据重复", 409, nil}
 )
 
 // 资源已存在（409）
