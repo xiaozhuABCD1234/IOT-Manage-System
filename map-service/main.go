@@ -1,9 +1,10 @@
 package main
 
 import (
+	"log"
+
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
-	"log"
 
 	"IOT-Manage-System/map-service/config"
 	"IOT-Manage-System/map-service/handler"
@@ -22,7 +23,7 @@ func main() {
 		JSONEncoder:        json.Marshal,
 		JSONDecoder:        json.Unmarshal,
 		ErrorHandler:       handler.CustomErrorHandler,
-	})	
+	})
 	config.Load()
 	// 初始化数据库
 	db, err := utils.InitDB()
@@ -42,10 +43,17 @@ func main() {
 	stationService := service.NewStationService(stationRepo)
 	stationHandler := handler.NewStationHandler(stationService)
 
+	customMapRepo := repo.NewCustomMapRepo(db)
+	customMapService := service.NewCustomMapService(customMapRepo)
+	customMapHandler := handler.NewCustomMapHandler(customMapService)
+
 	// 健康检查
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok", "service": app.Config().AppName})
 	})
+
+	// 静态文件服务（用于访问上传的图片）
+	app.Static("/uploads", "./uploads")
 
 	// 路由分组
 	api := app.Group("/api")
@@ -58,6 +66,15 @@ func main() {
 	station.Get("/:id", stationHandler.GetStation)       // 单条查询
 	station.Put("/:id", stationHandler.UpdateStation)    // 更新
 	station.Delete("/:id", stationHandler.DeleteStation) // 删除
+
+	// 自制地图相关路由
+	customMap := v1.Group("/custom-map")
+	customMap.Post("/", customMapHandler.CreateCustomMap)         // 创建（上传图片 + 配置）
+	customMap.Get("/", customMapHandler.ListCustomMaps)           // 全量列表
+	customMap.Get("/latest", customMapHandler.GetLatestCustomMap) // 获取最新地图
+	customMap.Get("/:id", customMapHandler.GetCustomMap)          // 单条查询
+	customMap.Put("/:id", customMapHandler.UpdateCustomMap)       // 更新
+	customMap.Delete("/:id", customMapHandler.DeleteCustomMap)    // 删除
 
 	// 启动服务器
 	port := utils.GetEnv("PORT", "8002")
