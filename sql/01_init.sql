@@ -132,3 +132,24 @@ COMMENT ON COLUMN custom_maps.center_y IS '地图中心点Y坐标';
 COMMENT ON COLUMN custom_maps.description IS '地图描述（可选）';
 COMMENT ON COLUMN custom_maps.created_at IS '创建时间';
 COMMENT ON COLUMN custom_maps.updated_at IS '更新时间';
+
+-- 启用 PostGIS 扩展（如果还没有）
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+-- 创建多边形围栏表
+CREATE TABLE polygon_fences (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    fence_name VARCHAR(255) NOT NULL UNIQUE,
+    geometry GEOMETRY(POLYGON, 0) NOT NULL, -- 只存储多边形
+    description TEXT,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 创建空间索引，提高查询性能
+CREATE INDEX idx_polygon_fences_geometry ON polygon_fences USING GIST(geometry);
+
+-- 创建索引加速名称查询
+CREATE INDEX idx_polygon_fences_name ON polygon_fences(fence_name);
+CREATE INDEX idx_polygon_fences_active ON polygon_fences(is_active);
