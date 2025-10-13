@@ -35,6 +35,8 @@ func main() {
 	r.Any("/api/v1/mqtt/*proxyPath", createProxyHandler(mqttServiceUrl))
 
 	r.Any("/api/v1/station/*proxyPath", createProxyHandler(mapServiceUrl))
+	r.Any("/api/v1/custom-map/*proxyPath", createProxyHandler(mapServiceUrl))
+	r.Any("/api/v1/polygon-fence/*proxyPath", createProxyHandler(mapServiceUrl))
 	// Gin？启动！
 	port := utils.GetEnv("PORT", "8000")
 	log.Printf("服务即将启动，监听端口: %s\n", port)
