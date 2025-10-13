@@ -103,12 +103,19 @@ func (s *StationService) UpdateStation(id string, req *model.StationUpdateReq) e
 		return err
 	}
 
-	// 应用更新
-	data.StationName = stationName
-	data.CoordinateX = coordinateX
-	data.CoordinateY = coordinateY
+	// 使用 map 来更新，以支持零值更新
+	updates := make(map[string]interface{})
+	if req.StationName != nil {
+		updates["station_name"] = stationName
+	}
+	if req.CoordinateX != nil {
+		updates["location_x"] = coordinateX
+	}
+	if req.CoordinateY != nil {
+		updates["location_y"] = coordinateY
+	}
 
-	if err := s.stationRepo.UpdateByID(uid, data); err != nil {
+	if err := s.stationRepo.UpdateByIDWithMap(uid, updates); err != nil {
 		return s.translateRepoErr(err, "Station")
 	}
 	return nil

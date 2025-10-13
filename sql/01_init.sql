@@ -108,6 +108,7 @@ CREATE TABLE IF NOT EXISTS custom_maps
     y_max       DOUBLE PRECISION NOT NULL,
     center_x    DOUBLE PRECISION NOT NULL,
     center_y    DOUBLE PRECISION NOT NULL,
+    scale_ratio DOUBLE PRECISION NOT NULL DEFAULT 1.0,
     description TEXT,
     created_at  TIMESTAMPTZ      NOT NULL DEFAULT now(),
     updated_at  TIMESTAMPTZ      NOT NULL DEFAULT now(),
@@ -129,6 +130,7 @@ COMMENT ON COLUMN custom_maps.y_min IS 'Y坐标系最小值';
 COMMENT ON COLUMN custom_maps.y_max IS 'Y坐标系最大值';
 COMMENT ON COLUMN custom_maps.center_x IS '地图中心点X坐标';
 COMMENT ON COLUMN custom_maps.center_y IS '地图中心点Y坐标';
+COMMENT ON COLUMN custom_maps.scale_ratio IS '底图缩放比例（默认1.0表示原始大小）';
 COMMENT ON COLUMN custom_maps.description IS '地图描述（可选）';
 COMMENT ON COLUMN custom_maps.created_at IS '创建时间';
 COMMENT ON COLUMN custom_maps.updated_at IS '更新时间';

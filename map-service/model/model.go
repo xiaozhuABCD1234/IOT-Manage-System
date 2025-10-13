@@ -73,6 +73,7 @@ type CustomMap struct {
 	YMax        float64   `gorm:"column:y_max;type:double precision;not null"`
 	CenterX     float64   `gorm:"column:center_x;type:double precision;not null"`
 	CenterY     float64   `gorm:"column:center_y;type:double precision;not null"`
+	ScaleRatio  float64   `gorm:"column:scale_ratio;type:double precision;not null;default:1.0"` // 底图缩放比例
 	Description string    `gorm:"column:description;type:text"`
 	CreatedAt   time.Time `gorm:"column:created_at;not null;autoCreateTime"`
 	UpdatedAt   time.Time `gorm:"column:updated_at;not null;autoUpdateTime"`
@@ -92,6 +93,7 @@ type CustomMapCreateReq struct {
 	YMax        float64 `json:"y_max"`                                                                     // 允许0值
 	CenterX     float64 `json:"center_x"`                                                                  // 允许0值
 	CenterY     float64 `json:"center_y"`                                                                  // 允许0值
+	ScaleRatio  float64 `json:"scale_ratio" validate:"omitempty,gt=0"`                                     // 底图缩放比例（默认1.0）
 	Description string  `json:"description,omitempty" validate:"omitempty,max=1000"`
 }
 
@@ -105,6 +107,7 @@ type CustomMapUpdateReq struct {
 	YMax        *float64 `json:"y_max,omitempty" validate:"omitempty"`
 	CenterX     *float64 `json:"center_x,omitempty" validate:"omitempty"`
 	CenterY     *float64 `json:"center_y,omitempty" validate:"omitempty"`
+	ScaleRatio  *float64 `json:"scale_ratio,omitempty" validate:"omitempty,gt=0"` // 底图缩放比例
 	Description *string  `json:"description,omitempty" validate:"omitempty,max=1000"`
 }
 
@@ -119,6 +122,7 @@ type CustomMapResp struct {
 	YMax        float64   `json:"y_max"`
 	CenterX     float64   `json:"center_x"`
 	CenterY     float64   `json:"center_y"`
+	ScaleRatio  float64   `json:"scale_ratio"` // 底图缩放比例
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -141,6 +145,7 @@ func CustomMapToCustomMapResp(customMap *CustomMap, baseURL string) *CustomMapRe
 		YMax:        customMap.YMax,
 		CenterX:     customMap.CenterX,
 		CenterY:     customMap.CenterY,
+		ScaleRatio:  customMap.ScaleRatio,
 		Description: customMap.Description,
 		CreatedAt:   customMap.CreatedAt,
 		UpdatedAt:   customMap.UpdatedAt,

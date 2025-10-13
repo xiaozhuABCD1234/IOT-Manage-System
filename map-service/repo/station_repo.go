@@ -2,6 +2,7 @@ package repo
 
 import (
 	"IOT-Manage-System/map-service/model"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -61,6 +62,11 @@ func (r *StationRepo) ListAll() ([]model.Station, error) {
 // UpdateByID 全字段更新（零值也写库）
 func (r *StationRepo) UpdateByID(id uuid.UUID, station *model.Station) error {
 	return r.db.Model(&model.Station{}).Where("id = ?", id).Updates(station).Error
+}
+
+// UpdateByIDWithMap 使用map更新，支持零值更新
+func (r *StationRepo) UpdateByIDWithMap(id uuid.UUID, updates map[string]interface{}) error {
+	return r.db.Model(&model.Station{}).Where("id = ?", id).Updates(updates).Error
 }
 
 // UpdateName 只更新名称

@@ -30,6 +30,12 @@ func (s *CustomMapService) CreateCustomMap(req *model.CustomMapCreateReq, imageP
 		return err
 	}
 
+	// 设置默认的 ScaleRatio
+	scaleRatio := req.ScaleRatio
+	if scaleRatio == 0 {
+		scaleRatio = 1.0
+	}
+
 	customMap := &model.CustomMap{
 		MapName:     req.MapName,
 		ImagePath:   imagePath,
@@ -39,6 +45,7 @@ func (s *CustomMapService) CreateCustomMap(req *model.CustomMapCreateReq, imageP
 		YMax:        req.YMax,
 		CenterX:     req.CenterX,
 		CenterY:     req.CenterY,
+		ScaleRatio:  scaleRatio,
 		Description: req.Description,
 	}
 
@@ -116,6 +123,7 @@ func (s *CustomMapService) UpdateCustomMap(id string, req *model.CustomMapUpdate
 	yMax := data.YMax
 	centerX := data.CenterX
 	centerY := data.CenterY
+	scaleRatio := data.ScaleRatio
 	description := data.Description
 
 	if req.MapName != nil {
@@ -139,6 +147,9 @@ func (s *CustomMapService) UpdateCustomMap(id string, req *model.CustomMapUpdate
 	if req.CenterY != nil {
 		centerY = *req.CenterY
 	}
+	if req.ScaleRatio != nil {
+		scaleRatio = *req.ScaleRatio
+	}
 	if req.Description != nil {
 		description = *req.Description
 	}
@@ -152,6 +163,7 @@ func (s *CustomMapService) UpdateCustomMap(id string, req *model.CustomMapUpdate
 		YMax:        yMax,
 		CenterX:     centerX,
 		CenterY:     centerY,
+		ScaleRatio:  scaleRatio,
 		Description: description,
 	}
 	if err := s.validateCustomMapData(validateReq); err != nil {
@@ -166,6 +178,7 @@ func (s *CustomMapService) UpdateCustomMap(id string, req *model.CustomMapUpdate
 	data.YMax = yMax
 	data.CenterX = centerX
 	data.CenterY = centerY
+	data.ScaleRatio = scaleRatio
 	data.Description = description
 
 	// 如果有新图片，更新图片路径

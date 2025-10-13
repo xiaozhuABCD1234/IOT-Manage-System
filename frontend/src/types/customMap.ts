@@ -11,6 +11,7 @@ export interface CustomMapCreateReq {
   y_max: number;
   center_x: number;
   center_y: number;
+  scale_ratio?: number; // 底图缩放比例，默认 1.0
   description?: string;
 }
 
@@ -25,6 +26,7 @@ export interface CustomMapUpdateReq {
   y_max?: number;
   center_x?: number;
   center_y?: number;
+  scale_ratio?: number; // 底图缩放比例
   description?: string;
 }
 
@@ -40,6 +42,7 @@ export interface CustomMapResp {
   y_max: number;
   center_x: number;
   center_y: number;
+  scale_ratio: number; // 底图缩放比例，默认 1.0
   description: string;
   created_at: string;
   updated_at: string;

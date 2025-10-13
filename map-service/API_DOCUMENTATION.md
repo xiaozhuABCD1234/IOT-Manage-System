@@ -221,14 +221,30 @@ curl http://localhost:8002/api/v1/station/123e4567-e89b-12d3-a456-426614174000
 }
 ```
 
+**注意事项:**
+
+- 所有字段都是可选的，只更新提供的字段
+- 坐标支持设置为 0 值（例如: `"coordinate_y": 0` 是有效的）
+- 未提供的字段将保持原值不变
+
 **curl 示例:**
 
 ```bash
+# 更新基站名称和坐标
 curl -X PUT http://localhost:8002/api/v1/station/123e4567-e89b-12d3-a456-426614174000 \
   -H "Content-Type: application/json" \
   -d '{
     "station_name": "基站A-更新",
     "coordinate_x": 150.00
+  }'
+
+# 将坐标更新为0（支持）
+curl -X PUT http://localhost:8002/api/v1/station/123e4567-e89b-12d3-a456-426614174000 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "station_name": "C2",
+    "coordinate_x": 10,
+    "coordinate_y": 0
   }'
 ```
 
@@ -295,6 +311,7 @@ curl -X DELETE http://localhost:8002/api/v1/station/123e4567-e89b-12d3-a456-4266
 	"y_max": 500,
 	"center_x": 500,
 	"center_y": 250,
+	"scale_ratio": 1.0,
 	"description": "这是仓库的平面图"
 }
 ```
@@ -310,6 +327,7 @@ curl -X DELETE http://localhost:8002/api/v1/station/123e4567-e89b-12d3-a456-4266
 	"y_max": 500,
 	"center_x": 500,
 	"center_y": 250,
+	"scale_ratio": 1.0,
 	"description": "纯坐标系统，不需要地图图片"
 }
 ```
@@ -326,6 +344,7 @@ curl -X DELETE http://localhost:8002/api/v1/station/123e4567-e89b-12d3-a456-4266
 | y_max | float64 | 是 | Y 坐标最大值 |
 | center_x | float64 | 是 | 地图中心点 X 坐标 |
 | center_y | float64 | 是 | 地图中心点 Y 坐标 |
+| scale_ratio | float64 | 否 | 底图缩放比例，默认 1.0（1.0 表示原始大小，0.5 表示缩小 50%，2.0 表示放大 200%），必须大于 0 |
 | description | string | 否 | 地图描述，最多 1000 个字符 |
 
 **curl 示例:**
@@ -345,6 +364,7 @@ curl -X POST http://localhost:8002/api/v1/custom-map \
     "y_max": 500,
     "center_x": 500,
     "center_y": 250,
+    "scale_ratio": 1.0,
     "description": "这是仓库的平面图"
   }'
 
@@ -359,6 +379,7 @@ curl -X POST http://localhost:8002/api/v1/custom-map \
     "y_max": 500,
     "center_x": 500,
     "center_y": 250,
+    "scale_ratio": 1.0,
     "description": "纯坐标系统"
   }'
 ```
@@ -405,6 +426,7 @@ curl http://localhost:8002/api/v1/custom-map
 			"y_max": 500,
 			"center_x": 500,
 			"center_y": 250,
+			"scale_ratio": 1.0,
 			"description": "这是仓库的平面图",
 			"created_at": "2025-01-15T10:30:00Z",
 			"updated_at": "2025-01-15T10:30:00Z"
@@ -420,6 +442,7 @@ curl http://localhost:8002/api/v1/custom-map
 			"y_max": 500,
 			"center_x": 500,
 			"center_y": 250,
+			"scale_ratio": 1.0,
 			"description": "纯坐标系统，无图片",
 			"created_at": "2025-01-15T11:00:00Z",
 			"updated_at": "2025-01-15T11:00:00Z"
@@ -461,6 +484,7 @@ curl http://localhost:8002/api/v1/custom-map/latest
 		"y_max": 500,
 		"center_x": 500,
 		"center_y": 250,
+		"scale_ratio": 1.0,
 		"description": "这是仓库的平面图",
 		"created_at": "2025-01-15T10:30:00Z",
 		"updated_at": "2025-01-15T10:30:00Z"
@@ -506,7 +530,8 @@ curl http://localhost:8002/api/v1/custom-map/123e4567-e89b-12d3-a456-42661417400
 {
 	"map_name": "仓库平面图-更新版",
 	"description": "更新后的描述",
-	"x_max": 1200
+	"x_max": 1200,
+	"scale_ratio": 1.5
 }
 ```
 
@@ -533,6 +558,7 @@ curl http://localhost:8002/api/v1/custom-map/123e4567-e89b-12d3-a456-42661417400
 | y_max | float64 | 否 | Y 坐标最大值 |
 | center_x | float64 | 否 | 地图中心点 X 坐标 |
 | center_y | float64 | 否 | 地图中心点 Y 坐标 |
+| scale_ratio | float64 | 否 | 底图缩放比例，必须大于 0 |
 | description | string | 否 | 地图描述 |
 
 **curl 示例:**
@@ -998,7 +1024,8 @@ curl -X POST http://localhost:8002/api/v1/custom-map \
     "y_min": 0,
     "y_max": 500,
     "center_x": 500,
-    "center_y": 250
+    "center_y": 250,
+    "scale_ratio": 1.0
   }'
 
 # 2. 创建基站

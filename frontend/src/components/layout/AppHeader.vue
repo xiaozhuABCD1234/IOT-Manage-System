@@ -112,13 +112,13 @@ import ThemeToggle from "./RightControlStrip.vue";
                 <li>
                   <NavigationMenuLink as-child>
                     <RouterLink
-                      to="/map/manage"
+                      to="/stations"
                       class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                     >
                       <div
                         class="flex items-center justify-between text-sm leading-none font-medium"
                       >
-                        UWB 基站设置 <Podcast class="h-4 w-4" />
+                        UWB 基站管理 <Podcast class="h-4 w-4" />
                       </div>
                     </RouterLink>
                   </NavigationMenuLink>
