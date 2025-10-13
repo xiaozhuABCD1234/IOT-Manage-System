@@ -256,6 +256,7 @@ services:
     networks:
       - iot_net
     ports:
+      - "80:80"
       - "3000:80"
 
   warning-service:
