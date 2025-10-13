@@ -30,6 +30,11 @@ type Config struct {
 		MQTT_PASSWORD string
 	}
 
+	MapServiceConfig struct {
+		Hostname string
+		Port     string
+	}
+
 	AppConfig struct {
 		OnlineSecond int
 	}
@@ -56,6 +61,9 @@ func Load() {
 		C.MQTTConfig.MQTT_BROKER = getEnvStr("MQTT_BROKER", "ws://8.133.17.175:8083")
 		C.MQTTConfig.MQTT_USERNAME = getEnvStr("MQTT_USERNAME", "admin")
 		C.MQTTConfig.MQTT_PASSWORD = getEnvStr("MQTT_PASSWORD", "admin")
+
+		C.MapServiceConfig.Hostname = getEnvStr("MAP_SERVICE_HOST", "map-service")
+		C.MapServiceConfig.Port = getEnvStr("MAP_SERVICE_PORT", "8002")
 
 		C.AppConfig.OnlineSecond = getEnvInt("OFFLINE_SECOND", 3)
 	})

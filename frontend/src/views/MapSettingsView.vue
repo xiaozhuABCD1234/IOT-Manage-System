@@ -824,7 +824,7 @@ function openPreviewDialog(map: CustomMapResp) {
               </div>
 
               <!-- 缩放比例 -->
-              <div class="flex flex-col gap-2">
+              <!-- <div class="flex flex-col gap-2">
                 <Label for="editScaleRatio">缩放比例</Label>
                 <Input
                   id="editScaleRatio"
@@ -836,7 +836,7 @@ function openPreviewDialog(map: CustomMapResp) {
                 <span v-if="editV$.scale_ratio.$error" class="text-destructive text-sm">
                   {{ editV$.scale_ratio.$errors[0].$message }}
                 </span>
-              </div>
+              </div> -->
             </div>
           </ScrollArea>
 

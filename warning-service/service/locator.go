@@ -17,19 +17,21 @@ import (
 
 // Locator 依赖三个内存表，后续可接口化
 type Locator struct {
-	MemRepo    *repo.MemRepo
-	SafeDist   *repo.SafeDist
-	DangerZone *repo.DangerZone
-	MarkRepo   *repo.MarkRepo
+	MemRepo      *repo.MemRepo
+	SafeDist     *repo.SafeDist
+	DangerZone   *repo.DangerZone
+	MarkRepo     *repo.MarkRepo
+	FenceChecker *FenceChecker
 }
 
 // NewLocator 工厂
-func NewLocator(db *gorm.DB, SafeDist *repo.SafeDist, DangerZone *repo.DangerZone, MarkRepo *repo.MarkRepo) *Locator {
+func NewLocator(db *gorm.DB, SafeDist *repo.SafeDist, DangerZone *repo.DangerZone, MarkRepo *repo.MarkRepo, FenceChecker *FenceChecker) *Locator {
 	return &Locator{
-		MemRepo:    repo.NewMemRepo(),
-		SafeDist:   SafeDist,
-		DangerZone: DangerZone,
-		MarkRepo:   MarkRepo,
+		MemRepo:      repo.NewMemRepo(),
+		SafeDist:     SafeDist,
+		DangerZone:   DangerZone,
+		MarkRepo:     MarkRepo,
+		FenceChecker: FenceChecker,
 	}
 }
 
@@ -73,6 +75,11 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 			Y:  uwbS.V[1],
 		})
 		// log.Printf("[DEBUG] 收到 UWB 定位消息  deviceID=%s  x=%f  y=%f", msg.ID, uwbS.V[0], uwbS.V[1])
+
+		// 检查是否在电子围栏内（异步检查，避免阻塞）
+		if l.FenceChecker != nil {
+			go l.checkFence(msg.ID, uwbS.V[0], uwbS.V[1])
+		}
 	}
 
 }
@@ -85,6 +92,30 @@ func (l *Locator) Online(c mqtt.Client, m mqtt.Message) {
 	}
 	// log.Println("[INFO] 设备在线", msg.ID)
 	l.MarkRepo.SetOnline(msg.ID, time.Now())
+}
+
+// checkFence 检查设备是否在围栏内
+func (l *Locator) checkFence(deviceID string, x, y float64) {
+	isInside, err := l.FenceChecker.CheckPoint(deviceID, x, y)
+	if err != nil {
+		log.Printf("[WARN] 检查围栏失败 deviceID=%s error=%v", deviceID, err)
+		return
+	}
+
+	// 如果在围栏内，发送警报
+	if isInside {
+		// 检查状态是否改变，避免重复发送
+		if l.FenceChecker.IsStatusChanged(deviceID, true) {
+			log.Printf("[FENCE_ALERT] 设备 %s 在电子围栏内，发送警报", deviceID)
+			SendWarning(deviceID, true)
+		}
+	} else {
+		// 离开围栏，取消警报
+		if l.FenceChecker.IsStatusChanged(deviceID, false) {
+			log.Printf("[FENCE_ALERT] 设备 %s 离开电子围栏，取消警报", deviceID)
+			SendWarning(deviceID, false)
+		}
+	}
 }
 
 // func (l *Locator) sendWarningStart(c mqtt.Client, deviceID string) {
@@ -122,7 +153,7 @@ func (l *Locator) Online(c mqtt.Client, m mqtt.Message) {
 
 func (l *Locator) StartDistanceChecker() {
 	go func() {
-		ticker := time.NewTicker(500 * time.Millisecond)
+		ticker := time.NewTicker(200 * time.Millisecond)
 		defer ticker.Stop()
 		for range ticker.C {
 			l.batchCheckRTK()

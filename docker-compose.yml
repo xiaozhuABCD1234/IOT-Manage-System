@@ -291,6 +291,9 @@ services:
       NO_PROXY: ""
       no_proxy: ""
 
+      MAP_SERVICE_HOST: map-service
+      MAP_SERVICE_PORT: 8002
+
 volumes:
   mosquitto_data:
   mosquitto_log:
