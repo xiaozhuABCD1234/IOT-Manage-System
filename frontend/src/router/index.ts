@@ -39,6 +39,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/MapSettingsView.vue"),
   },
   {
+    path: "/map/settings/fence",
+    name: "fence-settings",
+    component: () => import("@/views/UWBMapNewView.vue"),
+  },
+  {
     path: "/marks/status",
     name: "marks-status",
     component: () => import("@/views/MarkStatusView.vue"),
