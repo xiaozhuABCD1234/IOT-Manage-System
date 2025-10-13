@@ -9,7 +9,17 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Separator } from "@/components/ui/separator";
-import { Map, MapPinned, History, Fence, Bookmark, Info, List, Podcast } from "lucide-vue-next";
+import {
+  Map,
+  MapPinned,
+  History,
+  Fence,
+  Bookmark,
+  Info,
+  List,
+  Podcast,
+  Settings,
+} from "lucide-vue-next";
 
 import HomeButton from "@/components/layout/HomeLogo.vue";
 import ThemeToggle from "./RightControlStrip.vue";
@@ -30,7 +40,7 @@ import ThemeToggle from "./RightControlStrip.vue";
               <ul
                 class="grid w-full gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
               >
-                <li class="row-span-3">
+                <li class="row-span-4">
                   <NavigationMenuLink as-child>
                     <RouterLink
                       class="from-muted/50 to-muted flex h-full w-full flex-col rounded-md bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
@@ -124,6 +134,21 @@ import ThemeToggle from "./RightControlStrip.vue";
                         class="flex items-center justify-between text-sm leading-none font-medium"
                       >
                         电子围栏管理 <Fence class="h-4 w-4" />
+                      </div>
+                    </RouterLink>
+                  </NavigationMenuLink>
+                </li>
+
+                <li>
+                  <NavigationMenuLink as-child>
+                    <RouterLink
+                      to="/map/settings"
+                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
+                    >
+                      <div
+                        class="flex items-center justify-between text-sm leading-none font-medium"
+                      >
+                        地图设置 <Settings class="h-4 w-4" />
                       </div>
                     </RouterLink>
                   </NavigationMenuLink>

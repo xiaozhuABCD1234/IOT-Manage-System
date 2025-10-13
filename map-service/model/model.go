@@ -22,8 +22,8 @@ func (Station) TableName() string {
 
 type StationCreateReq struct {
 	StationName string  `json:"station_name" validate:"required,min=1,max=255"`
-	CoordinateX float64 `json:"coordinate_x" validate:"required"` // X坐标
-	CoordinateY float64 `json:"coordinate_y" validate:"required"` // Y坐标
+	CoordinateX float64 `json:"coordinate_x"` // X坐标（允许0值）
+	CoordinateY float64 `json:"coordinate_y"` // Y坐标（允许0值）
 }
 
 type StationUpdateReq struct {
@@ -86,12 +86,12 @@ type CustomMapCreateReq struct {
 	MapName     string  `json:"map_name" validate:"required,min=1,max=255"`
 	ImageBase64 string  `json:"image_base64,omitempty"`                                                    // Base64编码的图片数据（可选）
 	ImageExt    string  `json:"image_ext,omitempty" validate:"omitempty,oneof=.jpg .jpeg .png .gif .webp"` // 图片扩展名（如果提供图片则必填）
-	XMin        float64 `json:"x_min" validate:"required"`
-	XMax        float64 `json:"x_max" validate:"required"`
-	YMin        float64 `json:"y_min" validate:"required"`
-	YMax        float64 `json:"y_max" validate:"required"`
-	CenterX     float64 `json:"center_x" validate:"required"`
-	CenterY     float64 `json:"center_y" validate:"required"`
+	XMin        float64 `json:"x_min"`                                                                     // 允许0值
+	XMax        float64 `json:"x_max"`                                                                     // 允许0值
+	YMin        float64 `json:"y_min"`                                                                     // 允许0值
+	YMax        float64 `json:"y_max"`                                                                     // 允许0值
+	CenterX     float64 `json:"center_x"`                                                                  // 允许0值
+	CenterY     float64 `json:"center_y"`                                                                  // 允许0值
 	Description string  `json:"description,omitempty" validate:"omitempty,max=1000"`
 }
 
@@ -164,8 +164,8 @@ func (PolygonFence) TableName() string {
 
 // Point 坐标点
 type Point struct {
-	X float64 `json:"x" validate:"required"`
-	Y float64 `json:"y" validate:"required"`
+	X float64 `json:"x"` // 允许0值
+	Y float64 `json:"y"` // 允许0值
 }
 
 // PolygonFenceCreateReq 创建多边形围栏请求
@@ -196,8 +196,8 @@ type PolygonFenceResp struct {
 
 // PointCheckReq 检查点是否在围栏内的请求
 type PointCheckReq struct {
-	X float64 `json:"x" validate:"required"`
-	Y float64 `json:"y" validate:"required"`
+	X float64 `json:"x"` // 允许0值
+	Y float64 `json:"y"` // 允许0值
 }
 
 // PointCheckResp 检查点是否在围栏内的响应

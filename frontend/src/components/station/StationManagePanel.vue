@@ -83,16 +83,36 @@ onMounted(() => {
 const createDialogOpen = ref(false);
 const createFormInitial: FormState = {
   station_name: "",
-  coordinate_x: "",
-  coordinate_y: "",
+  coordinate_x: 0,
+  coordinate_y: 0,
 };
 
 const createForm = reactive<FormState>({ ...createFormInitial });
 
+// 自定义验证器：允许0或任何有效数字（包括负数）
+const isValidCoordinate = (value: any) => {
+  // undefined 或 null 不允许
+  if (value === undefined || value === null) return false;
+
+  // 如果是数字0，明确允许
+  if (value === 0 || value === "0") return true;
+
+  // 空字符串不允许
+  if (value === "" || (typeof value === "string" && value.trim() === "")) return false;
+
+  // 尝试转换为数字并验证
+  const num = Number(value);
+  return !isNaN(num) && isFinite(num);
+};
+
 const createRules = {
   station_name: { required: helpers.withMessage("请输入基站名称", required) },
-  coordinate_x: { required: helpers.withMessage("请输入X坐标", required) },
-  coordinate_y: { required: helpers.withMessage("请输入Y坐标", required) },
+  coordinate_x: {
+    isValidCoordinate: helpers.withMessage("请输入有效的X坐标", isValidCoordinate),
+  },
+  coordinate_y: {
+    isValidCoordinate: helpers.withMessage("请输入有效的Y坐标", isValidCoordinate),
+  },
 };
 
 const createV$ = useVuelidate(createRules, createForm);
@@ -144,8 +164,12 @@ const editForm = reactive<FormState>({
 
 const editRules = {
   station_name: { required: helpers.withMessage("请输入基站名称", required) },
-  coordinate_x: { required: helpers.withMessage("请输入X坐标", required) },
-  coordinate_y: { required: helpers.withMessage("请输入Y坐标", required) },
+  coordinate_x: {
+    isValidCoordinate: helpers.withMessage("请输入有效的X坐标", isValidCoordinate),
+  },
+  coordinate_y: {
+    isValidCoordinate: helpers.withMessage("请输入有效的Y坐标", isValidCoordinate),
+  },
 };
 
 const editV$ = useVuelidate(editRules, editForm);

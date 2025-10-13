@@ -141,3 +141,4 @@ func (h *PolygonFenceHandler) CheckPointInAllFences(c *fiber.Ctx) error {
 	return utils.SendSuccessResponse(c, resp)
 }
 
+
