@@ -109,6 +109,66 @@ function drawBackgroundImage(
 }
 
 /**
+ * 生成"好看"的刻度值
+ * @param min 最小值
+ * @param max 最大值
+ * @param maxTicks 期望的最大刻度数量
+ * @returns 刻度值数组
+ */
+function generateNiceTicks(min: number, max: number, maxTicks: number = 10): number[] {
+  const range = max - min;
+  if (range === 0) return [min];
+
+  // 计算初步步长
+  const roughStep = range / (maxTicks - 1);
+
+  // 找到最接近的"好看"的步长（1, 2, 5 的倍数）
+  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+  const normalized = roughStep / magnitude; // 归一化到 1-10 范围
+
+  let niceStep;
+  if (normalized < 1.5) {
+    niceStep = 1 * magnitude;
+  } else if (normalized < 3) {
+    niceStep = 2 * magnitude;
+  } else if (normalized < 7) {
+    niceStep = 5 * magnitude;
+  } else {
+    niceStep = 10 * magnitude;
+  }
+
+  // 计算刻度起始和结束值（向外扩展到"好看"的值）
+  const niceMin = Math.floor(min / niceStep) * niceStep;
+  const niceMax = Math.ceil(max / niceStep) * niceStep;
+
+  // 生成刻度数组
+  const ticks: number[] = [];
+  for (let tick = niceMin; tick <= niceMax; tick += niceStep) {
+    // 避免浮点数精度问题
+    ticks.push(Math.round(tick / niceStep) * niceStep);
+  }
+
+  return ticks;
+}
+
+/**
+ * 格式化刻度标签
+ */
+function formatTickLabel(value: number): string {
+  const absValue = Math.abs(value);
+
+  if (absValue >= 1000000) {
+    return (value / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+  } else if (absValue >= 1000) {
+    return (value / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+  } else if (absValue < 1 && absValue > 0) {
+    return value.toFixed(2).replace(/\.?0+$/, "");
+  } else {
+    return value.toFixed(0);
+  }
+}
+
+/**
  * 绘制网格
  */
 function drawGrid(
@@ -201,9 +261,13 @@ function drawAxisX(
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
 
-  const step = (scaler.x_max - scaler.x_min) / (ticks - 1);
-  for (let i = 0; i < ticks; i++) {
-    const x = scaler.x_min + i * step;
+  // 生成"好看"的刻度值
+  const tickValues = generateNiceTicks(scaler.x_min, scaler.x_max, ticks);
+
+  for (const x of tickValues) {
+    // 只绘制在可见范围内的刻度
+    if (x < scaler.x_min || x > scaler.x_max) continue;
+
     const { px } = scaler.toPixel(x, 0);
 
     // 刻度线
@@ -212,8 +276,8 @@ function drawAxisX(
     ctx.lineTo(px, yAxisPx + tickLength);
     ctx.stroke();
 
-    // 标签 - 格式化大数字
-    const label = Math.abs(x) >= 1000 ? (x / 1000).toFixed(0) + "k" : x.toFixed(0);
+    // 标签 - 使用智能格式化
+    const label = formatTickLabel(x);
     ctx.fillText(label, px, yAxisPx + tickLength + 4);
   }
 
@@ -278,9 +342,13 @@ function drawAxisY(
   ctx.textAlign = "right";
   ctx.textBaseline = "middle";
 
-  const step = (scaler.y_max - scaler.y_min) / (ticks - 1);
-  for (let i = 0; i < ticks; i++) {
-    const y = scaler.y_min + i * step;
+  // 生成"好看"的刻度值
+  const tickValues = generateNiceTicks(scaler.y_min, scaler.y_max, ticks);
+
+  for (const y of tickValues) {
+    // 只绘制在可见范围内的刻度
+    if (y < scaler.y_min || y > scaler.y_max) continue;
+
     const { py } = scaler.toPixel(0, y);
 
     // 刻度线
@@ -289,8 +357,8 @@ function drawAxisY(
     ctx.lineTo(xAxisPx, py);
     ctx.stroke();
 
-    // 标签 - 格式化大数字
-    const label = Math.abs(y) >= 1000 ? (y / 1000).toFixed(0) + "k" : y.toFixed(0);
+    // 标签 - 使用智能格式化
+    const label = formatTickLabel(y);
     ctx.fillText(label, xAxisPx - tickLength - 4, py);
   }
 
@@ -958,22 +1026,22 @@ onUnmounted(() => {
                         <span class="w-6 text-center font-semibold text-orange-600">
                           {{ index + 1 }}
                         </span>
-                        <div class="flex-1 space-y-1">
-                          <div class="flex items-center gap-2">
-                            <Label class="w-6 text-xs">X:</Label>
+                        <div class="flex flex-1 items-center gap-2">
+                          <div class="flex flex-1 items-center gap-1">
+                            <Label class="text-xs">X:</Label>
                             <Input
                               :model-value="point.x"
                               type="number"
-                              class="h-8 text-sm"
+                              class="h-8 flex-1 text-sm"
                               @update:model-value="(val) => updatePoint(index, 'x', String(val))"
                             />
                           </div>
-                          <div class="flex items-center gap-2">
-                            <Label class="w-6 text-xs">Y:</Label>
+                          <div class="flex flex-1 items-center gap-1">
+                            <Label class="text-xs">Y:</Label>
                             <Input
                               :model-value="point.y"
                               type="number"
-                              class="h-8 text-sm"
+                              class="h-8 flex-1 text-sm"
                               @update:model-value="(val) => updatePoint(index, 'y', String(val))"
                             />
                           </div>
