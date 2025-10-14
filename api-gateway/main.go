@@ -31,6 +31,7 @@ func main() {
 	r.Any("/api/v1/marks/*proxyPath", createProxyHandler(markServiceUrl))
 	r.Any("/api/v1/tags/*proxyPath", createProxyHandler(markServiceUrl))
 	r.Any("/api/v1/types/*proxyPath", createProxyHandler(markServiceUrl))
+	r.Any("/api/v1/pairs/*proxyPath", createProxyHandler(markServiceUrl))
 
 	r.Any("/api/v1/mqtt/*proxyPath", createProxyHandler(mqttServiceUrl))
 
