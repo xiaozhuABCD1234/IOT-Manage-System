@@ -46,12 +46,12 @@ RUN chown -R appuser:appgroup /app
 # 切换用户（安全）
 USER appuser
 
-# 暴露端口
+# 创建 uploads 目录并提前赋权
+RUN mkdir -p /app/uploads && \
+    chown -R appuser:appgroup /app/uploads
+
+USER appuser
+
 EXPOSE 8002
 
-# 健康检查
-# HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-#     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health ||
-
-# 运行应用
-CMD ["./main"] 
+CMD ["./main"]
