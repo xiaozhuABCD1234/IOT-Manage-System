@@ -54,9 +54,9 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/MarkManageView.vue"),
   },
   {
-    path: "/marks/list",
-    name: "marks-list",
-    component: () => import("@/views/MarkListView.vue"),
+    path: "/marks/distance",
+    name: "distance-settings",
+    component: () => import("@/views/DistanceSettingsView.vue"),
   },
   {
     path: "/type/:typeId",

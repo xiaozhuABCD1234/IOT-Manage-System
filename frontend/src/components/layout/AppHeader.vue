@@ -16,7 +16,6 @@ import {
   Fence,
   Bookmark,
   Info,
-  List,
   Podcast,
   Settings,
 } from "lucide-vue-next";
@@ -185,18 +184,6 @@ import ThemeToggle from "./RightControlStrip.vue";
                     >
                       <div class="flex items-center justify-between text-sm font-medium">
                         标记管理 <Fence class="h-4 w-4" />
-                      </div>
-                    </RouterLink>
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink as-child>
-                    <RouterLink
-                      to="/marks/list"
-                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
-                    >
-                      <div class="flex items-center justify-between text-sm font-medium">
-                        标记列表 <List class="h-4 w-4" />
                       </div>
                     </RouterLink>
                   </NavigationMenuLink>

@@ -7,6 +7,7 @@
 export * as markApi from "./mark";
 export * as tagApi from "./mark/tag";
 export * as typeApi from "./mark/type";
+export * as pairApi from "./mark/pair";
 
 // 用户 API
 export * as userApi from "./user";
