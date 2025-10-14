@@ -142,3 +142,26 @@ func (h *MarkPairHandler) DistanceMapByDevice(c *fiber.Ctx) error {
 
 	return utils.SendSuccessResponse(c, distanceMap)
 }
+
+// ListMarkPairs 分页查询标记对列表
+func (h *MarkPairHandler) ListMarkPairs(c *fiber.Ctx) error {
+	// 分页参数
+	page := c.QueryInt("page", 1)
+	if page < 1 {
+		page = 1
+	}
+	limit := c.QueryInt("limit", 10)
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	pairs, total, err := h.markPairService.ListMarkPairs(page, limit)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendPaginatedResponse(c, pairs, total, page, limit)
+}

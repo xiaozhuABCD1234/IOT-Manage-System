@@ -22,6 +22,8 @@ type MarkPairService interface {
 	DistanceMapByMark(id string) (map[string]float64, error)
 	// 查询某个 Device 与其它所有 Mark 的距离映射
 	DistanceMapByDevice(deviceID string) (map[string]float64, error)
+	// 分页查询标记对列表
+	ListMarkPairs(page, limit int) ([]model.MarkPairResponse, int64, error)
 }
 
 type markPairService struct {
@@ -202,4 +204,35 @@ func (s *markPairService) DistanceMapByDevice(deviceID string) (map[string]float
 		return nil, errs.ErrDatabase.WithDetails(err.Error())
 	}
 	return result, nil
+}
+
+// ListMarkPairs 分页查询标记对列表
+func (s *markPairService) ListMarkPairs(page, limit int) ([]model.MarkPairResponse, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 10
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	offset := (page - 1) * limit
+	pairs, total, err := s.markPairRepo.ListMarkPairs(offset, limit)
+	if err != nil {
+		return nil, 0, errs.ErrDatabase.WithDetails(err.Error())
+	}
+
+	// 转换为响应模型
+	responses := make([]model.MarkPairResponse, 0, len(pairs))
+	for _, pair := range pairs {
+		responses = append(responses, model.MarkPairResponse{
+			Mark1ID:   pair.Mark1ID.String(),
+			Mark2ID:   pair.Mark2ID.String(),
+			DistanceM: pair.DistanceM,
+		})
+	}
+
+	return responses, total, nil
 }

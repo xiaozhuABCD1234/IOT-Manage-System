@@ -18,7 +18,7 @@ func main() {
 
 		StrictRouting: true,
 		// ServerHeader:       "Fiber",
-		AppName:            "电子标记服务 v0.0.2",
+		AppName:            "电子标记服务 v0.0.3",
 		CaseSensitive:      true,
 		DisableDefaultDate: true,
 		JSONEncoder:        json.Marshal,
@@ -60,6 +60,7 @@ func main() {
 	mark.Get("/:id", h1.GetMarkByID)                                    // 根据 ID 获取标记
 	mark.Put("/:id", h1.UpdateMark)                                     // 更新标记
 	mark.Delete("/:id", h1.DeleteMark)                                  // 删除标记
+	mark.Get("/id-to-name", h1.GetAllMarkIDToName)                      // 获取全部 markID→markName 映射
 	mark.Get("/device/id-to-name", h1.GetAllDeviceIDToName)             // 获取全部 deviceID→markName 映射
 	mark.Get("/device/:device_id", h1.GetMarkByDeviceID)                // 根据设备 ID 获取标记
 	mark.Put("/device/:device_id/last-online", h1.UpdateMarkLastOnline) // 更新最后在线时间
@@ -73,6 +74,7 @@ func main() {
 	markTag := v1.Group("/tags")
 	markTag.Post("/", h1.CreateMarkTag)                        // 创建标签
 	markTag.Get("/", h1.ListMarkTags)                          // 分页获取标签列表
+	markTag.Get("/id-to-name", h1.GetAllTagIDToName)           // 获取全部 tagID→tagName 映射
 	markTag.Get("/:tag_id", h1.GetMarkTagByID)                 // 根据 ID 获取标签
 	markTag.Get("/name/:tag_name", h1.GetMarkTagByName)        // 根据名称获取标签
 	markTag.Put("/:tag_id", h1.UpdateMarkTag)                  // 更新标签
@@ -86,6 +88,7 @@ func main() {
 	markType := v1.Group("/types")
 	markType.Post("/", h1.CreateMarkType)                         // 创建类型
 	markType.Get("/", h1.ListMarkTypes)                           // 分页获取类型列表
+	markType.Get("/id-to-name", h1.GetAllTypeIDToName)            // 获取全部 typeID→typeName 映射
 	markType.Get("/:type_id", h1.GetMarkTypeByID)                 // 根据 ID 获取类型
 	markType.Get("/name/:type_name", h1.GetMarkTypeByName)        // 根据名称获取类型
 	markType.Put("/:type_id", h1.UpdateMarkType)                  // 更新类型
@@ -97,6 +100,7 @@ func main() {
 
 	// ---------------- markPair 相关路由 ----------------
 	markPair := v1.Group("/pairs")
+	markPair.Get("/", h2.ListMarkPairs)                                     // 分页获取标记对列表
 	markPair.Post("/distance", h2.SetPairDistance)                          // 设置/更新单对标记距离
 	markPair.Post("/combinations", h2.SetCombinations)                      // 批量设置标记组合距离
 	markPair.Post("/cartesian", h2.SetCartesian)                            // 笛卡尔积方式设置标记对距离

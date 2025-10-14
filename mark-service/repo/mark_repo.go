@@ -344,3 +344,25 @@ func (r *markRepo) GetAllMarkDeviceIDsAndNames() (map[string]string, error) {
 	}
 	return out, nil
 }
+
+// GetAllMarkIDsAndNames 获取所有标记的 ID -> MarkName 映射
+func (r *markRepo) GetAllMarkIDsAndNames() (map[string]string, error) {
+	rows := make([]struct {
+		ID   string
+		Name string
+	}, 0)
+
+	// 只查两列
+	if err := r.db.Model(&model.Mark{}).
+		Select("id", "mark_name as name").
+		Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	// 转 map
+	out := make(map[string]string, len(rows))
+	for _, v := range rows {
+		out[v.ID] = v.Name
+	}
+	return out, nil
+}

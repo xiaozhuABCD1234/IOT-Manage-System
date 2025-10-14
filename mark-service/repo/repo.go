@@ -26,6 +26,7 @@ type MarkRepo interface {
 	GetPersistMQTTByDeviceID(deviceID string) (bool, error)
 	GetDeviceIDsByPersistMQTT(persist bool) ([]string, error)
 	GetAllMarkDeviceIDsAndNames() (map[string]string, error)
+	GetAllMarkIDsAndNames() (map[string]string, error)
 
 	// MarkTag 相关操作
 	CreateMarkTag(mt *model.MarkTag) error
@@ -42,6 +43,7 @@ type MarkRepo interface {
 	GetMarksByTagID(tagID int, preload bool, offset, limit int) ([]model.Mark, int64, error)
 	GetMarksByTagName(tagName string, preload bool, offset, limit int) ([]model.Mark, int64, error)
 	GetMarkIDsByTagID(tagID int) ([]string, error)
+	GetAllTagIDsAndNames() (map[int]string, error)
 
 	// MarkType 相关操作
 	CreateMarkType(mt *model.MarkType) error
@@ -56,6 +58,7 @@ type MarkRepo interface {
 	GetMarksByTypeID(typeID int, preload bool, offset, limit int) ([]model.Mark, int64, error)
 	GetMarksByTypeName(typeName string, preload bool, offset, limit int) ([]model.Mark, int64, error)
 	GetMarkIDsByTypeID(typeID int) ([]string, error)
+	GetAllTypeIDsAndNames() (map[int]string, error)
 
 	//MarkPairSafeDistance
 	// Upsert(mark1ID, mark2ID string, safeDistanceM float64) error

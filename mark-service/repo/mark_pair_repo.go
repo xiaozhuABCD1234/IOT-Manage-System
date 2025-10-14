@@ -27,6 +27,8 @@ type MarkPairRepo interface {
 	MapByID(id string) (map[string]float64, error)
 	// MapByDeviceID 根据 DeviceID 查询它与所有其它 Mark 的安全距离映射
 	MapByDeviceID(deviceID string) (map[string]float64, error)
+	// ListMarkPairs 分页查询标记对列表
+	ListMarkPairs(offset, limit int) ([]model.MarkPairSafeDistance, int64, error)
 }
 
 // MarkPairRepo 标记对安全距离仓库实现
@@ -173,6 +175,23 @@ func (r *markPairRepo) MapByDeviceID(deviceID string) (map[string]float64, error
 		return nil, err
 	}
 	return r.MapByID(id)
+}
+
+// --------------------------------------------------
+// 分页查询标记对列表
+// --------------------------------------------------
+func (r *markPairRepo) ListMarkPairs(offset, limit int) ([]model.MarkPairSafeDistance, int64, error) {
+	var pairs []model.MarkPairSafeDistance
+	var total int64
+
+	// 获取总记录数
+	if err := r.db.Model(&model.MarkPairSafeDistance{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 获取分页数据
+	err := r.db.Offset(offset).Limit(limit).Find(&pairs).Error
+	return pairs, total, err
 }
 
 // --------------------------------------------------

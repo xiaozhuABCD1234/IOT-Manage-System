@@ -4,6 +4,7 @@ package handler
 import (
 	"IOT-Manage-System/mark-service/errs"
 	"IOT-Manage-System/mark-service/model"
+
 	// "IOT-Manage-System/mark-service/service"
 	"IOT-Manage-System/mark-service/utils"
 
@@ -186,4 +187,13 @@ func (h *MarkHandler) GetMarksByTagName(c *fiber.Ctx) error {
 	}
 
 	return utils.SendPaginatedResponse(c, marks, total, page, limit)
+}
+
+// GetAllTagIDToName 获取所有标签ID到标签名称的映射
+func (h *MarkHandler) GetAllTagIDToName(c *fiber.Ctx) error {
+	resp, err := h.markService.GetAllTagIDToName()
+	if err != nil {
+		return err
+	}
+	return utils.SendSuccessResponse(c, resp)
 }

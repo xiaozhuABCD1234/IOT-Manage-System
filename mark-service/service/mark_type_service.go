@@ -162,3 +162,12 @@ func (s *markService) GetMarksByTypeName(typeName string, page, limit int, prelo
 
 	return responses, total, nil
 }
+
+// GetAllTypeIDToName 获取所有类型ID到类型名称的映射
+func (s *markService) GetAllTypeIDToName() (map[int]string, error) {
+	m, err := s.repo.GetAllTypeIDsAndNames()
+	if err != nil {
+		return nil, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return m, nil
+}

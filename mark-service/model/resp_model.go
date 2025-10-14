@@ -35,3 +35,12 @@ type MarkResponse struct {
 	UpdatedAt    time.Time         `json:"updated_at"`
 	LastOnlineAt *time.Time        `json:"last_online_at"`
 }
+
+// ==========================
+// MarkPairSafeDistance
+// ==========================
+type MarkPairResponse struct {
+	Mark1ID   string  `json:"mark1_id"`
+	Mark2ID   string  `json:"mark2_id"`
+	DistanceM float64 `json:"distance_m"`
+}

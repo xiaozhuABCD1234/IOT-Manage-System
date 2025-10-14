@@ -19,6 +19,7 @@ type MarkService interface {
 	GetMarksByPersistMQTT(persist bool, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	GetDeviceIDsByPersistMQTT(persist bool) ([]string, error)
 	GetAllDeviceIDToName() (map[string]string, error)
+	GetAllMarkIDToName() (map[string]string, error)
 
 	// MarkTag 相关操作
 	CreateMarkTag(mt *model.MarkTagRequest) error
@@ -29,6 +30,7 @@ type MarkService interface {
 	DeleteMarkTag(id int) error
 	GetMarksByTagID(tagID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	GetMarksByTagName(tagName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
+	GetAllTagIDToName() (map[int]string, error)
 
 	// MarkType 相关操作
 	CreateMarkType(mt *model.MarkTypeCreateRequest) error
@@ -39,6 +41,7 @@ type MarkService interface {
 	DeleteMarkType(id int) error
 	GetMarksByTypeID(typeID int, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
 	GetMarksByTypeName(typeName string, page, limit int, preload bool) ([]model.MarkResponse, int64, error)
+	GetAllTypeIDToName() (map[int]string, error)
 }
 
 type markService struct {

@@ -155,3 +155,12 @@ func (s *markService) GetMarksByTagName(tagName string, page, limit int, preload
 
 	return responses, total, nil
 }
+
+// GetAllTagIDToName 获取所有标签ID到标签名称的映射
+func (s *markService) GetAllTagIDToName() (map[int]string, error) {
+	m, err := s.repo.GetAllTagIDsAndNames()
+	if err != nil {
+		return nil, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return m, nil
+}

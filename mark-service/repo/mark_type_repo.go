@@ -73,3 +73,25 @@ func (r *markRepo) GetMarkIDsByTypeID(typeID int) ([]string, error) {
 	}
 	return markIDs, nil
 }
+
+// GetAllTypeIDsAndNames 获取所有类型的 ID -> TypeName 映射
+func (r *markRepo) GetAllTypeIDsAndNames() (map[int]string, error) {
+	rows := make([]struct {
+		ID   int
+		Name string
+	}, 0)
+
+	// 只查两列
+	if err := r.db.Model(&model.MarkType{}).
+		Select("id", "type_name as name").
+		Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	// 转 map
+	out := make(map[int]string, len(rows))
+	for _, v := range rows {
+		out[v.ID] = v.Name
+	}
+	return out, nil
+}

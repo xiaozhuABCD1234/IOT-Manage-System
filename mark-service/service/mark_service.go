@@ -285,3 +285,12 @@ func (s *markService) GetAllDeviceIDToName() (map[string]string, error) {
 	}
 	return m, nil
 }
+
+// GetAllMarkIDToName 获取所有标记ID到标记名称的映射
+func (s *markService) GetAllMarkIDToName() (map[string]string, error) {
+	m, err := s.repo.GetAllMarkIDsAndNames()
+	if err != nil {
+		return nil, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return m, nil
+}

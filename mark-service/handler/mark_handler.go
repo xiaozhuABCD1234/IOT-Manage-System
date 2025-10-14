@@ -196,3 +196,12 @@ func (h *MarkHandler) GetAllDeviceIDToName(c *fiber.Ctx) error {
 	}
 	return utils.SendSuccessResponse(c, resp)
 }
+
+// GetAllMarkIDToName 获取所有标记ID到标记名称的映射
+func (h *MarkHandler) GetAllMarkIDToName(c *fiber.Ctx) error {
+	resp, err := h.markService.GetAllMarkIDToName()
+	if err != nil {
+		return err
+	}
+	return utils.SendSuccessResponse(c, resp)
+}

@@ -187,3 +187,12 @@ func (h *MarkHandler) GetMarksByTypeName(c *fiber.Ctx) error {
 
 	return utils.SendPaginatedResponse(c, marks, total, page, limit)
 }
+
+// GetAllTypeIDToName 获取所有类型ID到类型名称的映射
+func (h *MarkHandler) GetAllTypeIDToName(c *fiber.Ctx) error {
+	resp, err := h.markService.GetAllTypeIDToName()
+	if err != nil {
+		return err
+	}
+	return utils.SendSuccessResponse(c, resp)
+}

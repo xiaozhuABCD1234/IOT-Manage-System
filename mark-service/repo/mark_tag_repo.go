@@ -126,3 +126,25 @@ func (r *markRepo) GetMarkIDsByTagID(tagID int) ([]string, error) {
 	}
 	return markIDs, nil
 }
+
+// GetAllTagIDsAndNames 获取所有标签的 ID -> TagName 映射
+func (r *markRepo) GetAllTagIDsAndNames() (map[int]string, error) {
+	rows := make([]struct {
+		ID   int
+		Name string
+	}, 0)
+
+	// 只查两列
+	if err := r.db.Model(&model.MarkTag{}).
+		Select("id", "tag_name as name").
+		Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	// 转 map
+	out := make(map[int]string, len(rows))
+	for _, v := range rows {
+		out[v.ID] = v.Name
+	}
+	return out, nil
+}
