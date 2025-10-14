@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import { getLatestCustomMap } from "@/api/customMap";
 import { listStations } from "@/api/station";
-import { listPolygonFences, createPolygonFence } from "@/api/polygonFence";
+import { listPolygonFences, createPolygonFence, deletePolygonFence } from "@/api/polygonFence";
 import type { CustomMapResp } from "@/types/customMap";
 import type { StationResp } from "@/types/station";
 import type { PolygonFenceResp, Point } from "@/types/polygonFence";
@@ -11,6 +11,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "vue-sonner";
+import { Plus, Loader2, Trash2 } from "lucide-vue-next";
 
 // 数据存储
 const mapData = ref<CustomMapResp | null>(null);
@@ -22,6 +35,12 @@ const isDrawing = ref(false);
 const currentPolygon = ref<Point[]>([]);
 const fenceName = ref("");
 const fenceDescription = ref("");
+const isSaving = ref(false);
+
+// 删除确认对话框状态
+const showDeleteDialog = ref(false);
+const fenceToDelete = ref<{ id: string; name: string } | null>(null);
+const deletingFenceId = ref<string | null>(null);
 
 /**
  * 像素坐标转换器
@@ -671,8 +690,19 @@ function handleCanvasClick(event: MouseEvent) {
   // 添加点到当前多边形
   currentPolygon.value.push({ x: Math.round(x), y: Math.round(y) });
 
+  console.log("添加新点:", { x: Math.round(x), y: Math.round(y) });
+  console.log("当前顶点数:", currentPolygon.value.length);
+
   // 重新绘制
   drawMap();
+
+  // 滚动到底部以显示新添加的点
+  setTimeout(() => {
+    const pointsList = document.querySelector(".points-list-container");
+    if (pointsList) {
+      pointsList.scrollTop = pointsList.scrollHeight;
+    }
+  }, 100);
 }
 
 /**
@@ -708,8 +738,59 @@ function removePoint(index: number) {
 function updatePoint(index: number, axis: "x" | "y", value: string) {
   const numValue = parseFloat(value);
   if (!isNaN(numValue)) {
-    currentPolygon.value[index][axis] = numValue;
+    currentPolygon.value[index][axis] = Math.round(numValue);
+    console.log(`更新点 ${index + 1} 的 ${axis} 坐标为: ${Math.round(numValue)}`);
     drawMap();
+  }
+}
+
+/**
+ * 打开删除确认对话框
+ */
+function openDeleteDialog(fenceId: string, fenceName: string) {
+  fenceToDelete.value = { id: fenceId, name: fenceName };
+  showDeleteDialog.value = true;
+}
+
+/**
+ * 确认删除围栏
+ */
+async function confirmDeleteFence() {
+  if (!fenceToDelete.value) return;
+
+  const { id, name } = fenceToDelete.value;
+  deletingFenceId.value = id;
+  showDeleteDialog.value = false;
+
+  try {
+    const res = await deletePolygonFence(id);
+
+    if (res.data && res.data.success) {
+      toast.success("删除成功", {
+        description: `围栏"${name}"已被删除`,
+      });
+
+      // 重新加载围栏列表
+      const fencesRes = await listPolygonFences();
+      if (fencesRes.data && fencesRes.data.success && fencesRes.data.data) {
+        fences.value = fencesRes.data.data;
+      }
+
+      // 重新绘制地图
+      await drawMap();
+    } else {
+      toast.error("删除失败", {
+        description: res.data?.message || "未知错误",
+      });
+    }
+  } catch (error) {
+    console.error("Error deleting fence:", error);
+    toast.error("删除围栏时发生错误", {
+      description: "请检查网络连接后重试",
+    });
+  } finally {
+    deletingFenceId.value = null;
+    fenceToDelete.value = null;
   }
 }
 
@@ -718,14 +799,20 @@ function updatePoint(index: number, axis: "x" | "y", value: string) {
  */
 async function finishDrawing() {
   if (currentPolygon.value.length < 3) {
-    alert("多边形至少需要3个顶点");
+    toast.error("多边形至少需要3个顶点", {
+      description: "请在地图上继续添加更多顶点",
+    });
     return;
   }
 
   if (!fenceName.value.trim()) {
-    alert("请输入围栏名称");
+    toast.error("请输入围栏名称", {
+      description: "围栏名称是必填项",
+    });
     return;
   }
+
+  isSaving.value = true;
 
   try {
     const res = await createPolygonFence({
@@ -735,7 +822,9 @@ async function finishDrawing() {
     });
 
     if (res.data && res.data.success) {
-      alert("围栏创建成功！");
+      toast.success("围栏创建成功", {
+        description: `围栏"${fenceName.value}"已成功创建`,
+      });
       // 重新加载围栏列表
       const fencesRes = await listPolygonFences();
       if (fencesRes.data && fencesRes.data.success && fencesRes.data.data) {
@@ -744,13 +833,22 @@ async function finishDrawing() {
       // 清空当前绘制
       cancelDrawing();
     } else {
-      alert("创建失败：" + (res.data?.message || "未知错误"));
+      toast.error("创建失败", {
+        description: res.data?.message || "未知错误",
+      });
     }
   } catch (error) {
     console.error("Error creating fence:", error);
-    alert("创建围栏时发生错误");
+    toast.error("创建围栏时发生错误", {
+      description: "请检查网络连接后重试",
+    });
+  } finally {
+    isSaving.value = false;
   }
 }
+
+// ResizeObserver 实例
+let resizeObserver: ResizeObserver | null = null;
 
 // 组件挂载时加载数据
 onMounted(() => {
@@ -759,171 +857,220 @@ onMounted(() => {
 
   // 监听窗口大小变化，重新绘制
   window.addEventListener("resize", drawMap);
+
+  // 监听 canvas 容器大小变化（用于 Resizable 面板调整）
+  const canvas = document.getElementById("uwb-map-canvas");
+  if (canvas) {
+    resizeObserver = new ResizeObserver(() => {
+      console.log("Canvas size changed, redrawing...");
+      // 使用 requestAnimationFrame 确保在下一帧重绘
+      requestAnimationFrame(() => {
+        drawMap();
+      });
+    });
+    resizeObserver.observe(canvas);
+  }
 });
 
 // 组件卸载时清理
 onUnmounted(() => {
   window.removeEventListener("resize", drawMap);
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
+  }
 });
 </script>
 
 <template>
-  <div class="flex h-full w-full gap-4 bg-gray-50 p-4">
-    <!-- 左侧：地图画布 -->
-    <div class="aspect-square h-full flex-shrink-0">
-      <canvas
-        id="uwb-map-canvas"
-        class="h-full w-full cursor-crosshair rounded-lg border-2 border-gray-300 shadow-lg"
-        :class="{ 'cursor-crosshair': isDrawing }"
-        @click="handleCanvasClick"
-      />
-    </div>
+  <div class="h-full w-full bg-gray-50 p-4">
+    <ResizablePanelGroup direction="horizontal" class="h-full rounded-lg border">
+      <!-- 左侧：地图画布 -->
+      <ResizablePanel :default-size="65" :min-size="30">
+        <div class="flex h-full items-center justify-center">
+          <canvas
+            id="uwb-map-canvas"
+            class="h-full w-full rounded-lg border-2 border-gray-300 shadow-lg"
+            :class="{ 'cursor-crosshair': isDrawing }"
+            @click="handleCanvasClick"
+          />
+        </div>
+      </ResizablePanel>
 
-    <!-- 右侧：控制面板 -->
-    <div class="flex-1 overflow-hidden">
-      <Card class="h-full">
-        <CardHeader>
-          <CardTitle>电子围栏绘制</CardTitle>
-        </CardHeader>
-        <CardContent class="h-[calc(100%-80px)]">
-          <ScrollArea class="h-full pr-4">
-            <div class="space-y-4">
-              <!-- 绘制控制 -->
-              <div v-if="!isDrawing" class="space-y-2">
-                <Button class="w-full" @click="startDrawing">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="mr-2 h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
+      <!-- 分隔条 -->
+      <ResizableHandle with-handle />
+
+      <!-- 右侧：控制面板 -->
+      <ResizablePanel :default-size="35" :min-size="25">
+        <Card class="h-full rounded-none border-0">
+          <CardHeader>
+            <CardTitle>电子围栏绘制</CardTitle>
+          </CardHeader>
+          <CardContent class="h-[calc(100%-80px)]">
+            <ScrollArea class="h-full pr-4">
+              <div class="space-y-4">
+                <!-- 绘制控制 -->
+                <div v-if="!isDrawing" class="space-y-2">
+                  <Button class="w-full" @click="startDrawing">
+                    <Plus class="mr-2 h-4 w-4" />
+                    开始绘制围栏
+                  </Button>
+                  <p class="text-muted-foreground text-sm">
+                    点击"开始绘制围栏"按钮，然后在地图上点击以添加多边形顶点
+                  </p>
+                </div>
+
+                <!-- 绘制中 -->
+                <div v-else class="space-y-4">
+                  <div class="rounded-lg bg-orange-50 p-3 text-sm text-orange-800">
+                    <p class="font-semibold">绘制模式已激活</p>
+                    <p class="mt-1">点击地图添加顶点，至少需要3个顶点才能完成</p>
+                  </div>
+
+                  <!-- 围栏名称 -->
+                  <div class="space-y-2">
+                    <Label for="fence-name">围栏名称 *</Label>
+                    <Input id="fence-name" v-model="fenceName" placeholder="例如：区域A" />
+                  </div>
+
+                  <!-- 围栏描述 -->
+                  <div class="space-y-2">
+                    <Label for="fence-description">描述（可选）</Label>
+                    <Input
+                      id="fence-description"
+                      v-model="fenceDescription"
+                      placeholder="围栏用途说明"
                     />
-                  </svg>
-                  开始绘制围栏
-                </Button>
-                <p class="text-muted-foreground text-sm">
-                  点击"开始绘制围栏"按钮，然后在地图上点击以添加多边形顶点
-                </p>
-              </div>
+                  </div>
 
-              <!-- 绘制中 -->
-              <div v-else class="space-y-4">
-                <div class="rounded-lg bg-orange-50 p-3 text-sm text-orange-800">
-                  <p class="font-semibold">绘制模式已激活</p>
-                  <p class="mt-1">点击地图添加顶点，至少需要3个顶点才能完成</p>
+                  <!-- 顶点列表 -->
+                  <div class="space-y-2">
+                    <Label>多边形顶点 ({{ currentPolygon.length }}个)</Label>
+                    <div v-if="currentPolygon.length === 0" class="text-muted-foreground text-sm">
+                      暂无顶点，点击地图添加
+                    </div>
+                    <div v-else class="points-list-container max-h-96 space-y-2 overflow-y-auto">
+                      <div
+                        v-for="(point, index) in currentPolygon"
+                        :key="`point-${index}-${point.x}-${point.y}`"
+                        class="flex items-center gap-2 rounded-lg border bg-white p-2"
+                      >
+                        <span class="w-6 text-center font-semibold text-orange-600">
+                          {{ index + 1 }}
+                        </span>
+                        <div class="flex-1 space-y-1">
+                          <div class="flex items-center gap-2">
+                            <Label class="w-6 text-xs">X:</Label>
+                            <Input
+                              :model-value="point.x"
+                              type="number"
+                              class="h-8 text-sm"
+                              @update:model-value="(val) => updatePoint(index, 'x', String(val))"
+                            />
+                          </div>
+                          <div class="flex items-center gap-2">
+                            <Label class="w-6 text-xs">Y:</Label>
+                            <Input
+                              :model-value="point.y"
+                              type="number"
+                              class="h-8 text-sm"
+                              @update:model-value="(val) => updatePoint(index, 'y', String(val))"
+                            />
+                          </div>
+                        </div>
+                        <Button variant="destructive" size="sm" @click="removePoint(index)">
+                          删除
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 操作按钮 -->
+                  <div class="flex gap-2">
+                    <Button
+                      class="flex-1"
+                      variant="default"
+                      :disabled="currentPolygon.length < 3 || !fenceName.trim() || isSaving"
+                      @click="finishDrawing"
+                    >
+                      <Loader2 v-if="isSaving" class="mr-2 h-4 w-4 animate-spin" />
+                      {{ isSaving ? "保存中..." : "完成并保存" }}
+                    </Button>
+                    <Button
+                      class="flex-1"
+                      variant="outline"
+                      :disabled="isSaving"
+                      @click="cancelDrawing"
+                    >
+                      取消
+                    </Button>
+                  </div>
                 </div>
 
-                <!-- 围栏名称 -->
-                <div class="space-y-2">
-                  <Label for="fence-name">围栏名称 *</Label>
-                  <Input id="fence-name" v-model="fenceName" placeholder="例如：区域A" />
-                </div>
-
-                <!-- 围栏描述 -->
-                <div class="space-y-2">
-                  <Label for="fence-description">描述（可选）</Label>
-                  <Input
-                    id="fence-description"
-                    v-model="fenceDescription"
-                    placeholder="围栏用途说明"
-                  />
-                </div>
-
-                <!-- 顶点列表 -->
-                <div class="space-y-2">
-                  <Label>多边形顶点 ({{ currentPolygon.length }}个)</Label>
-                  <div v-if="currentPolygon.length === 0" class="text-muted-foreground text-sm">
-                    暂无顶点，点击地图添加
+                <!-- 已有围栏列表 -->
+                <div class="mt-6 space-y-2">
+                  <Label>已有围栏 ({{ fences.length }}个)</Label>
+                  <div v-if="fences.length === 0" class="text-muted-foreground text-sm">
+                    暂无围栏
                   </div>
                   <div v-else class="space-y-2">
                     <div
-                      v-for="(point, index) in currentPolygon"
-                      :key="index"
-                      class="flex items-center gap-2 rounded-lg border bg-white p-2"
+                      v-for="fence in fences"
+                      :key="fence.id"
+                      class="rounded-lg border bg-white p-3"
                     >
-                      <span class="w-6 text-center font-semibold text-orange-600">
-                        {{ index + 1 }}
-                      </span>
-                      <div class="flex-1 space-y-1">
-                        <div class="flex items-center gap-2">
-                          <Label class="w-6 text-xs">X:</Label>
-                          <Input
-                            :value="point.x"
-                            type="number"
-                            class="h-8 text-sm"
-                            @input="
-                              (e: Event) =>
-                                updatePoint(index, 'x', (e.target as HTMLInputElement).value)
-                            "
-                          />
+                      <div class="flex items-center justify-between gap-2">
+                        <div class="flex-1">
+                          <p class="font-semibold">{{ fence.fence_name }}</p>
+                          <p class="text-muted-foreground text-xs">
+                            {{ fence.points.length }} 个顶点
+                            <span v-if="fence.is_active" class="text-blue-600">· 已激活</span>
+                            <span v-else class="text-gray-400">· 未激活</span>
+                          </p>
                         </div>
-                        <div class="flex items-center gap-2">
-                          <Label class="w-6 text-xs">Y:</Label>
-                          <Input
-                            :value="point.y"
-                            type="number"
-                            class="h-8 text-sm"
-                            @input="
-                              (e: Event) =>
-                                updatePoint(index, 'y', (e.target as HTMLInputElement).value)
-                            "
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          :disabled="deletingFenceId === fence.id"
+                          @click="openDeleteDialog(fence.id, fence.fence_name)"
+                        >
+                          <Loader2
+                            v-if="deletingFenceId === fence.id"
+                            class="mr-2 h-4 w-4 animate-spin"
                           />
-                        </div>
-                      </div>
-                      <Button variant="destructive" size="sm" @click="removePoint(index)">
-                        删除
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 操作按钮 -->
-                <div class="flex gap-2">
-                  <Button
-                    class="flex-1"
-                    variant="default"
-                    :disabled="currentPolygon.length < 3 || !fenceName.trim()"
-                    @click="finishDrawing"
-                  >
-                    完成并保存
-                  </Button>
-                  <Button class="flex-1" variant="outline" @click="cancelDrawing"> 取消 </Button>
-                </div>
-              </div>
-
-              <!-- 已有围栏列表 -->
-              <div class="mt-6 space-y-2">
-                <Label>已有围栏 ({{ fences.length }}个)</Label>
-                <div v-if="fences.length === 0" class="text-muted-foreground text-sm">暂无围栏</div>
-                <div v-else class="space-y-2">
-                  <div
-                    v-for="fence in fences"
-                    :key="fence.id"
-                    class="rounded-lg border bg-white p-3"
-                  >
-                    <div class="flex items-center justify-between">
-                      <div>
-                        <p class="font-semibold">{{ fence.fence_name }}</p>
-                        <p class="text-muted-foreground text-xs">
-                          {{ fence.points.length }} 个顶点
-                          <span v-if="fence.is_active" class="text-blue-600">· 已激活</span>
-                          <span v-else class="text-gray-400">· 未激活</span>
-                        </p>
+                          <Trash2 v-else class="h-4 w-4" />
+                          {{ deletingFenceId === fence.id ? "删除中..." : "删除" }}
+                        </Button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
-    </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </ResizablePanel>
+    </ResizablePanelGroup>
+
+    <!-- 删除确认对话框 -->
+    <AlertDialog v-model:open="showDeleteDialog">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>确定要删除这个围栏吗？</AlertDialogTitle>
+          <AlertDialogDescription>
+            此操作无法撤销。将永久删除围栏"{{ fenceToDelete?.name }}"及其所有数据。
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>取消</AlertDialogCancel>
+          <AlertDialogAction
+            class="bg-destructive hover:bg-destructive/90"
+            @click="confirmDeleteFence"
+          >
+            删除
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>
