@@ -164,6 +164,8 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+    volumes:
+      - map_service_upload:/app/upload
 
   mqtt-watch:
     image: ghcr.io/xiaozhuabcd1234/iot-manage-system_mqtt-watch:latest
@@ -299,6 +301,7 @@ volumes:
   mosquitto_log:
   postgres_data:
   mongo_data:
+  map_service_upload:
 
 networks:
   iot_net:
