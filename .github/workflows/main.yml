@@ -5,13 +5,57 @@ on:
     branches: ["main"]
 
 jobs:
-  build-and-push:
+  # 检测哪些服务发生了变化
+  detect-changes:
     runs-on: ubuntu-latest
+    outputs:
+      api-gateway: ${{ steps.filter.outputs.api-gateway }}
+      user-service: ${{ steps.filter.outputs.user-service }}
+      map-service: ${{ steps.filter.outputs.map-service }}
+      mqtt-watch: ${{ steps.filter.outputs.mqtt-watch }}
+      mark-service: ${{ steps.filter.outputs.mark-service }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      warning-service: ${{ steps.filter.outputs.warning-service }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      # 如果各服务镜像想推到 GHCR，就保留；纯本地 build 可删掉
+      - name: 检测变化的服务
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            api-gateway:
+              - 'api-gateway/**'
+            user-service:
+              - 'user-service/**'
+            map-service:
+              - 'map-service/**'
+            mqtt-watch:
+              - 'mqtt-watch/**'
+            mark-service:
+              - 'mark-service/**'
+            frontend:
+              - 'frontend/**'
+            warning-service:
+              - 'warning-service/**'
+
+  build-and-push:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    # 只有至少一个服务有变化时才运行
+    if: |
+      needs.detect-changes.outputs.api-gateway == 'true' ||
+      needs.detect-changes.outputs.user-service == 'true' ||
+      needs.detect-changes.outputs.map-service == 'true' ||
+      needs.detect-changes.outputs.mqtt-watch == 'true' ||
+      needs.detect-changes.outputs.mark-service == 'true' ||
+      needs.detect-changes.outputs.frontend == 'true' ||
+      needs.detect-changes.outputs.warning-service == 'true'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
       - name: 登录 GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -19,19 +63,67 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      # 一键构建所有镜像（docker-compose.yml 里用了 build: 上下文）
-      - name: 构建镜像
-        run: |
-          docker compose build
+      # 只构建有变化的服务
+      - name: 构建 API Gateway
+        if: needs.detect-changes.outputs.api-gateway == 'true'
+        run: docker compose build api-gateway
+
+      - name: 构建 User Service
+        if: needs.detect-changes.outputs.user-service == 'true'
+        run: docker compose build user-service
+
+      - name: 构建 Map Service
+        if: needs.detect-changes.outputs.map-service == 'true'
+        run: docker compose build map-service
+
+      - name: 构建 MQTT Watch
+        if: needs.detect-changes.outputs.mqtt-watch == 'true'
+        run: docker compose build mqtt-watch
+
+      - name: 构建 Mark Service
+        if: needs.detect-changes.outputs.mark-service == 'true'
+        run: docker compose build mark-service
+
+      - name: 构建 Frontend
+        if: needs.detect-changes.outputs.frontend == 'true'
+        run: docker compose build frontend
         env:
           VITE_AMAP_KEY: ${{ secrets.VITE_AMAP_KEY }}
           VITE_AMAP_SECURITY_CODE: ${{ secrets.VITE_AMAP_SECURITY_CODE }}
           VITE_MQTT_URL: ${{ secrets.VITE_MQTT_URL }}
 
-      # 可选：把镜像推到 GHCR，方便多节点复用
-      - name: 推送镜像
-        run: |
-          docker compose push
+      - name: 构建 Warning Service
+        if: needs.detect-changes.outputs.warning-service == 'true'
+        run: docker compose build warning-service
+
+      # 只推送有变化的服务
+      - name: 推送 API Gateway
+        if: needs.detect-changes.outputs.api-gateway == 'true'
+        run: docker compose push api-gateway
+
+      - name: 推送 User Service
+        if: needs.detect-changes.outputs.user-service == 'true'
+        run: docker compose push user-service
+
+      - name: 推送 Map Service
+        if: needs.detect-changes.outputs.map-service == 'true'
+        run: docker compose push map-service
+
+      - name: 推送 MQTT Watch
+        if: needs.detect-changes.outputs.mqtt-watch == 'true'
+        run: docker compose push mqtt-watch
+
+      - name: 推送 Mark Service
+        if: needs.detect-changes.outputs.mark-service == 'true'
+        run: docker compose push mark-service
+
+      - name: 推送 Frontend
+        if: needs.detect-changes.outputs.frontend == 'true'
+        run: docker compose push frontend
+
+      - name: 推送 Warning Service
+        if: needs.detect-changes.outputs.warning-service == 'true'
+        run: docker compose push warning-service
 
   deploy:
     needs: build-and-push
@@ -40,17 +132,6 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      # 1. 把 compose 文件+config+sql 上传到服务器
-      - name: 同步部署文件到服务器
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.Server_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml,config,sql"
-          target: "~/iot-manage"
-          strip_components: 0 # 保持目录层级
-        
       - name: 生成 .env 文件
         run: |
           cat > .env <<EOF
@@ -68,7 +149,7 @@ jobs:
           source: "docker-compose.yml,.env,config,sql"
           target: "~/iot-manage"
           strip_components: 0
-      # 2. 远程启动
+
       - name: 远程 docker compose up
         uses: appleboy/ssh-action@v1.0.0
         with:
