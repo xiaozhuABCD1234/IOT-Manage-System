@@ -1,6 +1,6 @@
 // src/api/mark/type.ts
 import request from "@/utils/request";
-import type { ApiResponse, PaginatedData } from "@/types/response";
+import type { ApiResponse, PaginationObj } from "@/types/response";
 import type { MarkTypeRequest, MarkTypeResponse, MarkResponse } from "@/types/mark";
 import type { ListParams } from "../types";
 
@@ -15,7 +15,7 @@ export async function createMarkType(data: MarkTypeRequest) {
 
 /* 类型列表（分页） */
 export async function listMarkTypes(params: ListParams = {}) {
-  return request.get<ApiResponse<PaginatedData<MarkTypeResponse>>>(URLS.types, { params });
+  return request.get<ApiResponse<MarkTypeResponse[]>>(URLS.types, { params });
 }
 
 /* 根据 ID 获取类型 */
@@ -45,14 +45,14 @@ export async function deleteMarkType(typeId: number) {
 
 /* 根据类型 ID 获取标记列表（分页） */
 export async function getMarksByTypeID(typeId: number, params: ListParams = {}) {
-  return request.get<ApiResponse<PaginatedData<MarkResponse>>>(`${URLS.types}${typeId}/marks`, {
+  return request.get<ApiResponse<MarkResponse>>(`${URLS.types}${typeId}/marks`, {
     params,
   });
 }
 
 /* 根据类型名称获取标记列表（分页） */
 export async function getMarksByTypeName(name: string, params: ListParams = {}) {
-  return request.get<ApiResponse<PaginatedData<MarkResponse>>>(`${URLS.types}name/${name}/marks`, {
+  return request.get<ApiResponse<MarkResponse>>(`${URLS.types}name/${name}/marks`, {
     params,
   });
 }

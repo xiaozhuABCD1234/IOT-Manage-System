@@ -32,7 +32,7 @@ const router = useRouter();
 async function fetchCurrentUser(): Promise<User | null> {
   try {
     const { data } = await getMe();
-    return data.data; // 真正的 User 对象
+    return data.data || null; // 真正的 User 对象
   } catch (err) {
     console.error("获取当前用户信息失败", err);
     // 这里可以统一跳转到登录页，也可以把错误继续向上抛

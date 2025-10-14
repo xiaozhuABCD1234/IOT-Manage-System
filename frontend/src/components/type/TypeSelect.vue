@@ -32,7 +32,7 @@ watch(
 watch(innerId, (val) => emit("update:modelValue", val));
 
 /* 拉取数据 */
-listMarkTypes().then((res) => (options.value = res.data.data));
+listMarkTypes().then((res) => (options.value = res.data.data ?? []));
 </script>
 
 <template>

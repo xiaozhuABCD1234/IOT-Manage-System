@@ -1,6 +1,6 @@
 // src/api/mark/index.ts
 import request from "@/utils/request";
-import type { ApiResponse, PaginatedData } from "@/types/response";
+import type { ApiResponse, PaginationObj } from "@/types/response";
 import type { MarkCreateRequest, MarkUpdateRequest, MarkResponse } from "@/types/mark";
 import type { ListParams } from "../types";
 
@@ -45,7 +45,7 @@ export async function getAllMarkIDToName() {
 
 /* 分页获取标记列表 */
 export async function listMarks(params: ListParams = {}) {
-  return request.get<ApiResponse<PaginatedData<MarkResponse>>>(URLS.marks, { params });
+  return request.get<ApiResponse<MarkResponse>>(URLS.marks, { params });
 }
 
 /* 更新标记 */
@@ -70,7 +70,7 @@ export async function getPersistMQTTByDeviceID(deviceId: string) {
 
 /* 根据 PersistMQTT 值分页查询标记 */
 export async function getMarksByPersistMQTT(persist: boolean, params: ListParams = {}) {
-  return request.get<ApiResponse<PaginatedData<MarkResponse>>>(`${URLS.persist}/list`, {
+  return request.get<ApiResponse<MarkResponse>>(`${URLS.persist}/list`, {
     params: { persist, ...params },
   });
 }

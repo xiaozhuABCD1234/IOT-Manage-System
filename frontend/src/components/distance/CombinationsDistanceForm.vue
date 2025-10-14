@@ -109,18 +109,17 @@ const isFormValid = computed(() => {
 const loadMarkOptions = async () => {
   try {
     const response = await getAllMarkIDToName();
-    if (response.data.success && response.data.data) {
+    console.log("获取标记列表响应:", response.data);
+    // 响应拦截器已经处理了 code 检查，这里直接使用 data
+    if (response.data.data) {
       markOptions.value = response.data.data;
     } else {
-      throw new Error(response.data.message || "获取数据失败");
+      console.warn("响应中没有 data 字段:", response.data);
+      markOptions.value = {};
     }
   } catch (error: any) {
     console.error("加载标记列表失败:", error);
-    const errorMsg =
-      error.response?.data?.message || error.message || "加载标记列表失败，请检查后端服务";
-    toast.error(errorMsg, {
-      description: "请确保后端 /api/v1/marks/id-to-name 接口正常运行",
-    });
+    // 错误已在拦截器中处理，这里不再重复提示
   }
 };
 
@@ -136,15 +135,12 @@ const handleSubmit = async () => {
   isSubmitting.value = true;
   try {
     const response = await setCombinationsDistance(requestData);
-    if (response.data.success) {
-      toast.success(`成功为 ${selectedMarkIds.value.length} 个标记设置距离`);
-      handleReset();
-    } else {
-      toast.error(response.data.message || "距离设置失败");
-    }
+    // 响应拦截器已经处理了错误，能到这里说明成功
+    toast.success(`成功为 ${selectedMarkIds.value.length} 个标记设置距离`);
+    handleReset();
   } catch (error: any) {
     console.error("设置距离失败:", error);
-    toast.error(error.response?.data?.message || "设置距离失败");
+    // 错误已在拦截器中处理，这里不再重复提示
   } finally {
     isSubmitting.value = false;
   }

@@ -31,10 +31,12 @@ onMounted(async () => {
 
   try {
     const resp = await userApi.refreshToken({ refresh_token: refreshToken });
-    const newAccessToken = resp.data.data.access_token;
+    const newAccessToken = resp.data.data?.access_token;
 
-    localStorage.setItem("access_token", newAccessToken);
-    localStorage.setItem("login_token_time", Date.now().toString());
+    if (newAccessToken) {
+      localStorage.setItem("access_token", newAccessToken);
+      localStorage.setItem("login_token_time", Date.now().toString());
+    }
   } catch {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");

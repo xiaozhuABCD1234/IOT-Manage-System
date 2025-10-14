@@ -213,16 +213,15 @@ async function loadData() {
     console.log("基站响应:", stationsRes);
     console.log("围栏响应:", fencesRes);
 
-    // 处理地图数据 - 检查 success 字段
-    if (mapRes.data && mapRes.data.success && mapRes.data.data) {
+    // 响应拦截器已经处理了 code 检查，这里直接使用 data
+    if (mapRes.data && mapRes.data.data) {
       mapData.value = mapRes.data.data;
       console.log("✅ 地图数据加载成功:", mapData.value);
     } else {
       console.error("❌ 地图数据加载失败:", mapRes.data?.message || mapRes);
     }
 
-    // 处理基站数据 - 检查 success 字段
-    if (stationsRes.data && stationsRes.data.success && stationsRes.data.data) {
+    if (stationsRes.data && stationsRes.data.data) {
       stations.value = stationsRes.data.data;
       console.log("✅ 基站数据加载成功，数量:", stations.value.length);
     } else {
@@ -230,8 +229,7 @@ async function loadData() {
       stations.value = [];
     }
 
-    // 处理围栏数据 - 检查 success 字段
-    if (fencesRes.data && fencesRes.data.success && fencesRes.data.data) {
+    if (fencesRes.data && fencesRes.data.data) {
       fences.value = fencesRes.data.data;
       console.log("✅ 围栏数据加载成功，数量:", fences.value.length);
     } else {
@@ -351,26 +349,21 @@ async function confirmDeleteFence() {
 
   try {
     const res = await deletePolygonFence(id);
+    // 响应拦截器已经处理了错误，能到这里说明成功
+    toast.success("删除成功", {
+      description: `围栏"${name}"已被删除`,
+    });
 
-    if (res.data && res.data.success) {
-      toast.success("删除成功", {
-        description: `围栏"${name}"已被删除`,
-      });
-
-      // 重新加载围栏列表
-      const fencesRes = await listPolygonFences();
-      if (fencesRes.data && fencesRes.data.success && fencesRes.data.data) {
-        fences.value = fencesRes.data.data;
-      }
-
-      // 重新绘制地图
-      await drawMap();
-    } else {
-      toast.error("删除失败", {
-        description: res.data?.message || "未知错误",
-      });
+    // 重新加载围栏列表
+    const fencesRes = await listPolygonFences();
+    if (fencesRes.data && fencesRes.data.data) {
+      fences.value = fencesRes.data.data;
     }
+
+    // 重新绘制地图
+    await drawMap();
   } catch (error) {
+    // 错误已在拦截器中处理
     console.error("Error deleting fence:", error);
     toast.error("删除围栏时发生错误", {
       description: "请检查网络连接后重试",
@@ -408,23 +401,19 @@ async function finishDrawing() {
       description: fenceDescription.value,
     });
 
-    if (res.data && res.data.success) {
-      toast.success("围栏创建成功", {
-        description: `围栏"${fenceName.value}"已成功创建`,
-      });
-      // 重新加载围栏列表
-      const fencesRes = await listPolygonFences();
-      if (fencesRes.data && fencesRes.data.success && fencesRes.data.data) {
-        fences.value = fencesRes.data.data;
-      }
-      // 清空当前绘制
-      cancelDrawing();
-    } else {
-      toast.error("创建失败", {
-        description: res.data?.message || "未知错误",
-      });
+    // 响应拦截器已经处理了错误，能到这里说明成功
+    toast.success("围栏创建成功", {
+      description: `围栏"${fenceName.value}"已成功创建`,
+    });
+    // 重新加载围栏列表
+    const fencesRes = await listPolygonFences();
+    if (fencesRes.data && fencesRes.data.data) {
+      fences.value = fencesRes.data.data;
     }
+    // 清空当前绘制
+    cancelDrawing();
   } catch (error) {
+    // 错误已在拦截器中处理
     console.error("Error creating fence:", error);
     toast.error("创建围栏时发生错误", {
       description: "请检查网络连接后重试",

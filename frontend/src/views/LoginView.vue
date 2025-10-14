@@ -102,10 +102,12 @@ async function onSubmit() {
       password: form.password,
     });
 
-    localStorage.setItem("access_token", resp.data.access_token);
-    localStorage.setItem("refresh_token", resp.data.refresh_token);
-    localStorage.setItem("access_token_time", Date.now().toString());
-    localStorage.setItem("refresh_token_time", Date.now().toString());
+    if (resp.data?.access_token && resp.data?.refresh_token) {
+      localStorage.setItem("access_token", resp.data.access_token);
+      localStorage.setItem("refresh_token", resp.data.refresh_token);
+      localStorage.setItem("access_token_time", Date.now().toString());
+      localStorage.setItem("refresh_token_time", Date.now().toString());
+    }
 
     // 成功提示
     // 注意：shadcn-vue 没有内置 Message，可替换为 Toast 或使用第三方如 notivue2 / sonner

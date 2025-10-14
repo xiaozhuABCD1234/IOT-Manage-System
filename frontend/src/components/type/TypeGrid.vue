@@ -55,6 +55,7 @@ async function loadNext() {
   loading.value = true;
   try {
     const { data } = await listMarkTypes({ page: page.value, limit: SIZE });
+    // PaginationObj 的 items 字段才是数组
     const list = data.data ?? [];
     types.value.push(...list);
     // 后端返回不足一页说明到底了

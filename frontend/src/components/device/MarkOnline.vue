@@ -34,7 +34,7 @@ const loadNames = async () => {
   try {
     const res = await getAllDeviceIDToName(); // AxiosResponse
     const obj = res.data.data; // 普通对象
-    names.value = new Map(Object.entries(obj)); // ← 转成 Map
+    names.value = new Map(Object.entries(obj || {})); // ← 转成 Map
   } catch {}
 };
 

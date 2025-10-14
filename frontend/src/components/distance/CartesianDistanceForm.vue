@@ -219,16 +219,18 @@ const getFirstValue = () => {
   return "";
 };
 
-const setFirstValue = (value: string) => {
+const setFirstValue = (value: any) => {
+  if (!value) return;
+  const valueStr = String(value);
   const kind = formData.value.first.kind;
   formData.value.first = { kind };
 
   if (kind === "mark") {
-    formData.value.first.mark_id = value;
+    formData.value.first.mark_id = valueStr;
   } else if (kind === "tag") {
-    formData.value.first.tag_id = parseInt(value);
+    formData.value.first.tag_id = parseInt(valueStr);
   } else if (kind === "type") {
-    formData.value.first.type_id = parseInt(value);
+    formData.value.first.type_id = parseInt(valueStr);
   }
 };
 
@@ -241,27 +243,33 @@ const getSecondValue = () => {
   return "";
 };
 
-const setSecondValue = (value: string) => {
+const setSecondValue = (value: any) => {
+  if (!value) return;
+  const valueStr = String(value);
   const kind = formData.value.second.kind;
   formData.value.second = { kind };
 
   if (kind === "mark") {
-    formData.value.second.mark_id = value;
+    formData.value.second.mark_id = valueStr;
   } else if (kind === "tag") {
-    formData.value.second.tag_id = parseInt(value);
+    formData.value.second.tag_id = parseInt(valueStr);
   } else if (kind === "type") {
-    formData.value.second.type_id = parseInt(value);
+    formData.value.second.type_id = parseInt(valueStr);
   }
 };
 
 // 处理第一组类型变化
-const handleFirstKindChange = (kind: IdentifierKind) => {
-  formData.value.first = { kind };
+const handleFirstKindChange = (kind: any) => {
+  const kindStr = String(kind);
+  if (!kindStr || (kindStr !== "mark" && kindStr !== "tag" && kindStr !== "type")) return;
+  formData.value.first = { kind: kindStr };
 };
 
 // 处理第二组类型变化
-const handleSecondKindChange = (kind: IdentifierKind) => {
-  formData.value.second = { kind };
+const handleSecondKindChange = (kind: any) => {
+  const kindStr = String(kind);
+  if (!kindStr || (kindStr !== "mark" && kindStr !== "tag" && kindStr !== "type")) return;
+  formData.value.second = { kind: kindStr };
 };
 
 // 加载所有选项数据
@@ -273,18 +281,25 @@ const loadAllOptions = async () => {
       getAllTypeIDToName(),
     ]);
 
-    if (markRes.data.success && markRes.data.data) {
+    console.log("加载选项数据:", {
+      markRes: markRes.data,
+      tagRes: tagRes.data,
+      typeRes: typeRes.data,
+    });
+
+    // 响应拦截器已经处理了 code 检查，这里直接使用 data
+    if (markRes.data.data) {
       markOptions.value = markRes.data.data;
     }
-    if (tagRes.data.success && tagRes.data.data) {
+    if (tagRes.data.data) {
       tagOptions.value = tagRes.data.data;
     }
-    if (typeRes.data.success && typeRes.data.data) {
+    if (typeRes.data.data) {
       typeOptions.value = typeRes.data.data;
     }
   } catch (error) {
     console.error("加载选项数据失败:", error);
-    toast.error("加载选项数据失败");
+    // 错误已在拦截器中处理，这里不再重复提示
   }
 };
 
@@ -295,15 +310,12 @@ const handleSubmit = async () => {
   isSubmitting.value = true;
   try {
     const response = await setCartesianDistance(formData.value);
-    if (response.data.success) {
-      toast.success("笛卡尔积距离设置成功");
-      handleReset();
-    } else {
-      toast.error(response.data.message || "距离设置失败");
-    }
+    // 响应拦截器已经处理了错误，能到这里说明成功
+    toast.success("笛卡尔积距离设置成功");
+    handleReset();
   } catch (error: any) {
     console.error("设置距离失败:", error);
-    toast.error(error.response?.data?.message || "设置距离失败");
+    // 错误已在拦截器中处理，这里不再重复提示
   } finally {
     isSubmitting.value = false;
   }
@@ -327,4 +339,3 @@ onMounted(() => {
   loadAllOptions();
 });
 </script>
-

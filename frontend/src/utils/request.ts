@@ -5,7 +5,6 @@ import type { ApiResponse } from "@/types/response";
 
 /* ========== 类型声明 ========== */
 
-
 /* ========== Axios 实例 ========== */
 
 const service = axios.create({
@@ -69,4 +68,3 @@ service.interceptors.response.use(
 
 /* ========== 导出 ========== */
 export default service;
-

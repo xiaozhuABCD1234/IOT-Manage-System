@@ -1,28 +1,13 @@
 // src/types/response.ts
 
-/** 后端统一返回结构（mark-service 格式）*/
-interface ApiResponse<T = unknown> {
-  code: number;
-  msg: string;
-  data: T;
-}
-
-/** 分页响应数据结构 */
-interface PaginatedData<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-/** 旧版响应结构 - 兼容其他服务 */
-interface LegacyErrorObj {
+/** 后端统一返回结构 */
+interface ErrorObj {
   code: string;
   message: string;
   details?: unknown;
 }
 
-interface LegacyPaginationObj {
+interface PaginationObj {
   currentPage: number;
   totalPages: number;
   totalItems: number;
@@ -31,13 +16,13 @@ interface LegacyPaginationObj {
   has_prev: boolean;
 }
 
-interface LegacyApiResponse<T = unknown> {
+interface ApiResponse<T = unknown> {
   success: boolean;
   data: T;
   message?: string;
-  error?: LegacyErrorObj;
-  pagination?: LegacyPaginationObj;
+  error?: ErrorObj;
+  pagination?: PaginationObj;
   timestamp: string;
 }
 
-export type { ApiResponse, PaginatedData, LegacyApiResponse, LegacyPaginationObj, LegacyErrorObj };
+export type { ApiResponse, PaginationObj, ErrorObj };

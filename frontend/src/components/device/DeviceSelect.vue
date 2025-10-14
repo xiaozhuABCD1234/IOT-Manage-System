@@ -48,7 +48,9 @@ const remoteMap = ref<Map<string, string>>(new Map());
 async function load() {
   try {
     const res = await getAllDeviceIDToName();
-    remoteMap.value = res.data.data ?? new Map();
+    // 将 Record 转换为 Map
+    const record = res.data.data ?? {};
+    remoteMap.value = new Map(Object.entries(record));
   } catch (e) {
     console.error("获取设备列表失败", e);
     remoteMap.value = new Map();
