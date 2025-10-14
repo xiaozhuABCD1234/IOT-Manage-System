@@ -165,7 +165,7 @@ services:
       timeout: 5s
       retries: 3
     volumes:
-      - map_service_upload:/app/upload
+      - map_service_upload:/app/uploads
 
   mqtt-watch:
     image: ghcr.io/xiaozhuabcd1234/iot-manage-system_mqtt-watch:latest
