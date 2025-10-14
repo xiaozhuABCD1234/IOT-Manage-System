@@ -25,7 +25,7 @@ func main() {
 
 	log.Printf("用户 服务地址: %s", userServiceURL)
 	log.Printf("标记 服务地址: %s", markServiceUrl)
-	
+
 	r.Any("/api/v1/users/*proxyPath", createProxyHandler(userServiceURL))
 
 	r.Any("/api/v1/marks/*proxyPath", createProxyHandler(markServiceUrl))
@@ -37,6 +37,7 @@ func main() {
 	r.Any("/api/v1/station/*proxyPath", createProxyHandler(mapServiceUrl))
 	r.Any("/api/v1/custom-map/*proxyPath", createProxyHandler(mapServiceUrl))
 	r.Any("/api/v1/polygon-fence/*proxyPath", createProxyHandler(mapServiceUrl))
+	r.Any("/uploads/*proxyPath", createProxyHandler(mapServiceUrl))
 	// Gin？启动！
 	port := utils.GetEnv("PORT", "8000")
 	log.Printf("服务即将启动，监听端口: %s\n", port)
