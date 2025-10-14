@@ -55,12 +55,12 @@ func main() {
 
 	// ---------------- mark 相关路由 ----------------
 	mark := v1.Group("/marks")
+	mark.Get("/id-to-name", h1.GetAllMarkIDToName)                      // 获取全部 markID→markName 映射
 	mark.Post("/", h1.CreateMark)                                       // 创建标记
 	mark.Get("/", h1.ListMark)                                          // 分页获取标记列表
 	mark.Get("/:id", h1.GetMarkByID)                                    // 根据 ID 获取标记
 	mark.Put("/:id", h1.UpdateMark)                                     // 更新标记
 	mark.Delete("/:id", h1.DeleteMark)                                  // 删除标记
-	mark.Get("/id-to-name", h1.GetAllMarkIDToName)                      // 获取全部 markID→markName 映射
 	mark.Get("/device/id-to-name", h1.GetAllDeviceIDToName)             // 获取全部 deviceID→markName 映射
 	mark.Get("/device/:device_id", h1.GetMarkByDeviceID)                // 根据设备 ID 获取标记
 	mark.Put("/device/:device_id/last-online", h1.UpdateMarkLastOnline) // 更新最后在线时间
