@@ -19,10 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  PairDistanceForm,
-  CombinationsDistanceForm,
-  CartesianDistanceForm,
-} from "@/components/distance";
+import PairDistanceForm from "@/components/distance/PairDistanceForm.vue";
+import CombinationsDistanceForm from "@/components/distance/CombinationsDistanceForm.vue";
+import CartesianDistanceForm from "@/components/distance/CartesianDistanceForm.vue";
 </script>
-
