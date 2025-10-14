@@ -86,7 +86,9 @@ func (r *markPairRepo) BatchUpsert(ids []string, safeDistanceM float64) error {
 // 笛卡尔积 Upsert
 // --------------------------------------------------
 func (r *markPairRepo) CartesianUpsertByMarkIDs(m1IDs, m2IDs []string, safeDistanceM float64) error {
-	pairs := make([]model.MarkPairSafeDistance, 0, len(m1IDs)*len(m2IDs))
+	// 使用 map 去重，避免重复的标记对
+	pairMap := make(map[string]model.MarkPairSafeDistance)
+
 	for _, id1 := range m1IDs {
 		for _, id2 := range m2IDs {
 			if id1 == id2 {
@@ -96,9 +98,18 @@ func (r *markPairRepo) CartesianUpsertByMarkIDs(m1IDs, m2IDs []string, safeDista
 			if err != nil {
 				return err
 			}
-			pairs = append(pairs, pair)
+			// 使用主键作为 map 的 key 来去重
+			key := pair.Mark1ID.String() + ":" + pair.Mark2ID.String()
+			pairMap[key] = pair
 		}
 	}
+
+	// 将 map 转换为 slice
+	pairs := make([]model.MarkPairSafeDistance, 0, len(pairMap))
+	for _, pair := range pairMap {
+		pairs = append(pairs, pair)
+	}
+
 	return r.db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "mark1_id"}, {Name: "mark2_id"}},
 		UpdateAll: true,
