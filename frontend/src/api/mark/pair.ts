@@ -18,7 +18,7 @@ const URLS = {
 
 /* 分页获取标记对列表 */
 export async function getPairsList(page: number = 1, limit: number = 10) {
-  return request.get<ApiResponse<PairItem>>(`${URLS.pairs}`, {
+  return request.get<ApiResponse<PairItem[]>>(`${URLS.pairs}/`, {
     params: { page, limit },
   });
 }

@@ -23,6 +23,7 @@
               <p>• <strong>单对距离设置</strong>：为两个特定标记设置安全距离</p>
               <p>• <strong>组合距离设置</strong>：为多个标记批量设置统一距离</p>
               <p>• <strong>笛卡尔积距离设置</strong>：为两组不同类型的对象设置距离</p>
+              <p>• <strong>距离列表</strong>：查看、编辑和删除已设置的标记对距离</p>
             </div>
           </div>
         </div>
@@ -52,7 +53,12 @@
 
     <!-- 设置表单网格 -->
     <div
-      v-if="hasSelectedDisplays"
+      v-if="
+        hasSelectedDisplays &&
+        (selectedDisplays.includes('pair') ||
+          selectedDisplays.includes('combinations') ||
+          selectedDisplays.includes('cartesian'))
+      "
       class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-stretch xl:grid-cols-3"
     >
       <!-- 单对距离设置 -->
@@ -74,8 +80,13 @@
       </div>
     </div>
 
+    <!-- 距离列表 -->
+    <div v-if="selectedDisplays.includes('pairs-list')" class="flex-1">
+      <PairTablePager :limit="10" />
+    </div>
+
     <!-- 空状态 -->
-    <Card v-else class="flex-1">
+    <Card v-if="!hasSelectedDisplays" class="flex-1">
       <CardContent class="flex flex-col items-center justify-center py-12 text-center">
         <div class="bg-muted mb-4 flex h-16 w-16 items-center justify-center rounded-full">
           <EyeOff class="text-muted-foreground h-8 w-8" />
@@ -89,13 +100,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { Ruler, Info, Eye, EyeOff, Link2, Network, Grid3x3 } from "lucide-vue-next";
+import { Ruler, Info, Eye, EyeOff, Link2, Network, Grid3x3, Table } from "lucide-vue-next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import PairDistanceForm from "@/components/distance/PairDistanceForm.vue";
 import CombinationsDistanceForm from "@/components/distance/CombinationsDistanceForm.vue";
 import CartesianDistanceForm from "@/components/distance/CartesianDistanceForm.vue";
+import PairTablePager from "@/components/mark/PairTablePager.vue";
 
 // 显示选项配置
 const displayOptions = [
@@ -114,10 +126,15 @@ const displayOptions = [
     label: "笛卡尔积",
     icon: Grid3x3,
   },
+  {
+    key: "pairs-list",
+    label: "距离列表",
+    icon: Table,
+  },
 ];
 
 // 选中的显示项
-const selectedDisplays = ref<string[]>(["pair", "combinations", "cartesian"]);
+const selectedDisplays = ref<string[]>(["pair", "combinations", "cartesian", "pairs-list"]);
 
 // 是否有选中的显示项
 const hasSelectedDisplays = computed(() => selectedDisplays.value.length > 0);
