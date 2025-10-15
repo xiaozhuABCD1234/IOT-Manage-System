@@ -125,6 +125,25 @@ func (fc *FenceChecker) IsStatusChanged(deviceID string, currentStatus bool) boo
 	return prevStatus != currentStatus
 }
 
+// ShouldSendAlert 检查是否应该发送警报（支持持续报警模式）
+func (fc *FenceChecker) ShouldSendAlert(deviceID string, currentStatus bool) bool {
+	fc.mu.RLock()
+	defer fc.mu.RUnlock()
+
+	prevStatus, exists := fc.statusCache[deviceID]
+	if !exists {
+		return currentStatus // 首次检查，如果在围栏内就发警报
+	}
+
+	// 如果在围栏内，总是发送警报（持续报警模式）
+	if currentStatus {
+		return true
+	}
+
+	// 离开围栏时，只在状态改变时发送取消警报
+	return prevStatus != currentStatus
+}
+
 // GetCurrentStatus 获取设备当前围栏状态
 func (fc *FenceChecker) GetCurrentStatus(deviceID string) (bool, bool) {
 	fc.mu.RLock()

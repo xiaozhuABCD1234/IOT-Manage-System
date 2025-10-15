@@ -64,7 +64,7 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 			Lon:    rtkS.V[0],
 			Lat:    rtkS.V[1],
 		})
-		// log.Printf("[DEBUG] 收到 RTK 定位消息  deviceID=%s  lon=%f  lat=%f", msg.ID, rtkS.V[0], rtkS.V[1])
+		log.Printf("[DEBUG] 收到 RTK 定位消息  deviceID=%s  lon=%f  lat=%f", msg.ID, rtkS.V[0], rtkS.V[1])
 	}
 
 	// 写 UWB
@@ -74,7 +74,7 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 			X:  uwbS.V[0],
 			Y:  uwbS.V[1],
 		})
-		// log.Printf("[DEBUG] 收到 UWB 定位消息  deviceID=%s  x=%f  y=%f", msg.ID, uwbS.V[0], uwbS.V[1])
+		log.Printf("[DEBUG] 收到 UWB 定位消息  deviceID=%s  x=%f  y=%f", msg.ID, uwbS.V[0], uwbS.V[1])
 
 		// 检查是否在电子围栏内（异步检查，避免阻塞）
 		if l.FenceChecker != nil {
@@ -102,16 +102,12 @@ func (l *Locator) checkFence(deviceID string, x, y float64) {
 		return
 	}
 
-	// 如果在围栏内，发送警报
-	if isInside {
-		// 检查状态是否改变，避免重复发送
-		if l.FenceChecker.IsStatusChanged(deviceID, true) {
+	// 使用新的持续报警逻辑
+	if l.FenceChecker.ShouldSendAlert(deviceID, isInside) {
+		if isInside {
 			log.Printf("[FENCE_ALERT] 设备 %s 在电子围栏内，发送警报", deviceID)
 			SendWarning(deviceID, true)
-		}
-	} else {
-		// 离开围栏，取消警报
-		if l.FenceChecker.IsStatusChanged(deviceID, false) {
+		} else {
 			log.Printf("[FENCE_ALERT] 设备 %s 离开电子围栏，取消警报", deviceID)
 			SendWarning(deviceID, false)
 		}
