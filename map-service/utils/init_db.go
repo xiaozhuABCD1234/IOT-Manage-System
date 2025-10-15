@@ -27,7 +27,7 @@ func InitDB() (*gorm.DB, error) {
 				log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 				logger.Config{
 					SlowThreshold:             200 * time.Millisecond, // 慢查询阈值
-					LogLevel:                  logger.Error,           // 级别
+					LogLevel:                  logger.Info,           // 级别
 					IgnoreRecordNotFoundError: true,                   // 屏蔽 ErrRecordNotFound
 					Colorful:                  true,                   // 彩色
 				},

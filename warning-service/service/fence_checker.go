@@ -82,7 +82,7 @@ func (fc *FenceChecker) CheckPoint(deviceID string, x, y float64) (bool, error) 
 	}
 
 	// 检查响应状态
-	if fenceResp.Code != 200 {
+	if !fenceResp.Success {
 		return false, fmt.Errorf("map-service返回错误: %s", fenceResp.Message)
 	}
 

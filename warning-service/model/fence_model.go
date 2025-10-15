@@ -8,9 +8,10 @@ type FenceCheckRequest struct {
 
 // FenceCheckResponse 围栏检查响应
 type FenceCheckResponse struct {
-	Code    int            `json:"code"`
-	Message string         `json:"message"`
-	Data    FenceCheckData `json:"data"`
+	Success   bool           `json:"success"`
+	Message   string         `json:"message"`
+	Data      FenceCheckData `json:"data"`
+	Timestamp string         `json:"timestamp,omitempty"`
 }
 
 // FenceCheckData 围栏检查数据
