@@ -14,6 +14,14 @@ import (
 	"IOT-Manage-System/warning-service/model"
 )
 
+// FenceRateLimiter 围栏检测限流器
+type FenceRateLimiter struct {
+	records map[string][]time.Time // deviceID -> 最近请求时间列表
+	mu      sync.RWMutex
+	maxRate int           // 每秒最大请求次数
+	window  time.Duration // 时间窗口
+}
+
 // FenceChecker 围栏检查器
 type FenceChecker struct {
 	client  *http.Client
@@ -22,6 +30,81 @@ type FenceChecker struct {
 	// 设备围栏状态缓存：避免重复警报
 	statusCache map[string]bool // deviceID -> 是否在围栏内
 	mu          sync.RWMutex
+
+	// 限流器
+	rateLimiter *FenceRateLimiter
+}
+
+// NewFenceRateLimiter 创建围栏检测限流器
+func NewFenceRateLimiter() *FenceRateLimiter {
+	limiter := &FenceRateLimiter{
+		records: make(map[string][]time.Time),
+		maxRate: 5,               // 每秒最多5次请求
+		window:  1 * time.Second, // 1秒时间窗口
+	}
+	// 启动清理协程
+	go limiter.cleanupLoop()
+	return limiter
+}
+
+// Allow 检查是否允许发送请求
+func (r *FenceRateLimiter) Allow(deviceID string) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	now := time.Now()
+
+	// 获取该设备的请求记录
+	times, exists := r.records[deviceID]
+	if !exists {
+		r.records[deviceID] = []time.Time{now}
+		return true
+	}
+
+	// 清理过期记录（超过时间窗口的）
+	validTimes := make([]time.Time, 0, len(times))
+	for _, t := range times {
+		if now.Sub(t) < r.window {
+			validTimes = append(validTimes, t)
+		}
+	}
+
+	// 检查是否超过限流阈值
+	if len(validTimes) >= r.maxRate {
+		log.Printf("[FENCE_RATE_LIMIT] 设备 %s 围栏检测被限流，当前窗口内已请求 %d 次", deviceID, len(validTimes))
+		return false
+	}
+
+	// 允许请求，记录时间
+	validTimes = append(validTimes, now)
+	r.records[deviceID] = validTimes
+	return true
+}
+
+// cleanupLoop 定期清理过期记录，避免内存泄漏
+func (r *FenceRateLimiter) cleanupLoop() {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		r.mu.Lock()
+		now := time.Now()
+		for deviceID, times := range r.records {
+			// 清理超过窗口的记录
+			validTimes := make([]time.Time, 0)
+			for _, t := range times {
+				if now.Sub(t) < r.window {
+					validTimes = append(validTimes, t)
+				}
+			}
+			if len(validTimes) == 0 {
+				delete(r.records, deviceID)
+			} else {
+				r.records[deviceID] = validTimes
+			}
+		}
+		r.mu.Unlock()
+	}
 }
 
 // NewFenceChecker 创建围栏检查器
@@ -38,11 +121,29 @@ func NewFenceChecker() *FenceChecker {
 		},
 		baseURL:     baseURL,
 		statusCache: make(map[string]bool),
+		rateLimiter: NewFenceRateLimiter(),
 	}
 }
 
 // CheckPoint 检查点是否在围栏内
 func (fc *FenceChecker) CheckPoint(deviceID string, x, y float64) (bool, error) {
+	// 限流检查
+	if !fc.rateLimiter.Allow(deviceID) {
+		// 被限流时，返回缓存的状态（如果有的话）
+		fc.mu.RLock()
+		cachedStatus, exists := fc.statusCache[deviceID]
+		fc.mu.RUnlock()
+
+		if exists {
+			log.Printf("[FENCE_RATE_LIMIT] 设备 %s 被限流，返回缓存状态: %v", deviceID, cachedStatus)
+			return cachedStatus, nil
+		}
+
+		// 没有缓存状态时，返回false（假设不在围栏内）
+		log.Printf("[FENCE_RATE_LIMIT] 设备 %s 被限流且无缓存状态，返回false", deviceID)
+		return false, nil
+	}
+
 	// 构造请求
 	reqBody := model.FenceCheckRequest{
 		X: x,

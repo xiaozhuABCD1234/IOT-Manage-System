@@ -149,7 +149,7 @@ func (l *Locator) checkFence(deviceID string, x, y float64) {
 
 func (l *Locator) StartDistanceChecker() {
 	go func() {
-		ticker := time.NewTicker(200 * time.Millisecond)
+		ticker := time.NewTicker(100 * time.Millisecond)
 		defer ticker.Stop()
 		for range ticker.C {
 			l.batchCheckRTK()
