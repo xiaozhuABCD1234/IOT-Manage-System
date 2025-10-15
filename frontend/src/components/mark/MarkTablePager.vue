@@ -3,7 +3,7 @@
     <!-- 表格 -->
     <Card class="flex-1">
       <CardContent class="p-0">
-        <ScrollArea class="h-[calc(100vh-18rem)]">
+        <div class="max-h-[calc(100vh-18rem)] overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -13,6 +13,8 @@
                 <TableHead>安全距离</TableHead>
                 <TableHead>标签</TableHead>
                 <TableHead class="hidden md:table-cell">最后在线</TableHead>
+                <TableHead class="hidden lg:table-cell">创建时间</TableHead>
+                <TableHead class="hidden lg:table-cell">更新时间</TableHead>
                 <TableHead class="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
@@ -58,6 +60,12 @@
                       : "从未上线"
                   }}
                 </TableCell>
+                <TableCell class="hidden lg:table-cell">
+                  {{ new Date(mark.created_at).toLocaleString() }}
+                </TableCell>
+                <TableCell class="hidden lg:table-cell">
+                  {{ new Date(mark.updated_at).toLocaleString() }}
+                </TableCell>
                 <TableCell class="text-right">
                   <div class="flex justify-end gap-2">
                     <!-- 编辑按钮 -->
@@ -74,7 +82,7 @@
               </TableRow>
             </TableBody>
           </Table>
-        </ScrollArea>
+        </div>
       </CardContent>
     </Card>
 
@@ -124,7 +132,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import {
   Pagination,

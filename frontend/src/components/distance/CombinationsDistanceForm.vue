@@ -12,28 +12,30 @@
         <!-- 标记多选 -->
         <div class="space-y-2">
           <Label>选择标记（至少2个）</Label>
-          <div class="max-h-64 space-y-2 overflow-y-auto rounded-md border p-3">
+          <div class="max-h-64 overflow-y-auto rounded-md border p-3">
             <div
               v-if="Object.keys(markOptions).length === 0"
               class="text-muted-foreground py-4 text-center text-sm"
             >
               暂无数据，请检查后端服务
             </div>
-            <div
-              v-for="[id, name] in Object.entries(markOptions)"
-              :key="id"
-              class="flex items-center space-x-2"
-            >
-              <input
-                type="checkbox"
-                :id="`mark-${id}`"
-                :value="id"
-                v-model="selectedMarkIds"
-                class="h-4 w-4 rounded border-gray-300"
-              />
-              <Label :for="`mark-${id}`" class="flex-1 cursor-pointer">
-                {{ name }}
-              </Label>
+            <div v-else class="grid grid-cols-2 gap-2">
+              <div
+                v-for="[id, name] in Object.entries(markOptions)"
+                :key="id"
+                class="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  :id="`mark-${id}`"
+                  :value="id"
+                  v-model="selectedMarkIds"
+                  class="h-4 w-4 rounded border-gray-300"
+                />
+                <Label :for="`mark-${id}`" class="flex-1 cursor-pointer">
+                  {{ name }}
+                </Label>
+              </div>
             </div>
           </div>
           <div class="text-muted-foreground flex items-center gap-2 text-sm">

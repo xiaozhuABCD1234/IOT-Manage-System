@@ -16,39 +16,41 @@
             <Label class="text-base font-semibold">第一组</Label>
           </div>
 
-          <div class="space-y-2">
-            <Label for="first-kind">类型</Label>
-            <Select v-model="formData.first.kind" @update:model-value="handleFirstKindChange">
-              <SelectTrigger id="first-kind">
-                <SelectValue placeholder="选择类型" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mark">标记 (Mark)</SelectItem>
-                <SelectItem value="tag">标签 (Tag)</SelectItem>
-                <SelectItem value="type">类型 (Type)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label for="first-kind">类型</Label>
+              <Select v-model="formData.first.kind" @update:model-value="handleFirstKindChange">
+                <SelectTrigger id="first-kind">
+                  <SelectValue placeholder="选择类型" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mark">标记 (Mark)</SelectItem>
+                  <SelectItem value="tag">标签 (Tag)</SelectItem>
+                  <SelectItem value="type">类型 (Type)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div v-if="formData.first.kind" class="space-y-2">
-            <Label for="first-value">选择 {{ getKindLabel(formData.first.kind) }}</Label>
-            <Select
-              :model-value="getFirstValue()"
-              @update:model-value="(value) => setFirstValue(value)"
-            >
-              <SelectTrigger id="first-value">
-                <SelectValue :placeholder="`选择${getKindLabel(formData.first.kind)}`" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem
-                  v-for="[id, name] in Object.entries(getOptionsForKind(formData.first.kind))"
-                  :key="id"
-                  :value="id"
-                >
-                  {{ name }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <div v-if="formData.first.kind" class="space-y-2">
+              <Label for="first-value">选择 {{ getKindLabel(formData.first.kind) }}</Label>
+              <Select
+                :model-value="getFirstValue()"
+                @update:model-value="(value) => setFirstValue(value)"
+              >
+                <SelectTrigger id="first-value">
+                  <SelectValue :placeholder="`选择${getKindLabel(formData.first.kind)}`" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    v-for="[id, name] in Object.entries(getOptionsForKind(formData.first.kind))"
+                    :key="id"
+                    :value="id"
+                  >
+                    {{ name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -59,39 +61,41 @@
             <Label class="text-base font-semibold">第二组</Label>
           </div>
 
-          <div class="space-y-2">
-            <Label for="second-kind">类型</Label>
-            <Select v-model="formData.second.kind" @update:model-value="handleSecondKindChange">
-              <SelectTrigger id="second-kind">
-                <SelectValue placeholder="选择类型" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mark">标记 (Mark)</SelectItem>
-                <SelectItem value="tag">标签 (Tag)</SelectItem>
-                <SelectItem value="type">类型 (Type)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label for="second-kind">类型</Label>
+              <Select v-model="formData.second.kind" @update:model-value="handleSecondKindChange">
+                <SelectTrigger id="second-kind">
+                  <SelectValue placeholder="选择类型" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mark">标记 (Mark)</SelectItem>
+                  <SelectItem value="tag">标签 (Tag)</SelectItem>
+                  <SelectItem value="type">类型 (Type)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div v-if="formData.second.kind" class="space-y-2">
-            <Label for="second-value">选择 {{ getKindLabel(formData.second.kind) }}</Label>
-            <Select
-              :model-value="getSecondValue()"
-              @update:model-value="(value) => setSecondValue(value)"
-            >
-              <SelectTrigger id="second-value">
-                <SelectValue :placeholder="`选择${getKindLabel(formData.second.kind)}`" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem
-                  v-for="[id, name] in Object.entries(getOptionsForKind(formData.second.kind))"
-                  :key="id"
-                  :value="id"
-                >
-                  {{ name }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <div v-if="formData.second.kind" class="space-y-2">
+              <Label for="second-value">选择 {{ getKindLabel(formData.second.kind) }}</Label>
+              <Select
+                :model-value="getSecondValue()"
+                @update:model-value="(value) => setSecondValue(value)"
+              >
+                <SelectTrigger id="second-value">
+                  <SelectValue :placeholder="`选择${getKindLabel(formData.second.kind)}`" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    v-for="[id, name] in Object.entries(getOptionsForKind(formData.second.kind))"
+                    :key="id"
+                    :value="id"
+                  >
+                    {{ name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 

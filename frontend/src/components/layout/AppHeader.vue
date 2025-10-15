@@ -18,6 +18,7 @@ import {
   Info,
   Podcast,
   Settings,
+  Ruler,
 } from "lucide-vue-next";
 
 import HomeButton from "@/components/layout/HomeLogo.vue";
@@ -184,6 +185,18 @@ import ThemeToggle from "./RightControlStrip.vue";
                     >
                       <div class="flex items-center justify-between text-sm font-medium">
                         标记管理 <Fence class="h-4 w-4" />
+                      </div>
+                    </RouterLink>
+                  </NavigationMenuLink>
+                </li>
+                <li>
+                  <NavigationMenuLink as-child>
+                    <RouterLink
+                      to="/marks/distance"
+                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
+                    >
+                      <div class="flex items-center justify-between text-sm font-medium">
+                        距离设置 <Ruler class="h-4 w-4" />
                       </div>
                     </RouterLink>
                   </NavigationMenuLink>
