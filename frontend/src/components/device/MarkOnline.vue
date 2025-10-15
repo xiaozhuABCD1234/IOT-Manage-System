@@ -2,66 +2,51 @@
   <Card class="h-full w-full">
     <CardHeader>
       <CardTitle class="flex items-center gap-2">
-        <Wifi class="h-5 w-5" />
+        <Wifi
+          class="h-5 w-5"
+          :class="{ 'text-green-500': store.isConnected, 'text-red-500': !store.isConnected }"
+        />
         标记在线状态
+        <Badge v-if="store.isConnected" variant="outline" class="ml-2"> 已连接 </Badge>
+        <Badge v-else variant="destructive" class="ml-2"> 未连接 </Badge>
       </CardTitle>
-      <CardDescription>实时监控所有标记设备的在线情况</CardDescription>
+      <CardDescription>
+        实时监控所有标记设备的在线情况
+        <span class="text-muted-foreground ml-2 text-sm">
+          (在线: {{ store.onlineCount }}, 离线: {{ store.offlineCount }})
+        </span>
+      </CardDescription>
     </CardHeader>
     <CardContent>
-      <MarkOnlineGrid :marks="store.markList" :device-names="names" />
+      <div v-if="store.connectionError" class="mb-4 rounded-md border border-red-200 bg-red-50 p-3">
+        <p class="text-sm text-red-600">连接错误: {{ store.connectionError }}</p>
+        <Button @click="store.reconnectMQTT" variant="outline" size="sm" class="mt-2">
+          重新连接
+        </Button>
+      </div>
+      <MarkOnlineGrid :marks="store.markList" :device-names="store.deviceNames" />
     </CardContent>
   </Card>
 </template>
 
 <script setup lang="ts">
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Wifi } from "lucide-vue-next";
-import { onMounted, onUnmounted, ref } from "vue";
-import { connectMQTT, disconnectMQTT, parseOnlineMessage, TOPIC_ONLINE } from "@/utils/mqtt";
-import type { MqttClient } from "mqtt";
-import { getAllDeviceIDToName } from "@/api/mark";
+import { onMounted, onUnmounted } from "vue";
 import MarkOnlineGrid from "@/components/device/MarkOnlineGrid.vue";
 import { useMarksStore } from "@/stores/marks";
 
 const store = useMarksStore();
 
-const names = ref<Map<string, string>>(new Map());
-let mqttClient: MqttClient | null = null;
-
-/* ---------- 新增：每 5 秒刷新一次名字 ---------- */
-let nameTimer: number | null = null;
-const loadNames = async () => {
-  try {
-    const res = await getAllDeviceIDToName(); // AxiosResponse
-    const obj = res.data.data; // 普通对象
-    names.value = new Map(Object.entries(obj || {})); // ← 转成 Map
-  } catch {}
-};
-
 onMounted(() => {
-  /* 1. 先拉一次名字 */
-  loadNames();
-  /* 2. 每 3 秒再拉 */
-  nameTimer = window.setInterval(loadNames, 3_000);
-
-  /* 3. 连接 MQTT */
-  mqttClient = connectMQTT();
-  mqttClient.subscribe(TOPIC_ONLINE);
-  mqttClient.on("message", (topic, payload) => {
-    const data = parseOnlineMessage(topic, payload);
-    store.onMessage(data);
-  });
-
-  /* 4. 启动状态机（内部也有定时器） */
-  store.start();
+  // 启动全局MQTT连接
+  store.startMQTT();
 });
 
 onUnmounted(() => {
-  /* 清 MQTT */
-  if (mqttClient) disconnectMQTT(mqttClient);
-  /* 清状态机定时器 */
-  store.stop();
-  /* 清名字定时器 */
-  if (nameTimer !== null) window.clearInterval(nameTimer);
+  // 注意：这里不停止MQTT连接，因为其他组件可能还在使用
+  // 如果需要完全停止，可以在应用退出时调用 store.stopMQTT()
 });
 </script>

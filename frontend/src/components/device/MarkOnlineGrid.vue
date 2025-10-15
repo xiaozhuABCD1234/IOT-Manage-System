@@ -19,7 +19,7 @@
         </Label>
 
         <Badge variant="outline">{{ m.id }}</Badge>
-        <Badge variant="secondary">{{ m.topic }}</Badge>
+        <!-- <Badge variant="secondary">{{ m.topic }}</Badge> -->
       </div>
     </div>
 

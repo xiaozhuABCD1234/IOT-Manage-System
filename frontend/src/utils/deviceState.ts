@@ -7,13 +7,13 @@ export function createDeviceStateMachine(marks: Ref<MarkOnline[]>) {
   const offlineTimerMap = new Map<string, number>();
 
   function setOnlineFalse(id: string) {
-    const idx = marks.value.findIndex(m => m.id === id);
+    const idx = marks.value.findIndex((m) => m.id === id);
     if (idx !== -1) marks.value[idx].online = false;
     timerMap.delete(id);
   }
 
   function removeDevice(id: string) {
-    const idx = marks.value.findIndex(m => m.id === id);
+    const idx = marks.value.findIndex((m) => m.id === id);
     if (idx !== -1) marks.value.splice(idx, 1);
     offlineTimerMap.delete(id);
     timerMap.delete(id);
@@ -23,22 +23,28 @@ export function createDeviceStateMachine(marks: Ref<MarkOnline[]>) {
     if (offlineTimerMap.has(data.id)) clearTimeout(offlineTimerMap.get(data.id)!);
     if (timerMap.has(data.id)) clearTimeout(timerMap.get(data.id)!);
 
-    const idx = marks.value.findIndex(m => m.id === data.id);
+    const idx = marks.value.findIndex((m) => m.id === data.id);
     if (idx >= 0) {
       marks.value[idx] = data;
     } else {
       marks.value.push(data);
     }
 
-    timerMap.set(data.id, window.setTimeout(() => setOnlineFalse(data.id), 5000));
-    offlineTimerMap.set(data.id, window.setTimeout(() => removeDevice(data.id), 30_000));
+    timerMap.set(
+      data.id,
+      window.setTimeout(() => setOnlineFalse(data.id), 3000),
+    );
+    offlineTimerMap.set(
+      data.id,
+      window.setTimeout(() => removeDevice(data.id), 30_000),
+    ); // 从30秒改为60秒
 
-    sortMarks(marks.value);   // 即时排序
+    sortMarks(marks.value); // 即时排序
   }
 
   let sortTimer: number | undefined;
   function start() {
-    sortTimer = window.setInterval(() => sortMarks(marks.value), 5000);
+    sortTimer = window.setInterval(() => sortMarks(marks.value), 10000); // 从5秒改为10秒
   }
   function stop() {
     if (sortTimer !== undefined) clearInterval(sortTimer);
