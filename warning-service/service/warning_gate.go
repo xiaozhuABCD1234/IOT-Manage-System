@@ -25,8 +25,8 @@ var rateLimiter *WarningRateLimiter
 func init() {
 	rateLimiter = &WarningRateLimiter{
 		records: make(map[string][]time.Time),
-		maxRate: 2,               // 每秒最多2次
-		window:  1 * time.Second, // 1秒时间窗口
+		maxRate: 1,
+		window:  500 * time.Microsecond,// 时间窗口
 	}
 	// 启动清理协程
 	go rateLimiter.cleanupLoop()

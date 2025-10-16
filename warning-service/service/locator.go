@@ -74,7 +74,7 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 			X:  uwbS.V[0],
 			Y:  uwbS.V[1],
 		})
-		log.Printf("[DEBUG] 收到 UWB 定位消息  deviceID=%s  x=%f  y=%f", msg.ID, uwbS.V[0], uwbS.V[1])
+		// log.Printf("[DEBUG] 收到 UWB 定位消息  deviceID=%s  x=%f  y=%f", msg.ID, uwbS.V[0], uwbS.V[1])
 
 		// 检查是否在电子围栏内（异步检查，避免阻塞）
 		if l.FenceChecker != nil {
