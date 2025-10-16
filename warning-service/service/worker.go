@@ -51,8 +51,10 @@ func (p *DistancePoller) loop() {
 				continue // 出错就跳过，不碰缓存
 			}
 
-			// 2. 空列表也跳过，避免误清空
+			// 2. 在API模式下，如果在线设备列表为空，我们跳过轮询
+			// 因为API模式下无法获取在线设备列表，距离检查由Locator实时处理
 			if len(onlineDeviceIDs) == 0 {
+				log.Printf("[DEBUG] DistancePoller: 在线设备列表为空，跳过轮询（API模式下正常）")
 				continue
 			}
 
@@ -65,7 +67,7 @@ func (p *DistancePoller) loop() {
 
 			maps, err := p.r.GetBatchDangerZoneM(onlineDeviceIDs)
 			if err != nil {
-				log.Printf("GetDistanceByDevice error: %v", err)
+				log.Printf("GetBatchDangerZoneM error: %v", err)
 				continue
 			}
 

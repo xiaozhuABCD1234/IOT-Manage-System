@@ -20,6 +20,8 @@ type MarkService interface {
 	GetDeviceIDsByPersistMQTT(persist bool) ([]string, error)
 	GetAllDeviceIDToName() (map[string]string, error)
 	GetAllMarkIDToName() (map[string]string, error)
+	GetMarkSafeDistance(markID string) (*float64, error)
+	GetMarkSafeDistanceByDeviceID(deviceID string) (*float64, error)
 
 	// MarkTag 相关操作
 	CreateMarkTag(mt *model.MarkTagRequest) error

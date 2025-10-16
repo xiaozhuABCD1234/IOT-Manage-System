@@ -113,37 +113,41 @@ GET /api/v1/marks?page=1&limit=10&preload=true
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
-	"data": {
-		"items": [
-			{
-				"id": "550e8400-e29b-41d4-a716-446655440000",
-				"device_id": "device-001",
-				"mark_name": "标记A",
-				"mqtt_topic": ["topic/device/001"],
-				"persist_mqtt": true,
-				"danger_zone_m": 10.5,
-				"mark_type": {
+	"success": true,
+	"data": [
+		{
+			"id": "550e8400-e29b-41d4-a716-446655440000",
+			"device_id": "device-001",
+			"mark_name": "标记A",
+			"mqtt_topic": ["topic/device/001"],
+			"persist_mqtt": true,
+			"danger_zone_m": 10.5,
+			"mark_type": {
+				"id": 1,
+				"type_name": "类型A",
+				"default_danger_zone_m": 5.0
+			},
+			"tags": [
+				{
 					"id": 1,
-					"type_name": "类型A",
-					"default_danger_zone_m": 5.0
-				},
-				"tags": [
-					{
-						"id": 1,
-						"tag_name": "tag1"
-					}
-				],
-				"created_at": "2025-01-01T12:00:00Z",
-				"updated_at": "2025-01-01T12:00:00Z",
-				"last_online_at": "2025-01-01T15:30:00Z"
-			}
-		],
-		"total": 100,
-		"page": 1,
-		"limit": 10
-	}
+					"tag_name": "tag1"
+				}
+			],
+			"created_at": "2025-01-01T12:00:00Z",
+			"updated_at": "2025-01-01T12:00:00Z",
+			"last_online_at": "2025-01-01T15:30:00Z"
+		}
+	],
+	"message": "请求成功啦😁",
+	"pagination": {
+		"currentPage": 1,
+		"totalPages": 10,
+		"totalItems": 100,
+		"itemsPerPage": 10,
+		"has_next": true,
+		"has_prev": false
+	},
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -177,8 +181,7 @@ GET /api/v1/marks/550e8400-e29b-41d4-a716-446655440000?preload=true
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
+	"success": true,
 	"data": {
 		"id": "550e8400-e29b-41d4-a716-446655440000",
 		"device_id": "device-001",
@@ -200,7 +203,9 @@ GET /api/v1/marks/550e8400-e29b-41d4-a716-446655440000?preload=true
 		"created_at": "2025-01-01T12:00:00Z",
 		"updated_at": "2025-01-01T12:00:00Z",
 		"last_online_at": "2025-01-01T15:30:00Z"
-	}
+	},
+	"message": "请求成功啦😁",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -234,20 +239,119 @@ GET /api/v1/marks/device/device-001?preload=true
 
 ```json
 {
-  "code": 200,
-  "msg": "success",
+  "success": true,
   "data": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
     "device_id": "device-001",
     "mark_name": "标记A",
-    ...
-  }
+    "mqtt_topic": ["topic/device/001"],
+    "persist_mqtt": true,
+    "danger_zone_m": 10.5,
+    "mark_type": {
+      "id": 1,
+      "type_name": "类型A",
+      "default_danger_zone_m": 5.0
+    },
+    "tags": [
+      {
+        "id": 1,
+        "tag_name": "tag1"
+      }
+    ],
+    "created_at": "2025-01-01T12:00:00Z",
+    "updated_at": "2025-01-01T12:00:00Z",
+    "last_online_at": "2025-01-01T15:30:00Z"
+  },
+  "message": "请求成功啦😁",
+  "timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
 ---
 
-### 5. 更新标记
+### 5. 根据标记 ID 获取危险半径
+
+根据标记 ID 获取该标记的危险半径。
+
+**接口**
+
+```
+GET /api/v1/marks/:id/safe-distance
+```
+
+**路径参数**
+
+- `id` (string, 必填): 标记 UUID
+
+**示例**
+
+```
+GET /api/v1/marks/550e8400-e29b-41d4-a716-446655440000/safe-distance
+```
+
+**响应示例 (200 OK)**
+
+```json
+{
+	"success": true,
+	"data": {
+		"mark_id": "550e8400-e29b-41d4-a716-446655440000",
+		"danger_zone_m": 10.5
+	},
+	"message": "请求成功啦😁",
+	"timestamp": "2025-01-01T12:00:00Z"
+}
+```
+
+**响应说明**
+
+- `mark_id`: 标记的 UUID
+- `danger_zone_m`: 危险半径（米），如果为 `null` 表示未设置自定义值，应使用所属类型的默认值
+
+---
+
+### 6. 根据设备 ID 获取危险半径
+
+根据设备 ID 获取该设备对应标记的危险半径。
+
+**接口**
+
+```
+GET /api/v1/marks/device/:device_id/safe-distance
+```
+
+**路径参数**
+
+- `device_id` (string, 必填): 设备 ID
+
+**示例**
+
+```
+GET /api/v1/marks/device/device-001/safe-distance
+```
+
+**响应示例 (200 OK)**
+
+```json
+{
+	"success": true,
+	"data": {
+		"device_id": "device-001",
+		"danger_zone_m": 10.5
+	},
+	"message": "请求成功啦😁",
+	"timestamp": "2025-01-01T12:00:00Z"
+}
+```
+
+**响应说明**
+
+- `device_id`: 设备 ID
+- `danger_zone_m`: 危险半径（米），如果为 `null` 表示未设置自定义值，应使用所属类型的默认值
+
+---
+
+### 7. 更新标记
 
 更新标记信息（支持部分更新）。
 
@@ -279,9 +383,10 @@ PUT /api/v1/marks/:id
 
 ```json
 {
-	"code": 200,
-	"msg": "标记更新成功",
-	"data": null
+	"success": true,
+	"data": null,
+	"message": "标记更新成功",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -305,9 +410,10 @@ DELETE /api/v1/marks/:id
 
 ```json
 {
-	"code": 200,
-	"msg": "标记删除成功",
-	"data": null
+	"success": true,
+	"data": null,
+	"message": "标记删除成功",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -327,13 +433,14 @@ GET /api/v1/marks/id-to-name
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
+	"success": true,
 	"data": {
 		"550e8400-e29b-41d4-a716-446655440000": "标记A",
 		"6ba7b810-9dad-11d1-80b4-00c04fd430c8": "标记B",
 		"f47ac10b-58cc-4372-a567-0e02b2c3d479": "标记C"
-	}
+	},
+	"message": "请求成功啦😁",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -353,13 +460,14 @@ GET /api/v1/marks/device/id-to-name
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
+	"success": true,
 	"data": {
 		"device-001": "标记A",
 		"device-002": "标记B",
 		"device-003": "标记C"
-	}
+	},
+	"message": "请求成功啦😁",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -383,9 +491,10 @@ PUT /api/v1/marks/device/:device_id/last-online
 
 ```json
 {
-	"code": 200,
-	"msg": "标记最后在线时间更新成功",
-	"data": null
+	"success": true,
+	"data": null,
+	"message": "标记最后在线时间更新成功",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -409,9 +518,10 @@ GET /api/v1/marks/persist/device/:device_id
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
-	"data": true
+	"success": true,
+	"data": true,
+	"message": "请求成功啦😁",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -444,21 +554,41 @@ GET /api/v1/marks/persist/list?persist=true&page=1&limit=10
 
 ```json
 {
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "items": [
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "device_id": "device-001",
-        "persist_mqtt": true,
-        ...
-      }
-    ],
-    "total": 50,
-    "page": 1,
-    "limit": 10
-  }
+  "success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "device_id": "device-001",
+      "mark_name": "标记A",
+      "mqtt_topic": ["topic/device/001"],
+      "persist_mqtt": true,
+      "danger_zone_m": 10.5,
+      "mark_type": {
+        "id": 1,
+        "type_name": "类型A",
+        "default_danger_zone_m": 5.0
+      },
+      "tags": [
+        {
+          "id": 1,
+          "tag_name": "tag1"
+        }
+      ],
+      "created_at": "2025-01-01T12:00:00Z",
+      "updated_at": "2025-01-01T12:00:00Z",
+      "last_online_at": "2025-01-01T15:30:00Z"
+    }
+  ],
+  "message": "请求成功啦😁",
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 5,
+    "totalItems": 50,
+    "itemsPerPage": 10,
+    "has_next": true,
+    "has_prev": false
+  },
+  "timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -488,9 +618,10 @@ GET /api/v1/marks/persist/device-ids?persist=true
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
-	"data": ["device-001", "device-002", "device-003"]
+	"success": true,
+	"data": ["device-001", "device-002", "device-003"],
+	"message": "请求成功啦😁",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -557,23 +688,27 @@ GET /api/v1/tags?page=1&limit=10
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
-	"data": {
-		"items": [
-			{
-				"id": 1,
-				"tag_name": "重要设备"
-			},
-			{
-				"id": 2,
-				"tag_name": "室外设备"
-			}
-		],
-		"total": 20,
-		"page": 1,
-		"limit": 10
-	}
+	"success": true,
+	"data": [
+		{
+			"id": 1,
+			"tag_name": "重要设备"
+		},
+		{
+			"id": 2,
+			"tag_name": "室外设备"
+		}
+	],
+	"message": "请求成功啦😁",
+	"pagination": {
+		"currentPage": 1,
+		"totalPages": 2,
+		"totalItems": 20,
+		"itemsPerPage": 10,
+		"has_next": true,
+		"has_prev": false
+	},
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -603,12 +738,13 @@ GET /api/v1/tags/1
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
+	"success": true,
 	"data": {
 		"id": 1,
 		"tag_name": "重要设备"
-	}
+	},
+	"message": "请求成功啦😁",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -675,9 +811,10 @@ PUT /api/v1/tags/:tag_id
 
 ```json
 {
-	"code": 200,
-	"msg": "标签更新成功",
-	"data": null
+	"success": true,
+	"data": null,
+	"message": "标签更新成功",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -701,9 +838,10 @@ DELETE /api/v1/tags/:tag_id
 
 ```json
 {
-	"code": 200,
-	"msg": "标签删除成功",
-	"data": null
+	"success": true,
+	"data": null,
+	"message": "标签删除成功",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -739,21 +877,41 @@ GET /api/v1/tags/1/marks?page=1&limit=10&preload=true
 
 ```json
 {
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "items": [
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "device_id": "device-001",
-        "mark_name": "标记A",
-        ...
-      }
-    ],
-    "total": 15,
-    "page": 1,
-    "limit": 10
-  }
+  "success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "device_id": "device-001",
+      "mark_name": "标记A",
+      "mqtt_topic": ["topic/device/001"],
+      "persist_mqtt": true,
+      "danger_zone_m": 10.5,
+      "mark_type": {
+        "id": 1,
+        "type_name": "类型A",
+        "default_danger_zone_m": 5.0
+      },
+      "tags": [
+        {
+          "id": 1,
+          "tag_name": "tag1"
+        }
+      ],
+      "created_at": "2025-01-01T12:00:00Z",
+      "updated_at": "2025-01-01T12:00:00Z",
+      "last_online_at": "2025-01-01T15:30:00Z"
+    }
+  ],
+  "message": "请求成功啦😁",
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 2,
+    "totalItems": 15,
+    "itemsPerPage": 10,
+    "has_next": true,
+    "has_prev": false
+  },
+  "timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -789,21 +947,41 @@ GET /api/v1/tags/name/重要设备/marks?page=1&limit=10
 
 ```json
 {
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "items": [
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "device_id": "device-001",
-        "mark_name": "标记A",
-        ...
-      }
-    ],
-    "total": 15,
-    "page": 1,
-    "limit": 10
-  }
+  "success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "device_id": "device-001",
+      "mark_name": "标记A",
+      "mqtt_topic": ["topic/device/001"],
+      "persist_mqtt": true,
+      "danger_zone_m": 10.5,
+      "mark_type": {
+        "id": 1,
+        "type_name": "类型A",
+        "default_danger_zone_m": 5.0
+      },
+      "tags": [
+        {
+          "id": 1,
+          "tag_name": "tag1"
+        }
+      ],
+      "created_at": "2025-01-01T12:00:00Z",
+      "updated_at": "2025-01-01T12:00:00Z",
+      "last_online_at": "2025-01-01T15:30:00Z"
+    }
+  ],
+  "message": "请求成功啦😁",
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 2,
+    "totalItems": 15,
+    "itemsPerPage": 10,
+    "has_next": true,
+    "has_prev": false
+  },
+  "timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -823,13 +1001,14 @@ GET /api/v1/tags/id-to-name
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
+	"success": true,
 	"data": {
 		"1": "重要设备",
 		"2": "室外设备",
 		"3": "测试设备"
-	}
+	},
+	"message": "请求成功啦😁",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -898,25 +1077,29 @@ GET /api/v1/types?page=1&limit=10
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
-	"data": {
-		"items": [
-			{
-				"id": 1,
-				"type_name": "移动设备",
-				"default_danger_zone_m": 5.0
-			},
-			{
-				"id": 2,
-				"type_name": "固定设备",
-				"default_danger_zone_m": 10.0
-			}
-		],
-		"total": 10,
-		"page": 1,
-		"limit": 10
-	}
+	"success": true,
+	"data": [
+		{
+			"id": 1,
+			"type_name": "移动设备",
+			"default_danger_zone_m": 5.0
+		},
+		{
+			"id": 2,
+			"type_name": "固定设备",
+			"default_danger_zone_m": 10.0
+		}
+	],
+	"message": "请求成功啦😁",
+	"pagination": {
+		"currentPage": 1,
+		"totalPages": 1,
+		"totalItems": 10,
+		"itemsPerPage": 10,
+		"has_next": false,
+		"has_prev": false
+	},
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -1085,21 +1268,41 @@ GET /api/v1/types/1/marks?page=1&limit=10&preload=true
 
 ```json
 {
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "items": [
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "device_id": "device-001",
-        "mark_name": "标记A",
-        ...
-      }
-    ],
-    "total": 25,
-    "page": 1,
-    "limit": 10
-  }
+  "success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "device_id": "device-001",
+      "mark_name": "标记A",
+      "mqtt_topic": ["topic/device/001"],
+      "persist_mqtt": true,
+      "danger_zone_m": 10.5,
+      "mark_type": {
+        "id": 1,
+        "type_name": "类型A",
+        "default_danger_zone_m": 5.0
+      },
+      "tags": [
+        {
+          "id": 1,
+          "tag_name": "tag1"
+        }
+      ],
+      "created_at": "2025-01-01T12:00:00Z",
+      "updated_at": "2025-01-01T12:00:00Z",
+      "last_online_at": "2025-01-01T15:30:00Z"
+    }
+  ],
+  "message": "请求成功啦😁",
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 3,
+    "totalItems": 25,
+    "itemsPerPage": 10,
+    "has_next": true,
+    "has_prev": false
+  },
+  "timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -1135,21 +1338,41 @@ GET /api/v1/types/name/移动设备/marks?page=1&limit=10
 
 ```json
 {
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "items": [
-      {
-        "id": "550e8400-e29b-41d4-a716-446655440000",
-        "device_id": "device-001",
-        "mark_name": "标记A",
-        ...
-      }
-    ],
-    "total": 25,
-    "page": 1,
-    "limit": 10
-  }
+  "success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "device_id": "device-001",
+      "mark_name": "标记A",
+      "mqtt_topic": ["topic/device/001"],
+      "persist_mqtt": true,
+      "danger_zone_m": 10.5,
+      "mark_type": {
+        "id": 1,
+        "type_name": "类型A",
+        "default_danger_zone_m": 5.0
+      },
+      "tags": [
+        {
+          "id": 1,
+          "tag_name": "tag1"
+        }
+      ],
+      "created_at": "2025-01-01T12:00:00Z",
+      "updated_at": "2025-01-01T12:00:00Z",
+      "last_online_at": "2025-01-01T15:30:00Z"
+    }
+  ],
+  "message": "请求成功啦😁",
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 3,
+    "totalItems": 25,
+    "itemsPerPage": 10,
+    "has_next": true,
+    "has_prev": false
+  },
+  "timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -1208,25 +1431,29 @@ GET /api/v1/pairs?page=1&limit=10
 
 ```json
 {
-	"code": 200,
-	"msg": "success",
-	"data": {
-		"items": [
-			{
-				"mark1_id": "550e8400-e29b-41d4-a716-446655440000",
-				"mark2_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
-				"distance_m": 15.5
-			},
-			{
-				"mark1_id": "550e8400-e29b-41d4-a716-446655440000",
-				"mark2_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-				"distance_m": 20.0
-			}
-		],
-		"total": 50,
-		"page": 1,
-		"limit": 10
-	}
+	"success": true,
+	"data": [
+		{
+			"mark1_id": "550e8400-e29b-41d4-a716-446655440000",
+			"mark2_id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+			"distance_m": 15.5
+		},
+		{
+			"mark1_id": "550e8400-e29b-41d4-a716-446655440000",
+			"mark2_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+			"distance_m": 20.0
+		}
+	],
+	"message": "请求成功啦😁",
+	"pagination": {
+		"currentPage": 1,
+		"totalPages": 5,
+		"totalItems": 50,
+		"itemsPerPage": 10,
+		"has_next": true,
+		"has_prev": false
+	},
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -1556,14 +1783,18 @@ GET /api/v1/pairs/distance/map/device/device-001
 
 ```json
 {
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "items": [...],
-    "total": 100,
-    "page": 1,
-    "limit": 10
-  }
+  "success": true,
+  "data": [...],
+  "message": "请求成功啦😁",
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 10,
+    "totalItems": 100,
+    "itemsPerPage": 10,
+    "has_next": true,
+    "has_prev": false
+  },
+  "timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -1575,9 +1806,9 @@ GET /api/v1/pairs/distance/map/device/device-001
 
 ```json
 {
-	"code": 400,
-	"msg": "错误信息描述",
-	"data": null
+	"success": false,
+	"message": "错误信息描述",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -1596,9 +1827,9 @@ GET /api/v1/pairs/distance/map/device/device-001
 
 ```json
 {
-	"code": 400,
-	"msg": "参数解析失败",
-	"data": null
+	"success": false,
+	"message": "参数解析失败",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -1606,9 +1837,9 @@ GET /api/v1/pairs/distance/map/device/device-001
 
 ```json
 {
-	"code": 404,
-	"msg": "标记不存在",
-	"data": null
+	"success": false,
+	"message": "标记不存在",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 
@@ -1616,9 +1847,9 @@ GET /api/v1/pairs/distance/map/device/device-001
 
 ```json
 {
-	"code": 409,
-	"msg": "设备ID已存在",
-	"data": null
+	"success": false,
+	"message": "设备ID已存在",
+	"timestamp": "2025-01-01T12:00:00Z"
 }
 ```
 

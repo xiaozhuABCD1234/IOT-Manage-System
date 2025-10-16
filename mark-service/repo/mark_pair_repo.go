@@ -27,6 +27,10 @@ type MarkPairRepo interface {
 	MapByID(id string) (map[string]float64, error)
 	// MapByDeviceID 根据 DeviceID 查询它与所有其它 Mark 的安全距离映射
 	MapByDeviceID(deviceID string) (map[string]float64, error)
+	// GetByDeviceIDs 根据两个设备ID查询它们之间的距离
+	GetByDeviceIDs(device1ID, device2ID string) (float64, error)
+	// MapByDeviceIDToDeviceIDs 根据设备ID查询它与所有其他设备的距离映射（返回设备ID映射）
+	MapByDeviceIDToDeviceIDs(deviceID string) (map[string]float64, error)
 	// ListMarkPairs 分页查询标记对列表
 	ListMarkPairs(offset, limit int) ([]model.MarkPairSafeDistance, int64, error)
 }
@@ -186,6 +190,63 @@ func (r *markPairRepo) MapByDeviceID(deviceID string) (map[string]float64, error
 		return nil, err
 	}
 	return r.MapByID(id)
+}
+
+// --------------------------------------------------
+// 根据两个设备ID查询它们之间的距离
+// --------------------------------------------------
+func (r *markPairRepo) GetByDeviceIDs(device1ID, device2ID string) (float64, error) {
+	// 先通过设备ID获取对应的Mark ID
+	var mark1ID, mark2ID string
+
+	if err := r.db.Model(&model.Mark{}).Where("device_id = ?", device1ID).Select("id").Scan(&mark1ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil // 设备不存在时返回0
+		}
+		return 0, err
+	}
+
+	if err := r.db.Model(&model.Mark{}).Where("device_id = ?", device2ID).Select("id").Scan(&mark2ID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil // 设备不存在时返回0
+		}
+		return 0, err
+	}
+
+	// 使用现有的Get方法查询距离
+	return r.Get(mark1ID, mark2ID)
+}
+
+// --------------------------------------------------
+// 根据设备ID查询它与所有其他设备的距离映射（返回设备ID映射）
+// --------------------------------------------------
+func (r *markPairRepo) MapByDeviceIDToDeviceIDs(deviceID string) (map[string]float64, error) {
+	// 先通过设备ID获取对应的Mark ID
+	var markID string
+	if err := r.db.Model(&model.Mark{}).Where("device_id = ?", deviceID).Select("id").Scan(&markID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return map[string]float64{}, nil
+		}
+		return nil, err
+	}
+
+	// 获取该Mark与其他所有Mark的距离映射
+	markDistanceMap, err := r.MapByID(markID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 将Mark ID映射转换为设备ID映射
+	deviceDistanceMap := make(map[string]float64)
+	for markID, distance := range markDistanceMap {
+		var otherDeviceID string
+		if err := r.db.Model(&model.Mark{}).Where("id = ?", markID).Select("device_id").Scan(&otherDeviceID).Error; err != nil {
+			continue // 跳过无法找到的设备
+		}
+		deviceDistanceMap[otherDeviceID] = distance
+	}
+
+	return deviceDistanceMap, nil
 }
 
 // --------------------------------------------------

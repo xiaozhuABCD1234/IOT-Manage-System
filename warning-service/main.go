@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"gorm.io/gorm"
+
 	"IOT-Manage-System/warning-service/config"
 	"IOT-Manage-System/warning-service/repo"
 	"IOT-Manage-System/warning-service/service"
@@ -22,24 +24,35 @@ func main() {
 	utils.InitMQTT()
 	defer utils.CloseMQTT()
 
-	db, err := utils.InitDB()
-	if err != nil {
-		log.Fatalf("初始化数据库失败: %v", err)
-	}
-	defer func() {
-		if err := utils.CloseDB(db); err != nil {
-			log.Printf("关闭数据库失败: %v", err)
-		} else {
-			log.Println("数据库已正常关闭")
+	// 在API模式下，我们不再需要数据库连接
+	// 但为了兼容性，我们仍然可以初始化数据库（可选）
+	var db *gorm.DB
+	var err error
+
+	// 检查是否需要数据库连接（用于兼容模式）
+	if os.Getenv("USE_DATABASE") == "true" {
+		db, err = utils.InitDB()
+		if err != nil {
+			log.Fatalf("初始化数据库失败: %v", err)
 		}
-	}()
+		defer func() {
+			if err := utils.CloseDB(db); err != nil {
+				log.Printf("关闭数据库失败: %v", err)
+			} else {
+				log.Println("数据库已正常关闭")
+			}
+		}()
+		log.Println("使用数据库模式")
+	} else {
+		log.Println("使用API模式，无需数据库连接")
+	}
 
 	// 1. 创建缓存实例
 	safeDist := repo.NewSafeDist()
 	dangerZone := repo.NewDangerZone()
 
 	// 2. 创建并启动轮询器
-	markRepo := repo.NewMarkRepo(db) // 你已有的构造函数
+	markRepo := repo.NewMarkRepo(db) // 在API模式下，db可以为nil
 	poller := service.NewDistancePoller(markRepo, safeDist, dangerZone)
 	poller.Start()
 	defer poller.Stop() // 3. 优雅停止

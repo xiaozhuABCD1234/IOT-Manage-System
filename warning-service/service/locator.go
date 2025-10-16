@@ -197,8 +197,8 @@ func (l *Locator) batchCheckRTK() {
 				go SendWarning(b.ID, true)
 			}
 			// 安全距离未设置时，检查危险区域
-			dangerZoneA := l.DangerZone.Get(a.ID)
-			dangerZoneB := l.DangerZone.Get(b.ID)
+			dangerZoneA, _ := l.MarkRepo.GetDangerZoneM(a.ID)
+			dangerZoneB, _ := l.MarkRepo.GetDangerZoneM(b.ID)
 			// 使用两个设备中较大的危险区域作为判断标准
 			dangerZone := math.Max(dangerZoneA, dangerZoneB)
 			if dangerZone > 0 && distance < dangerZone {
@@ -249,9 +249,8 @@ func (l *Locator) batchCheckUWB() {
 				go SendWarning(b.ID, true)
 			}
 			// 安全距离未设置时，检查危险区域
-			// dangerZoneA := l.DangerZone.Get(a.ID)
 			dangerZoneA, _ := l.MarkRepo.GetDangerZoneM(a.ID)
-			dangerZoneB := l.DangerZone.Get(b.ID)
+			dangerZoneB, _ := l.MarkRepo.GetDangerZoneM(b.ID)
 			// 使用两个设备中较大的危险区域作为判断标准
 			dangerZone := math.Max(dangerZoneA, dangerZoneB)
 			if dangerZone > 0 && distance < dangerZone {

@@ -22,6 +22,10 @@ type MarkPairService interface {
 	DistanceMapByMark(id string) (map[string]float64, error)
 	// 查询某个 Device 与其它所有 Mark 的距离映射
 	DistanceMapByDevice(deviceID string) (map[string]float64, error)
+	// 根据两个设备ID查询它们之间的距离
+	GetDistanceByDeviceIDs(device1ID, device2ID string) (float64, error)
+	// 查询某个设备与所有其他设备的距离映射（返回设备ID映射）
+	DistanceMapByDeviceToDeviceIDs(deviceID string) (map[string]float64, error)
 	// 分页查询标记对列表
 	ListMarkPairs(page, limit int) ([]model.MarkPairResponse, int64, error)
 }
@@ -200,6 +204,34 @@ func (s *markPairService) DistanceMapByDevice(deviceID string) (map[string]float
 	}
 
 	result, err := s.markPairRepo.MapByDeviceID(deviceID)
+	if err != nil {
+		return nil, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return result, nil
+}
+
+func (s *markPairService) GetDistanceByDeviceIDs(device1ID, device2ID string) (float64, error) {
+	if device1ID == "" || device2ID == "" {
+		return 0, errs.ErrInvalidInput.WithDetails("device IDs cannot be empty")
+	}
+
+	if device1ID == device2ID {
+		return 0, errs.ErrInvalidInput.WithDetails("device IDs cannot be the same")
+	}
+
+	distance, err := s.markPairRepo.GetByDeviceIDs(device1ID, device2ID)
+	if err != nil {
+		return 0, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return distance, nil
+}
+
+func (s *markPairService) DistanceMapByDeviceToDeviceIDs(deviceID string) (map[string]float64, error) {
+	if deviceID == "" {
+		return nil, errs.ErrInvalidInput.WithDetails("device ID cannot be empty")
+	}
+
+	result, err := s.markPairRepo.MapByDeviceIDToDeviceIDs(deviceID)
 	if err != nil {
 		return nil, errs.ErrDatabase.WithDetails(err.Error())
 	}

@@ -143,6 +143,43 @@ func (h *MarkPairHandler) DistanceMapByDevice(c *fiber.Ctx) error {
 	return utils.SendSuccessResponse(c, distanceMap)
 }
 
+// GetDistanceByDeviceIDs 根据设备ID查询单对标记距离
+func (h *MarkPairHandler) GetDistanceByDeviceIDs(c *fiber.Ctx) error {
+	device1ID := c.Params("device1_id")
+	device2ID := c.Params("device2_id")
+
+	if device1ID == "" || device2ID == "" {
+		return errs.ErrInvalidInput.WithDetails("设备ID不能为空")
+	}
+
+	distance, err := h.markPairService.GetDistanceByDeviceIDs(device1ID, device2ID)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, map[string]interface{}{
+		"device1_id": device1ID,
+		"device2_id": device2ID,
+		"distance":   distance,
+	})
+}
+
+// DistanceMapByDeviceToDeviceIDs 查询某个标记设备ID与所有其他标记的距离映射（设备ID）
+func (h *MarkPairHandler) DistanceMapByDeviceToDeviceIDs(c *fiber.Ctx) error {
+	deviceID := c.Params("id")
+
+	if deviceID == "" {
+		return errs.ErrInvalidInput.WithDetails("设备ID不能为空")
+	}
+
+	distanceMap, err := h.markPairService.DistanceMapByDeviceToDeviceIDs(deviceID)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, distanceMap)
+}
+
 // ListMarkPairs 分页查询标记对列表
 func (h *MarkPairHandler) ListMarkPairs(c *fiber.Ctx) error {
 	// 分页参数

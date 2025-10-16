@@ -35,6 +35,11 @@ type Config struct {
 		Port     string
 	}
 
+	MarkServiceConfig struct {
+		Hostname string
+		Port     string
+	}
+
 	AppConfig struct {
 		OnlineSecond int
 	}
@@ -64,6 +69,9 @@ func Load() {
 
 		C.MapServiceConfig.Hostname = getEnvStr("MAP_SERVICE_HOST", "map-service")
 		C.MapServiceConfig.Port = getEnvStr("MAP_SERVICE_PORT", "8002")
+
+		C.MarkServiceConfig.Hostname = getEnvStr("MARK_SERVICE_HOST", "mark-service")
+		C.MarkServiceConfig.Port = getEnvStr("MARK_SERVICE_PORT", "8004")
 
 		C.AppConfig.OnlineSecond = getEnvInt("OFFLINE_SECOND", 3)
 	})

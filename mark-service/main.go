@@ -55,59 +55,65 @@ func main() {
 
 	// ---------------- mark 相关路由 ----------------
 	mark := v1.Group("/marks")
-	mark.Get("/id-to-name", h1.GetAllMarkIDToName)                      // 获取全部 markID→markName 映射
-	mark.Post("/", h1.CreateMark)                                       // 创建标记
-	mark.Get("/", h1.ListMark)                                          // 分页获取标记列表
-	mark.Get("/:id", h1.GetMarkByID)                                    // 根据 ID 获取标记
-	mark.Put("/:id", h1.UpdateMark)                                     // 更新标记
-	mark.Delete("/:id", h1.DeleteMark)                                  // 删除标记
-	mark.Get("/device/id-to-name", h1.GetAllDeviceIDToName)             // 获取全部 deviceID→markName 映射
-	mark.Get("/device/:device_id", h1.GetMarkByDeviceID)                // 根据设备 ID 获取标记
-	mark.Put("/device/:device_id/last-online", h1.UpdateMarkLastOnline) // 更新最后在线时间
-	mark.Get("/persist/device/:device_id", h1.GetPersistMQTTByDeviceID) // GET /api/marks/persist/device/:device_id
-	mark.Get("/persist/list", h1.GetMarksByPersistMQTT)                 // GET /api/marks/persist/list?persist=true&page=1&limit=10
-	mark.Get("/persist/device-ids", h1.GetDeviceIDsByPersistMQTT)       // GET /api/marks/persist/device-ids?persist=true
-	mark.Get("", h1.ListMark)
-	mark.Post("", h1.CreateMark)
+	// 静态路径优先（最具体的路径）
+	mark.Get("/id-to-name", h1.GetAllMarkIDToName)                                 // 获取全部 markID→markName 映射
+	mark.Get("/device/id-to-name", h1.GetAllDeviceIDToName)                        // 获取全部 deviceID→markName 映射
+	mark.Get("/persist/list", h1.GetMarksByPersistMQTT)                            // GET /api/marks/persist/list?persist=true&page=1&limit=10
+	mark.Get("/persist/device-ids", h1.GetDeviceIDsByPersistMQTT)                  // GET /api/marks/persist/device-ids?persist=true
+	mark.Get("/persist/device/:device_id", h1.GetPersistMQTTByDeviceID)            // GET /api/marks/persist/device/:device_id
+	mark.Put("/device/:device_id/last-online", h1.UpdateMarkLastOnline)            // 更新最后在线时间
+	mark.Get("/device/:device_id/safe-distance", h1.GetMarkSafeDistanceByDeviceID) // 根据设备ID获取危险半径
+	mark.Get("/device/:device_id", h1.GetMarkByDeviceID)                           // 根据设备 ID 获取标记
+	mark.Get("/:id/safe-distance", h1.GetMarkSafeDistance)                         // 根据标记ID获取危险半径
+	mark.Put("/:id", h1.UpdateMark)                                                // 更新标记
+	mark.Delete("/:id", h1.DeleteMark)                                             // 删除标记
+	mark.Get("/:id", h1.GetMarkByID)                                               // 根据 ID 获取标记
+	// 根路径最后
+	mark.Post("/", h1.CreateMark) // 创建标记
+	mark.Get("/", h1.ListMark)    // 分页获取标记列表
 
 	// ---------------- markTag 相关路由 ----------------
 	markTag := v1.Group("/tags")
-	markTag.Post("/", h1.CreateMarkTag)                        // 创建标签
-	markTag.Get("/", h1.ListMarkTags)                          // 分页获取标签列表
+	// 静态路径优先（最具体的路径）
 	markTag.Get("/id-to-name", h1.GetAllTagIDToName)           // 获取全部 tagID→tagName 映射
-	markTag.Get("/:tag_id", h1.GetMarkTagByID)                 // 根据 ID 获取标签
+	markTag.Get("/name/:tag_name/marks", h1.GetMarksByTagName) // 根据标签名称获取标记列表（分页）
 	markTag.Get("/name/:tag_name", h1.GetMarkTagByName)        // 根据名称获取标签
+	markTag.Get("/:tag_id/marks", h1.GetMarksByTagID)          // 根据标签 ID 获取标记列表（分页）
 	markTag.Put("/:tag_id", h1.UpdateMarkTag)                  // 更新标签
 	markTag.Delete("/:tag_id", h1.DeleteMarkTag)               // 删除标签
-	markTag.Get("/:tag_id/marks", h1.GetMarksByTagID)          // 根据标签 ID 获取标记列表（分页）
-	markTag.Get("/name/:tag_name/marks", h1.GetMarksByTagName) // 根据标签名称获取标记列表（分页）
-	markTag.Post("", h1.CreateMarkTag)
-	markTag.Get("", h1.ListMarkTags)
+	markTag.Get("/:tag_id", h1.GetMarkTagByID)                 // 根据 ID 获取标签
+	// 根路径最后
+	markTag.Post("/", h1.CreateMarkTag) // 创建标签
+	markTag.Get("/", h1.ListMarkTags)   // 分页获取标签列表
 
 	// ---------------- type 相关路由 ----------------
 	markType := v1.Group("/types")
-	markType.Post("/", h1.CreateMarkType)                         // 创建类型
-	markType.Get("/", h1.ListMarkTypes)                           // 分页获取类型列表
+	// 静态路径优先（最具体的路径）
 	markType.Get("/id-to-name", h1.GetAllTypeIDToName)            // 获取全部 typeID→typeName 映射
-	markType.Get("/:type_id", h1.GetMarkTypeByID)                 // 根据 ID 获取类型
+	markType.Get("/name/:type_name/marks", h1.GetMarksByTypeName) // 根据类型名称获取标记列表（分页）
 	markType.Get("/name/:type_name", h1.GetMarkTypeByName)        // 根据名称获取类型
+	markType.Get("/:type_id/marks", h1.GetMarksByTypeID)          // 根据类型 ID 获取标记列表（分页）
 	markType.Put("/:type_id", h1.UpdateMarkType)                  // 更新类型
 	markType.Delete("/:type_id", h1.DeleteMarkType)               // 删除类型
-	markType.Get("/:type_id/marks", h1.GetMarksByTypeID)          // 根据类型 ID 获取标记列表（分页）
-	markType.Get("/name/:type_name/marks", h1.GetMarksByTypeName) // 根据类型名称获取标记列表（分页）
-	markType.Post("/", h1.CreateMarkType)
-	markType.Get("/", h1.ListMarkTypes)
+	markType.Get("/:type_id", h1.GetMarkTypeByID)                 // 根据 ID 获取类型
+	// 根路径最后
+	markType.Post("/", h1.CreateMarkType) // 创建类型
+	markType.Get("/", h1.ListMarkTypes)   // 分页获取类型列表
 
 	// ---------------- markPair 相关路由 ----------------
 	markPair := v1.Group("/pairs")
-	markPair.Get("/", h2.ListMarkPairs)                                     // 分页获取标记对列表
-	markPair.Post("/distance", h2.SetPairDistance)                          // 设置/更新单对标记距离
-	markPair.Post("/combinations", h2.SetCombinations)                      // 批量设置标记组合距离
-	markPair.Post("/cartesian", h2.SetCartesian)                            // 笛卡尔积方式设置标记对距离
-	markPair.Get("/distance/:mark1_id/:mark2_id", h2.GetDistance)           // 查询单对标记距离
-	markPair.Delete("/distance/:mark1_id/:mark2_id", h2.DeletePair)         // 删除单对标记距离
-	markPair.Get("/distance/map/mark/:id", h2.DistanceMapByMark)            // 查询某个标记与其他所有标记的距离映射
-	markPair.Get("/distance/map/device/:device_id", h2.DistanceMapByDevice) // 查询某个设备与其他所有标记的距离映射
+	// 静态路径优先（最具体的路径）
+	markPair.Post("/distance", h2.SetPairDistance)                                      // 设置/更新单对标记距离
+	markPair.Post("/combinations", h2.SetCombinations)                                  // 批量设置标记组合距离
+	markPair.Post("/cartesian", h2.SetCartesian)                                        // 笛卡尔积方式设置标记对距离
+	markPair.Get("/distance/map/mark/device/:id", h2.DistanceMapByDeviceToDeviceIDs)    // 查询某个标记设备ID与所有其他标记的距离映射（设备ID）
+	markPair.Get("/distance/map/device/:device_id", h2.DistanceMapByDevice)             // 查询某个设备与其他所有标记的距离映射
+	markPair.Get("/distance/map/mark/:id", h2.DistanceMapByMark)                        // 查询某个标记与其他所有标记的距离映射
+	markPair.Get("/distance/device/:device1_id/:device2_id", h2.GetDistanceByDeviceIDs) // 根据设备ID查询单对标记距离
+	markPair.Get("/distance/:mark1_id/:mark2_id", h2.GetDistance)                       // 查询单对标记距离
+	markPair.Delete("/distance/:mark1_id/:mark2_id", h2.DeletePair)                     // 删除单对标记距离
+	// 根路径最后
+	markPair.Get("/", h2.ListMarkPairs) // 分页获取标记对列表
 
 	// 启动服务器
 	port := utils.GetEnv("PORT", "8004")

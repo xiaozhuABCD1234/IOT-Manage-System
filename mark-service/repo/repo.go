@@ -27,6 +27,8 @@ type MarkRepo interface {
 	GetDeviceIDsByPersistMQTT(persist bool) ([]string, error)
 	GetAllMarkDeviceIDsAndNames() (map[string]string, error)
 	GetAllMarkIDsAndNames() (map[string]string, error)
+	GetMarkSafeDistance(markID string) (*float64, error)
+	GetMarkSafeDistanceByDeviceID(deviceID string) (*float64, error)
 
 	// MarkTag 相关操作
 	CreateMarkTag(mt *model.MarkTag) error

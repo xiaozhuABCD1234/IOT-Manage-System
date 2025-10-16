@@ -366,3 +366,29 @@ func (r *markRepo) GetAllMarkIDsAndNames() (map[string]string, error) {
 	}
 	return out, nil
 }
+
+// GetMarkSafeDistance 根据标记ID获取危险半径
+func (r *markRepo) GetMarkSafeDistance(markID string) (*float64, error) {
+	var safeDistance *float64
+	err := r.db.Model(&model.Mark{}).
+		Select("safe_distance_m").
+		Where("id = ?", markID).
+		Scan(&safeDistance).Error
+	if err != nil {
+		return nil, err
+	}
+	return safeDistance, nil
+}
+
+// GetMarkSafeDistanceByDeviceID 根据设备ID获取危险半径
+func (r *markRepo) GetMarkSafeDistanceByDeviceID(deviceID string) (*float64, error) {
+	var safeDistance *float64
+	err := r.db.Model(&model.Mark{}).
+		Select("safe_distance_m").
+		Where("device_id = ?", deviceID).
+		Scan(&safeDistance).Error
+	if err != nil {
+		return nil, err
+	}
+	return safeDistance, nil
+}

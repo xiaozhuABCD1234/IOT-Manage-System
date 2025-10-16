@@ -294,3 +294,21 @@ func (s *markService) GetAllMarkIDToName() (map[string]string, error) {
 	}
 	return m, nil
 }
+
+// GetMarkSafeDistance 根据标记ID获取危险半径
+func (s *markService) GetMarkSafeDistance(markID string) (*float64, error) {
+	safeDistance, err := s.repo.GetMarkSafeDistance(markID)
+	if err != nil {
+		return nil, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return safeDistance, nil
+}
+
+// GetMarkSafeDistanceByDeviceID 根据设备ID获取危险半径
+func (s *markService) GetMarkSafeDistanceByDeviceID(deviceID string) (*float64, error) {
+	safeDistance, err := s.repo.GetMarkSafeDistanceByDeviceID(deviceID)
+	if err != nil {
+		return nil, errs.ErrDatabase.WithDetails(err.Error())
+	}
+	return safeDistance, nil
+}

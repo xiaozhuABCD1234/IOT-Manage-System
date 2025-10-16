@@ -205,3 +205,37 @@ func (h *MarkHandler) GetAllMarkIDToName(c *fiber.Ctx) error {
 	}
 	return utils.SendSuccessResponse(c, resp)
 }
+
+// GetMarkSafeDistance 根据标记ID获取危险半径
+func (h *MarkHandler) GetMarkSafeDistance(c *fiber.Ctx) error {
+	markID := c.Params("id")
+	safeDistance, err := h.markService.GetMarkSafeDistance(markID)
+	if err != nil {
+		return err
+	}
+
+	// 构建响应数据
+	response := map[string]interface{}{
+		"mark_id":       markID,
+		"danger_zone_m": safeDistance,
+	}
+
+	return utils.SendSuccessResponse(c, response)
+}
+
+// GetMarkSafeDistanceByDeviceID 根据设备ID获取危险半径
+func (h *MarkHandler) GetMarkSafeDistanceByDeviceID(c *fiber.Ctx) error {
+	deviceID := c.Params("device_id")
+	safeDistance, err := h.markService.GetMarkSafeDistanceByDeviceID(deviceID)
+	if err != nil {
+		return err
+	}
+
+	// 构建响应数据
+	response := map[string]interface{}{
+		"device_id":     deviceID,
+		"danger_zone_m": safeDistance,
+	}
+
+	return utils.SendSuccessResponse(c, response)
+}
