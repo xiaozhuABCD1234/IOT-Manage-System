@@ -170,8 +170,26 @@ func (l *Locator) batchCheckRTK() {
 			a, b := snapshot[ids[i]], snapshot[ids[j]]
 			distance := utils.CalculateRTK(*a, *b)
 			log.Printf("[DEBUG] %s间%s距离: %f", a.ID, b.ID, distance)
-			safe := l.SafeDist.Get(a.ID, b.ID)
+
+			// 直接从数据库查询安全距离
+			safeDistanceMap, err := l.MarkRepo.GetDistanceMapByDevice(a.ID)
+			if err != nil {
+				log.Printf("[WARN] 查询设备 %s 安全距离失败: %v", a.ID, err)
+				safeDistanceMap = make(map[string]float64)
+			}
+			safe := safeDistanceMap[b.ID]
+			if safe <= 0 {
+				// 如果从 a->b 没找到，尝试从 b->a 查询
+				safeDistanceMap, err := l.MarkRepo.GetDistanceMapByDevice(b.ID)
+				if err != nil {
+					log.Printf("[WARN] 查询设备 %s 安全距离失败: %v", b.ID, err)
+					safe = -1
+				} else {
+					safe = safeDistanceMap[a.ID]
+				}
+			}
 			log.Printf("[DEBUG] %s间%s安全距离: %f", a.ID, b.ID, safe)
+
 			// 优先使用安全距离检查
 			if safe > 0 && distance < safe {
 				log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)
@@ -204,8 +222,26 @@ func (l *Locator) batchCheckUWB() {
 			a, b := snapshot[ids[i]], snapshot[ids[j]]
 			distance := utils.CalculateUWB(*a, *b)
 			log.Printf("[DEBUG] %s间%s距离: %f", a.ID, b.ID, distance)
-			safe := l.SafeDist.Get(a.ID, b.ID)
+
+			// 直接从数据库查询安全距离
+			safeDistanceMap, err := l.MarkRepo.GetDistanceMapByDevice(a.ID)
+			if err != nil {
+				log.Printf("[WARN] 查询设备 %s 安全距离失败: %v", a.ID, err)
+				safeDistanceMap = make(map[string]float64)
+			}
+			safe := safeDistanceMap[b.ID]
+			if safe <= 0 {
+				// 如果从 a->b 没找到，尝试从 b->a 查询
+				safeDistanceMap, err := l.MarkRepo.GetDistanceMapByDevice(b.ID)
+				if err != nil {
+					log.Printf("[WARN] 查询设备 %s 安全距离失败: %v", b.ID, err)
+					safe = -1
+				} else {
+					safe = safeDistanceMap[a.ID]
+				}
+			}
 			log.Printf("[DEBUG] %s间%s安全距离: %f", a.ID, b.ID, safe)
+
 			// 优先使用安全距离检查
 			if safe > 0 && distance < safe {
 				log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)

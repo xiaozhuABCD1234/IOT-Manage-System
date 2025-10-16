@@ -156,7 +156,7 @@ func (d *DangerZone) Set(id string, r float64) {
 func (d *DangerZone) Get(id string) float64 {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
-	log.Printf("Business: dz instance = %p", d)
+	// log.Printf("Business: dz instance = %p", d)
 	log.Printf("Get key=%q", id)
 	if v, ok := d.m[id]; ok {
 		return v
