@@ -71,7 +71,7 @@ func (r *FenceRateLimiter) Allow(deviceID string) bool {
 
 	// 检查是否超过限流阈值
 	if len(validTimes) >= r.maxRate {
-		log.Printf("[FENCE_RATE_LIMIT] 设备 %s 围栏检测被限流，当前窗口内已请求 %d 次", deviceID, len(validTimes))
+		// log.Printf("[FENCE_RATE_LIMIT] 设备 %s 围栏检测被限流，当前窗口内已请求 %d 次", deviceID, len(validTimes))
 		return false
 	}
 
@@ -135,12 +135,12 @@ func (fc *FenceChecker) CheckPoint(deviceID string, x, y float64) (bool, error) 
 		fc.mu.RUnlock()
 
 		if exists {
-			log.Printf("[FENCE_RATE_LIMIT] 设备 %s 被限流，返回缓存状态: %v", deviceID, cachedStatus)
+			// log.Printf("[FENCE_RATE_LIMIT] 设备 %s 被限流，返回缓存状态: %v", deviceID, cachedStatus)
 			return cachedStatus, nil
 		}
 
 		// 没有缓存状态时，返回false（假设不在围栏内）
-		log.Printf("[FENCE_RATE_LIMIT] 设备 %s 被限流且无缓存状态，返回false", deviceID)
+		// log.Printf("[FENCE_RATE_LIMIT] 设备 %s 被限流且无缓存状态，返回false", deviceID)
 		return false, nil
 	}
 
@@ -199,14 +199,14 @@ func (fc *FenceChecker) CheckPoint(deviceID string, x, y float64) (bool, error) 
 	if !exists {
 		// 首次检查
 		if isInside {
-			log.Printf("[FENCE] 设备 %s 在围栏内: %v", deviceID, fenceResp.Data.FenceNames)
+			// log.Printf("[FENCE] 设备 %s 在围栏内: %v", deviceID, fenceResp.Data.FenceNames)
 		}
 	} else if prevStatus != isInside {
 		// 状态改变
 		if isInside {
-			log.Printf("[FENCE] 设备 %s 进入围栏: %v", deviceID, fenceResp.Data.FenceNames)
+			// log.Printf("[FENCE] 设备 %s 进入围栏: %v", deviceID, fenceResp.Data.FenceNames)
 		} else {
-			log.Printf("[FENCE] 设备 %s 离开围栏", deviceID)
+			// log.Printf("[FENCE] 设备 %s 离开围栏", deviceID)
 		}
 	}
 

@@ -64,11 +64,16 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 			Lon:    rtkS.V[0],
 			Lat:    rtkS.V[1],
 		})
-		log.Printf("[DEBUG] 收到 RTK 定位消息  deviceID=%s  lon=%f  lat=%f", msg.ID, rtkS.V[0], rtkS.V[1])
+		// log.Printf("[DEBUG] 收到 RTK 定位消息  deviceID=%s  lon=%f  lat=%f", msg.ID, rtkS.V[0], rtkS.V[1])
 	}
 
-	// 写 UWB
-	if uwbS != nil && len(uwbS.V) >= 2 {
+	// 写 UWB - UWB(0,0)是有效的，只有当RTK有效且UWB为(0,0)时才优先使用RTK
+	rtkValid := rtkS != nil && len(rtkS.V) >= 2 && rtkS.V[0] != 0 && rtkS.V[1] != 0
+	uwbValid := uwbS != nil && len(uwbS.V) >= 2
+	uwbIsZero := uwbS != nil && len(uwbS.V) >= 2 && uwbS.V[0] == 0 && uwbS.V[1] == 0
+
+	if uwbValid && !(uwbIsZero && rtkValid) {
+		// UWB数据有效，且不是"RTK有效且UWB为(0,0)"的情况，正常存储和使用UWB
 		l.MemRepo.SetUWB(&model.UWBLoc{
 			ID: msg.ID,
 			X:  uwbS.V[0],
@@ -77,6 +82,22 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 		// log.Printf("[DEBUG] 收到 UWB 定位消息  deviceID=%s  x=%f  y=%f", msg.ID, uwbS.V[0], uwbS.V[1])
 
 		// 检查是否在电子围栏内（异步检查，避免阻塞）
+		if l.FenceChecker != nil {
+			go l.checkFence(msg.ID, uwbS.V[0], uwbS.V[1])
+		}
+	} else if uwbIsZero && rtkValid {
+		// 只有当RTK有效且UWB为(0,0)时，才优先使用RTK，抛弃UWB
+		// log.Printf("[DEBUG] RTK有效且UWB为(0,0)，设备ID=%s，优先使用RTK定位", msg.ID)
+	} else if uwbIsZero && !rtkValid {
+		// RTK无效但UWB为(0,0)，使用UWB(0,0)作为有效定位
+		l.MemRepo.SetUWB(&model.UWBLoc{
+			ID: msg.ID,
+			X:  uwbS.V[0],
+			Y:  uwbS.V[1],
+		})
+		// log.Printf("[DEBUG] RTK无效，使用UWB(0,0)定位，设备ID=%s", msg.ID)
+
+		// 检查是否在电子围栏内
 		if l.FenceChecker != nil {
 			go l.checkFence(msg.ID, uwbS.V[0], uwbS.V[1])
 		}
@@ -169,7 +190,7 @@ func (l *Locator) batchCheckRTK() {
 		for j := i + 1; j < len(ids); j++ {
 			a, b := snapshot[ids[i]], snapshot[ids[j]]
 			distance := utils.CalculateRTK(*a, *b)
-			log.Printf("[DEBUG] %s间%s距离: %f", a.ID, b.ID, distance)
+			// log.Printf("[DEBUG] %s间%s距离: %f", a.ID, b.ID, distance)
 
 			// 直接从数据库查询安全距离
 			safeDistanceMap, err := l.MarkRepo.GetDistanceMapByDevice(a.ID)
@@ -188,11 +209,11 @@ func (l *Locator) batchCheckRTK() {
 					safe = safeDistanceMap[a.ID]
 				}
 			}
-			log.Printf("[DEBUG] %s间%s安全距离: %f", a.ID, b.ID, safe)
+			// log.Printf("[DEBUG] %s间%s安全距离: %f", a.ID, b.ID, safe)
 
 			// 优先使用安全距离检查
 			if safe > 0 && distance < safe {
-				log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)
+				// log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)
 				go SendWarning(a.ID, true)
 				go SendWarning(b.ID, true)
 			}
@@ -202,7 +223,7 @@ func (l *Locator) batchCheckRTK() {
 			// 使用两个设备中较大的危险区域作为判断标准
 			dangerZone := math.Max(dangerZoneA, dangerZoneB)
 			if dangerZone > 0 && distance < dangerZone {
-				log.Printf("[DEBUG] 设备间距离 小于危险距离  deviceID1=%s  deviceID2=%s  distance=%f  danger_distance=%f", a.ID, b.ID, distance, dangerZone)
+				// log.Printf("[DEBUG] 设备间距离 小于危险距离  deviceID1=%s  deviceID2=%s  distance=%f  danger_distance=%f", a.ID, b.ID, distance, dangerZone)
 				go SendWarning(a.ID, true)
 				go SendWarning(b.ID, true)
 			}
@@ -221,7 +242,7 @@ func (l *Locator) batchCheckUWB() {
 		for j := i + 1; j < len(ids); j++ {
 			a, b := snapshot[ids[i]], snapshot[ids[j]]
 			distance := utils.CalculateUWB(*a, *b)
-			log.Printf("[DEBUG] %s间%s距离: %f", a.ID, b.ID, distance)
+			// log.Printf("[DEBUG] %s间%s距离: %f", a.ID, b.ID, distance)
 
 			// 直接从数据库查询安全距离
 			safeDistanceMap, err := l.MarkRepo.GetDistanceMapByDevice(a.ID)
@@ -240,11 +261,11 @@ func (l *Locator) batchCheckUWB() {
 					safe = safeDistanceMap[a.ID]
 				}
 			}
-			log.Printf("[DEBUG] %s间%s安全距离: %f", a.ID, b.ID, safe)
+			// log.Printf("[DEBUG] %s间%s安全距离: %f", a.ID, b.ID, safe)
 
 			// 优先使用安全距离检查
 			if safe > 0 && distance < safe {
-				log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)
+				// log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)
 				go SendWarning(a.ID, true)
 				go SendWarning(b.ID, true)
 			}
@@ -254,7 +275,7 @@ func (l *Locator) batchCheckUWB() {
 			// 使用两个设备中较大的危险区域作为判断标准
 			dangerZone := math.Max(dangerZoneA, dangerZoneB)
 			if dangerZone > 0 && distance < dangerZone {
-				log.Printf("[DEBUG] 设备间距离 小于危险距离  deviceID1=%s  deviceID2=%s  distance=%f  danger_distance=%f", a.ID, b.ID, distance, dangerZone)
+				// log.Printf("[DEBUG] 设备间距离 小于危险距离  deviceID1=%s  deviceID2=%s  distance=%f  danger_distance=%f", a.ID, b.ID, distance, dangerZone)
 				go SendWarning(a.ID, true)
 				go SendWarning(b.ID, true)
 			}

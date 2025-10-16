@@ -40,7 +40,7 @@ func (p *DistancePoller) Stop() {
 func (p *DistancePoller) loop() {
 	defer close(p.done)
 	defer p.tick.Stop()
-	log.Printf("DistancePoller: dz instance = %p", p.dz)
+	// log.Printf("DistancePoller: dz instance = %p", p.dz)
 	for {
 		select {
 		case <-p.tick.C:
@@ -54,7 +54,7 @@ func (p *DistancePoller) loop() {
 			// 2. 在API模式下，如果在线设备列表为空，我们跳过轮询
 			// 因为API模式下无法获取在线设备列表，距离检查由Locator实时处理
 			if len(onlineDeviceIDs) == 0 {
-				log.Printf("[DEBUG] DistancePoller: 在线设备列表为空，跳过轮询（API模式下正常）")
+				// log.Printf("[DEBUG] DistancePoller: 在线设备列表为空，跳过轮询（API模式下正常）")
 				continue
 			}
 

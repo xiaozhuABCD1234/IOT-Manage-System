@@ -26,7 +26,7 @@ func init() {
 	rateLimiter = &WarningRateLimiter{
 		records: make(map[string][]time.Time),
 		maxRate: 1,
-		window: 500 * time.Millisecond, // 500 毫秒
+		window:  500 * time.Millisecond, // 500 毫秒
 	}
 	// 启动清理协程
 	go rateLimiter.cleanupLoop()
@@ -57,7 +57,7 @@ func (r *WarningRateLimiter) Allow(deviceID string, on bool) bool {
 
 	// 检查是否超过限流阈值
 	if len(validTimes) >= r.maxRate {
-		log.Printf("[RATE_LIMIT] 设备 %s 警报被限流，当前窗口内已发送 %d 次", deviceID, len(validTimes))
+		// log.Printf("[RATE_LIMIT] 设备 %s 警报被限流，当前窗口内已发送 %d 次", deviceID, len(validTimes))
 		return false
 	}
 
@@ -112,5 +112,5 @@ func SendWarning(deviceID string, on bool) {
 		log.Printf("[ERROR] 发送警报失败: %v", err)
 		return
 	}
-	log.Printf("[PUB] topic=warning/%s payload=%s", deviceID, payload)
+	// log.Printf("[PUB] topic=warning/%s payload=%s", deviceID, payload)
 }
