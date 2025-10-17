@@ -15,7 +15,7 @@
         <WifiOff v-else class="h-5 w-5 text-gray-400" />
 
         <Label class="flex-1 truncate" :class="{ 'text-amber-300': !deviceNames.get(m.id) }">
-          {{ deviceNames.get(m.id) || "未知设备" }}
+          {{ deviceNames.get(m.id) || "未知设备" }}({{m.id}})
         </Label>
 
         <Badge variant="outline">{{ m.id }}</Badge>

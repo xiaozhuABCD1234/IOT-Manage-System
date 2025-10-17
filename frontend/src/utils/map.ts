@@ -55,7 +55,7 @@ export const createDevice = (map: AMap.Map, id: string, lng: number, lat: number
     content:
     `
       <div class="
-        px-2 py-1 min-w-6 h-6 rounded-full flex items-center justify-center
+        px-2 py-1 min-w-16 h-6 rounded-full flex items-center justify-center
         text-xs font-medium text-white shadow-lg cursor-pointer
         border border-white/20 backdrop-blur-sm
         transition-all duration-200 hover:scale-110 hover:shadow-xl

@@ -59,7 +59,7 @@
           selectedDisplays.includes('combinations') ||
           selectedDisplays.includes('cartesian'))
       "
-      class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-stretch xl:grid-cols-3"
+      class="grid grid-cols-1 gap-4 lg:grid-cols-[repeat(auto-fit,minmax(320px,1fr))] xl:grid-cols-[repeat(auto-fit,minmax(320px,1fr))]"
     >
       <!-- 单对距离设置 -->
       <div v-if="selectedDisplays.includes('pair')" class="flex flex-col">
@@ -134,7 +134,7 @@ const displayOptions = [
 ];
 
 // 选中的显示项
-const selectedDisplays = ref<string[]>(["pair", "combinations", "cartesian", "pairs-list"]);
+const selectedDisplays = ref<string[]>(["pair", "cartesian", "pairs-list"]);
 
 // 是否有选中的显示项
 const hasSelectedDisplays = computed(() => selectedDisplays.value.length > 0);

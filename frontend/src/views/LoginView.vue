@@ -10,7 +10,7 @@
       <!-- 左侧图片：仅桌面显示 -->
       <div class="hidden md:flex md:w-1/2">
         <img
-          src="@/assets/imgs/login_bg_slim.webp"
+          src="@/assets/imgs/login.png"
           alt="登录配图"
           class="h-full w-full rounded-l-xl object-cover"
         />

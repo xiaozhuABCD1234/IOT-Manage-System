@@ -37,3 +37,5 @@ dist
 .env
 set_env.sh
 set-env.*
+
+.VSCodeCounter/

@@ -142,6 +142,8 @@ const handleSubmit = async () => {
       <DrawerFooter class="mx-auto flex flex-row justify-between">
         <DrawerClose as-child>
           <Button @click="handleSubmit">修改</Button>
+        </DrawerClose>
+        <DrawerClose as-child>
           <Button variant="outline"> 取消 </Button>
         </DrawerClose>
       </DrawerFooter>

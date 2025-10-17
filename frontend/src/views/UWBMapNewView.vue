@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { getLatestCustomMap } from "@/api/customMap";
 import { listStations } from "@/api/station";
 import { listPolygonFences, createPolygonFence, deletePolygonFence } from "@/api/polygonFence";
 import type { CustomMapResp } from "@/types/customMap";
 import type { StationResp } from "@/types/station";
 import type { PolygonFenceResp, Point } from "@/types/polygonFence";
+import { connectMQTT, disconnectMQTT, parseUWBMessage, type UWBFix } from "@/utils/mqtt";
+import { useMarksStore } from "@/stores/marks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "vue-sonner";
 import { Plus, Loader2, Trash2 } from "lucide-vue-next";
+import MarkOnlineGrid from "@/components/device/MarkOnlineGrid.vue";
 import {
   PixelScaler,
   drawBackgroundImage,
@@ -33,12 +36,19 @@ import {
   drawStations,
   drawPolygonFences,
   drawCurrentPolygon,
+  drawUWBDevices,
 } from "@/utils/canvasDrawing";
 
 // 数据存储
 const mapData = ref<CustomMapResp | null>(null);
 const stations = ref<StationResp[]>([]);
 const fences = ref<PolygonFenceResp[]>([]);
+
+// 使用 marks store
+const marksStore = useMarksStore();
+
+// UWB 设备坐标管理（保留用于位置数据）
+const deviceCoordinates = ref<Map<string, UWBFix>>(new Map());
 
 // 绘制多边形的状态
 const isDrawing = ref(false);
@@ -170,7 +180,27 @@ async function drawMap() {
       font: `${baseFontSize}px Arial`,
     });
 
-    // 6. 绘制正在创建的多边形
+    // 6. 绘制 UWB 设备坐标
+    const deviceSize = Math.max(8, Math.min(cssWidth, cssHeight) / 150);
+    const deviceFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
+    drawUWBDevices(
+      ctx,
+      scaler,
+      deviceCoordinates.value,
+      marksStore.markList,
+      marksStore.deviceNames,
+      {
+        onlineColor: "#e74c3c",
+        offlineColor: "#95a5a6",
+        size: deviceSize,
+        font: `${deviceFontSize}px Arial`,
+        textColor: "#333",
+        showTrail: false, // 可以根据需要开启轨迹显示
+        trailLength: 10,
+      },
+    );
+
+    // 7. 绘制正在创建的多边形
     if (isDrawing.value && currentPolygon.value.length > 0) {
       drawCurrentPolygon(ctx, scaler, currentPolygon.value);
     }
@@ -190,6 +220,14 @@ async function drawMap() {
       );
     });
     console.log("🚧 Fences:", fences.value.length, "个");
+    console.log("📱 UWB Devices:", deviceCoordinates.value.size, "个");
+    deviceCoordinates.value.forEach((uwbData, deviceId) => {
+      const { px, py } = scaler.toPixel(uwbData.x, uwbData.y);
+      const isOnline = marksStore.isDeviceOnline(deviceId);
+      console.log(
+        `  - ${deviceId}: UWB坐标(${uwbData.x}, ${uwbData.y}) → 像素(${px.toFixed(1)}, ${py.toFixed(1)}) [${isOnline ? "在线" : "离线"}]`,
+      );
+    });
   } catch (error) {
     console.error("Error drawing map:", error);
   }
@@ -244,6 +282,73 @@ async function loadData() {
     console.error("❌ 加载数据时发生错误:", error);
   }
 }
+
+/**
+ * 初始化位置数据 MQTT 连接（仅用于位置数据，在线状态由 marks store 处理）
+ */
+function initLocationMQTT() {
+  try {
+    console.log("正在连接位置数据 MQTT...");
+    const locationClient = connectMQTT();
+
+    locationClient.on("connect", () => {
+      console.log("✅ 位置数据 MQTT 连接成功");
+
+      // 订阅位置数据主题（包含 UWB 坐标）
+      locationClient.subscribe("location/#", (err: any) => {
+        if (err) {
+          console.error("❌ 订阅位置数据主题失败:", err);
+        } else {
+          console.log("✅ 已订阅位置数据主题: location/#");
+        }
+      });
+    });
+
+    locationClient.on("message", (topic: string, payload: Buffer) => {
+      try {
+        console.log(`📨 收到位置 MQTT 消息: ${topic}`);
+        console.log(`📦 消息内容:`, payload.toString());
+
+        if (topic.startsWith("location/")) {
+          // 处理位置数据（包含 UWB 坐标）
+          try {
+            const uwbData = parseUWBMessage(topic, payload);
+            deviceCoordinates.value.set(uwbData.id, uwbData);
+            console.log(`📍 设备 ${uwbData.id} UWB 坐标: (${uwbData.x}, ${uwbData.y})`);
+
+            // 重新绘制地图以显示新的设备位置
+            drawMap();
+          } catch (error) {
+            // 如果解析 UWB 数据失败，可能是 RTK 数据，忽略
+            console.log(`⚠️ 位置消息解析失败，可能是 RTK 数据: ${topic}`, error);
+            console.log(`📦 原始消息内容:`, payload.toString());
+          }
+        } else {
+          console.log(`❓ 未知位置主题: ${topic}`);
+        }
+      } catch (error) {
+        console.error("❌ 处理位置 MQTT 消息失败:", error);
+        console.log(`📦 原始消息内容:`, payload.toString());
+      }
+    });
+
+    locationClient.on("error", (error: any) => {
+      console.error("❌ 位置数据 MQTT 连接错误:", error);
+    });
+
+    locationClient.on("offline", () => {
+      console.warn("⚠️ 位置数据 MQTT 连接离线");
+    });
+
+    return locationClient;
+  } catch (error) {
+    console.error("❌ 初始化位置数据 MQTT 失败:", error);
+    return null;
+  }
+}
+
+// 位置数据 MQTT 客户端
+let locationMqttClient: any = null;
 
 /**
  * 处理canvas点击事件 - 添加多边形顶点
@@ -431,6 +536,41 @@ onMounted(() => {
   console.log("Component mounted, loading data...");
   loadData();
 
+  // 启动 marks store 的 MQTT 连接（处理在线状态）
+  marksStore.startMQTT();
+
+  // 初始化位置数据 MQTT 连接（处理位置数据）
+  locationMqttClient = initLocationMQTT();
+
+  // 调试：检查设备名称加载情况
+  console.log("🔍 检查设备名称加载情况:");
+  console.log("设备名称映射:", marksStore.deviceNames);
+  console.log("设备名称映射大小:", marksStore.deviceNames.size);
+  console.log("设备列表:", marksStore.markList);
+  console.log("设备列表长度:", marksStore.markList.length);
+
+  // 检查具体设备名称
+  marksStore.markList.forEach((device) => {
+    const name = marksStore.deviceNames.get(device.id);
+    console.log(`设备 ${device.id}: 名称="${name}" (类型: ${typeof name})`);
+  });
+
+  // 监听设备名称变化
+  watch(
+    () => marksStore.deviceNames,
+    (newDeviceNames) => {
+      console.log("🔄 设备名称映射已更新:", newDeviceNames);
+      console.log("设备名称映射大小:", newDeviceNames.size);
+
+      // 检查具体设备名称
+      marksStore.markList.forEach((device) => {
+        const name = newDeviceNames.get(device.id);
+        console.log(`设备 ${device.id}: 名称="${name}" (类型: ${typeof name})`);
+      });
+    },
+    { deep: true },
+  );
+
   // 监听窗口大小变化，重新绘制
   window.addEventListener("resize", drawMap);
 
@@ -450,6 +590,17 @@ onMounted(() => {
 
 // 组件卸载时清理
 onUnmounted(() => {
+  // 断开位置数据 MQTT 连接
+  if (locationMqttClient) {
+    console.log("正在断开位置数据 MQTT 连接...");
+    disconnectMQTT(locationMqttClient);
+    locationMqttClient = null;
+    console.log("✅ 位置数据 MQTT 连接已断开");
+  }
+
+  // 注意：不在这里停止 marks store 的 MQTT，因为其他组件可能也在使用
+  // marksStore.stopMQTT(); // 如果需要完全停止，可以取消注释
+
   window.removeEventListener("resize", drawMap);
   if (resizeObserver) {
     resizeObserver.disconnect();
@@ -580,6 +731,17 @@ onUnmounted(() => {
                     >
                       取消
                     </Button>
+                  </div>
+                </div>
+
+                <!-- UWB 设备状态 -->
+                <div class="mt-4 space-y-2">
+                  <Label>UWB 设备状态 ({{ marksStore.markList.length }}个)</Label>
+                  <div class="h-48">
+                    <MarkOnlineGrid
+                      :marks="marksStore.markList"
+                      :device-names="marksStore.deviceNames"
+                    />
                   </div>
                 </div>
 

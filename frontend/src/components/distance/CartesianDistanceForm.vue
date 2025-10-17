@@ -18,13 +18,13 @@
 
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label for="first-kind">类型</Label>
+              <Label for="first-kind">选择范围</Label>
               <Select v-model="formData.first.kind" @update:model-value="handleFirstKindChange">
                 <SelectTrigger id="first-kind">
                   <SelectValue placeholder="选择类型" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mark">标记 (Mark)</SelectItem>
+                  <SelectItem value="mark">标记名称 (Name)</SelectItem>
                   <SelectItem value="tag">标签 (Tag)</SelectItem>
                   <SelectItem value="type">类型 (Type)</SelectItem>
                 </SelectContent>
@@ -63,13 +63,13 @@
 
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label for="second-kind">类型</Label>
+              <Label for="second-kind">选择范围</Label>
               <Select v-model="formData.second.kind" @update:model-value="handleSecondKindChange">
                 <SelectTrigger id="second-kind">
                   <SelectValue placeholder="选择类型" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mark">标记 (Mark)</SelectItem>
+                  <SelectItem value="mark">标记名称 (Name)</SelectItem>
                   <SelectItem value="tag">标签 (Tag)</SelectItem>
                   <SelectItem value="type">类型 (Type)</SelectItem>
                 </SelectContent>
@@ -193,7 +193,7 @@ const isFormValid = computed(() => {
 // 辅助函数：获取类型标签
 const getKindLabel = (kind: IdentifierKind) => {
   const labels: Record<IdentifierKind, string> = {
-    mark: "标记",
+    mark: "标记名称",
     tag: "标签",
     type: "类型",
   };

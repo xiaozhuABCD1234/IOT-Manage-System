@@ -42,7 +42,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-vue-next";
 import { deletePairDistance } from "@/api/mark/pair";
-import { getAllMarkIDToName } from "@/api/mark/index";
+import { getMarkName, ensureMarkNamesLoaded } from "@/utils/markName";
 import { toast } from "vue-sonner";
 import { ref, onMounted } from "vue";
 
@@ -55,15 +55,7 @@ const emit = defineEmits<{
   deleted: [];
 }>();
 
-// 标记名称映射
-const markNames = ref<Record<string, string>>({});
-
 const deleting = ref(false);
-
-// 获取标记名称
-const getMarkName = (markId: string) => {
-  return markNames.value[markId] || markId;
-};
 
 const handleDelete = async () => {
   if (deleting.value) return;
@@ -83,20 +75,12 @@ const handleDelete = async () => {
   }
 };
 
-// 加载标记名称映射
-const loadMarkNames = async () => {
+// 组件挂载时确保标记名称已加载
+onMounted(async () => {
   try {
-    const response = await getAllMarkIDToName();
-    if (response.data.data) {
-      markNames.value = response.data.data;
-    }
+    await ensureMarkNamesLoaded();
   } catch (error) {
     console.error("加载标记名称失败:", error);
   }
-};
-
-// 组件挂载时加载标记名称
-onMounted(() => {
-  loadMarkNames();
 });
 </script>

@@ -1,5 +1,6 @@
 import type { StationResp } from "@/types/station";
 import type { PolygonFenceResp, Point } from "@/types/polygonFence";
+import type { UWBFix, MarkOnline } from "@/utils/mqtt";
 
 /**
  * 像素坐标转换器
@@ -537,6 +538,130 @@ export function drawCurrentPolygon(
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText((index + 1).toString(), px, py);
+  });
+
+  ctx.restore();
+}
+
+/**
+ * 绘制 UWB 设备坐标
+ */
+export function drawUWBDevices(
+  ctx: CanvasRenderingContext2D,
+  scaler: PixelScaler,
+  deviceCoordinates: Map<string, UWBFix>,
+  onlineDevices: MarkOnline[],
+  deviceNames: Map<string, string>,
+  options: {
+    onlineColor?: string;
+    offlineColor?: string;
+    size?: number;
+    font?: string;
+    textColor?: string;
+    showTrail?: boolean;
+    trailLength?: number;
+  } = {},
+) {
+  const {
+    onlineColor = "#e74c3c",
+    offlineColor = "#95a5a6",
+    size = 4,
+    font = "10px Arial",
+    textColor = "#333",
+    showTrail = false,
+    trailLength = 10,
+  } = options;
+
+  ctx.save();
+
+  // 创建设备轨迹存储（如果需要显示轨迹）
+  const deviceTrails = new Map<string, Array<{ x: number; y: number; timestamp: number }>>();
+
+  deviceCoordinates.forEach((uwbData, deviceId) => {
+    const { px, py } = scaler.toPixel(uwbData.x, uwbData.y);
+
+    // 检查设备是否在线
+    const isOnline = onlineDevices.some((device) => device.id === deviceId && device.online);
+    const deviceColor = isOnline ? onlineColor : offlineColor;
+
+    // 绘制设备位置圆圈
+    ctx.fillStyle = deviceColor;
+    ctx.beginPath();
+    ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#000"; // 加一圈黑边
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // 绘制白色边框
+    // ctx.strokeStyle = "#fff";
+    // ctx.lineWidth = 2;
+    // ctx.stroke();
+
+    // 如果设备在线，绘制脉冲效果
+    // if (isOnline) {
+    //   ctx.strokeStyle = deviceColor;
+    //   ctx.lineWidth = 1;
+    //   ctx.globalAlpha = 0.3;
+    //   ctx.beginPath();
+    //   ctx.arc(px, py, size * 2, 0, Math.PI * 2);
+    //   ctx.stroke();
+    //   ctx.globalAlpha = 1;
+    // }
+
+    // 绘制设备名称（优先显示名称，如果没有名称则显示ID）
+    const deviceName = deviceNames.get(deviceId) || "未知设备";
+    const displayText = `${deviceName}(${deviceId})`;
+
+    ctx.fillStyle = textColor;
+    ctx.font = font;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+
+    // 添加白色描边增强可读性
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+    ctx.lineWidth = 2;
+    ctx.strokeText(displayText, px, py + size + 4);
+    ctx.fillText(displayText, px, py + size + 4);
+
+    // 绘制坐标信息
+    const coordText = `(${uwbData.x.toFixed(1)}, ${uwbData.y.toFixed(1)})`;
+    ctx.font = "8px Arial";
+    ctx.textBaseline = "top";
+    ctx.strokeText(coordText, px, py + size + 16);
+    ctx.fillText(coordText, px, py + size + 16);
+
+    // 如果需要显示轨迹，记录当前位置
+    if (showTrail) {
+      if (!deviceTrails.has(deviceId)) {
+        deviceTrails.set(deviceId, []);
+      }
+      const trail = deviceTrails.get(deviceId)!;
+      trail.push({ x: uwbData.x, y: uwbData.y, timestamp: Date.now() });
+
+      // 限制轨迹长度
+      if (trail.length > trailLength) {
+        trail.shift();
+      }
+
+      // 绘制轨迹
+      if (trail.length > 1) {
+        ctx.strokeStyle = deviceColor;
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 0.6;
+        ctx.beginPath();
+
+        const firstPoint = scaler.toPixel(trail[0].x, trail[0].y);
+        ctx.moveTo(firstPoint.px, firstPoint.py);
+
+        for (let i = 1; i < trail.length; i++) {
+          const { px: trailPx, py: trailPy } = scaler.toPixel(trail[i].x, trail[i].y);
+          ctx.lineTo(trailPx, trailPy);
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+    }
   });
 
   ctx.restore();
