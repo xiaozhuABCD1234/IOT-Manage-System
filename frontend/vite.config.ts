@@ -7,7 +7,13 @@ import vueDevTools from "vite-plugin-vue-devtools";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueDevTools(), tailwindcss()],
+  plugins: [
+    vue(),
+    process.env.NODE_ENV === "development"
+      ? (await import("vite-plugin-vue-devtools")).default()
+      : null,
+    tailwindcss(),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
