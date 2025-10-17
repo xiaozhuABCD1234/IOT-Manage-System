@@ -141,6 +141,122 @@ func (h *PolygonFenceHandler) CheckPointInAllFences(c *fiber.Ctx) error {
 	return utils.SendSuccessResponse(c, resp)
 }
 
+/* ---------- 7. 室内/室外专用查询 ---------- */
 
+// CheckPointInIndoorFence 检查点是否在指定室内围栏内
+func (h *PolygonFenceHandler) CheckPointInIndoorFence(c *fiber.Ctx) error {
+	fenceID := c.Params("id")
 
+	req := new(model.PointCheckReq)
+	if err := c.BodyParser(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "请求参数解析失败")
+	}
 
+	if err := utils.ValidateStruct(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	resp, err := h.polygonFenceService.CheckPointInIndoorFence(fenceID, req.X, req.Y)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, resp)
+}
+
+// CheckPointInOutdoorFence 检查点是否在指定室外围栏内
+func (h *PolygonFenceHandler) CheckPointInOutdoorFence(c *fiber.Ctx) error {
+	fenceID := c.Params("id")
+
+	req := new(model.PointCheckReq)
+	if err := c.BodyParser(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "请求参数解析失败")
+	}
+
+	if err := utils.ValidateStruct(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	resp, err := h.polygonFenceService.CheckPointInOutdoorFence(fenceID, req.X, req.Y)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, resp)
+}
+
+// CheckPointInIndoorFences 检查点在哪些室内围栏内
+func (h *PolygonFenceHandler) CheckPointInIndoorFences(c *fiber.Ctx) error {
+	req := new(model.PointCheckReq)
+	if err := c.BodyParser(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "请求参数解析失败")
+	}
+
+	if err := utils.ValidateStruct(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	resp, err := h.polygonFenceService.CheckPointInIndoorFences(req.X, req.Y)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, resp)
+}
+
+// CheckPointInOutdoorFences 检查点在哪些室外围栏内
+func (h *PolygonFenceHandler) CheckPointInOutdoorFences(c *fiber.Ctx) error {
+	req := new(model.PointCheckReq)
+	if err := c.BodyParser(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "请求参数解析失败")
+	}
+
+	if err := utils.ValidateStruct(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	resp, err := h.polygonFenceService.CheckPointInOutdoorFences(req.X, req.Y)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, resp)
+}
+
+// IsPointInAnyIndoorFence 检查点是否在任意一个室内围栏内
+func (h *PolygonFenceHandler) IsPointInAnyIndoorFence(c *fiber.Ctx) error {
+	req := new(model.PointCheckReq)
+	if err := c.BodyParser(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "请求参数解析失败")
+	}
+
+	if err := utils.ValidateStruct(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	isInside, err := h.polygonFenceService.IsPointInAnyIndoorFence(req.X, req.Y)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, map[string]bool{"is_inside": isInside})
+}
+
+// IsPointInAnyOutdoorFence 检查点是否在任意一个室外围栏内
+func (h *PolygonFenceHandler) IsPointInAnyOutdoorFence(c *fiber.Ctx) error {
+	req := new(model.PointCheckReq)
+	if err := c.BodyParser(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "请求参数解析失败")
+	}
+
+	if err := utils.ValidateStruct(req); err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	isInside, err := h.polygonFenceService.IsPointInAnyOutdoorFence(req.X, req.Y)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, map[string]bool{"is_inside": isInside})
+}

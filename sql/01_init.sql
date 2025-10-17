@@ -142,6 +142,7 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE TABLE polygon_fences
 (
     id          UUID PRIMARY KEY              DEFAULT gen_random_uuid(),
+    is_indoor   BOOLEAN              NOT NULL DEFAULT TRUE, -- FALSE=室外，TRUE=室内
     fence_name  VARCHAR(255)         NOT NULL UNIQUE,
     geometry    GEOMETRY(POLYGON, 0) NOT NULL, -- 只存储多边形
     description TEXT,
@@ -156,3 +157,23 @@ CREATE INDEX idx_polygon_fences_geometry ON polygon_fences USING GIST (geometry)
 -- 创建索引加速名称查询
 CREATE INDEX idx_polygon_fences_name ON polygon_fences (fence_name);
 CREATE INDEX idx_polygon_fences_active ON polygon_fences (is_active);
+CREATE INDEX idx_polygon_fences_indoor_active ON polygon_fences (is_indoor, is_active);
+
+-- 创建多边形围栏与标记的多对多关系表
+CREATE TABLE IF NOT EXISTS polygon_fence_mark_relation
+(
+    fence_id UUID NOT NULL,
+    mark_id  UUID NOT NULL,
+    PRIMARY KEY (fence_id, mark_id),
+    FOREIGN KEY (fence_id) REFERENCES polygon_fences (id) ON DELETE CASCADE,
+    FOREIGN KEY (mark_id) REFERENCES marks (id) ON DELETE CASCADE
+);
+
+-- 为关系表创建索引以提高查询性能
+CREATE INDEX IF NOT EXISTS idx_polygon_fence_mark_relation_fence_id ON polygon_fence_mark_relation (fence_id);
+CREATE INDEX IF NOT EXISTS idx_polygon_fence_mark_relation_mark_id ON polygon_fence_mark_relation (mark_id);
+
+-- 添加注释
+COMMENT ON TABLE polygon_fence_mark_relation IS '多边形围栏与标记的多对多关系表';
+COMMENT ON COLUMN polygon_fence_mark_relation.fence_id IS '围栏ID，外键关联polygon_fences表';
+COMMENT ON COLUMN polygon_fence_mark_relation.mark_id IS '标记ID，外键关联marks表';

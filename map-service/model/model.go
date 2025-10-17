@@ -155,6 +155,7 @@ func CustomMapToCustomMapResp(customMap *CustomMap, baseURL string) *CustomMapRe
 // PolygonFence 多边形电子围栏
 type PolygonFence struct {
 	ID          uuid.UUID `gorm:"column:id;type:uuid;primaryKey;default:gen_random_uuid()"`
+	IsIndoor    bool      `gorm:"column:is_indoor;not null;default:true"` // FALSE=室外，TRUE=室内
 	FenceName   string    `gorm:"column:fence_name;type:varchar(255);not null;uniqueIndex"`
 	Geometry    string    `gorm:"column:geometry;type:geometry(POLYGON,0);not null"` // WKT格式
 	Description string    `gorm:"column:description;type:text"`
@@ -175,6 +176,7 @@ type Point struct {
 
 // PolygonFenceCreateReq 创建多边形围栏请求
 type PolygonFenceCreateReq struct {
+	IsIndoor    bool    `json:"is_indoor"` // FALSE=室外，TRUE=室内
 	FenceName   string  `json:"fence_name" validate:"required,min=1,max=255"`
 	Points      []Point `json:"points" validate:"required,min=3"` // 至少3个点才能构成多边形
 	Description string  `json:"description,omitempty" validate:"omitempty,max=1000"`
@@ -182,6 +184,7 @@ type PolygonFenceCreateReq struct {
 
 // PolygonFenceUpdateReq 更新多边形围栏请求
 type PolygonFenceUpdateReq struct {
+	IsIndoor    *bool    `json:"is_indoor,omitempty"` // FALSE=室外，TRUE=室内
 	FenceName   *string  `json:"fence_name,omitempty" validate:"omitempty,min=1,max=255"`
 	Points      *[]Point `json:"points,omitempty" validate:"omitempty,min=3"`
 	Description *string  `json:"description,omitempty" validate:"omitempty,max=1000"`
@@ -191,6 +194,7 @@ type PolygonFenceUpdateReq struct {
 // PolygonFenceResp 多边形围栏响应
 type PolygonFenceResp struct {
 	ID          string    `json:"id"`
+	IsIndoor    bool      `json:"is_indoor"` // FALSE=室外，TRUE=室内
 	FenceName   string    `json:"fence_name"`
 	Points      []Point   `json:"points"` // 多边形顶点
 	Description string    `json:"description"`

@@ -35,6 +35,7 @@ func (s *PolygonFenceService) CreatePolygonFence(req *model.PolygonFenceCreateRe
 	wkt := s.pointsToWKT(req.Points)
 
 	fence := &model.PolygonFence{
+		IsIndoor:    req.IsIndoor,
 		FenceName:   req.FenceName,
 		Geometry:    wkt,
 		Description: req.Description,
@@ -106,6 +107,9 @@ func (s *PolygonFenceService) UpdatePolygonFence(id string, req *model.PolygonFe
 	}
 
 	// 应用更新
+	if req.IsIndoor != nil {
+		fence.IsIndoor = *req.IsIndoor
+	}
 	if req.FenceName != nil {
 		fence.FenceName = *req.FenceName
 	}
@@ -201,6 +205,120 @@ func (s *PolygonFenceService) CheckPointInAllFences(x, y float64) (*model.PointC
 	return resp, nil
 }
 
+/* ---------- 室内/室外专用查询 ---------- */
+
+// CheckPointInIndoorFence 检查点是否在指定室内围栏内
+func (s *PolygonFenceService) CheckPointInIndoorFence(fenceID string, x, y float64) (*model.PointCheckResp, error) {
+	uid, err := uuid.Parse(fenceID)
+	if err != nil {
+		return nil, errs.ErrInvalidID.WithDetails("无效的围栏ID")
+	}
+
+	fence, err := s.polygonFenceRepo.GetByID(uid)
+	if err != nil {
+		return nil, s.translateRepoErr(err, "PolygonFence")
+	}
+
+	isInside, err := s.polygonFenceRepo.IsPointInIndoorFence(uid, x, y)
+	if err != nil {
+		return nil, errs.ErrInternal.WithDetails(err.Error())
+	}
+
+	resp := &model.PointCheckResp{
+		IsInside: isInside,
+	}
+	if isInside {
+		resp.FenceID = fence.ID.String()
+		resp.FenceName = fence.FenceName
+	}
+
+	return resp, nil
+}
+
+// CheckPointInOutdoorFence 检查点是否在指定室外围栏内
+func (s *PolygonFenceService) CheckPointInOutdoorFence(fenceID string, x, y float64) (*model.PointCheckResp, error) {
+	uid, err := uuid.Parse(fenceID)
+	if err != nil {
+		return nil, errs.ErrInvalidID.WithDetails("无效的围栏ID")
+	}
+
+	fence, err := s.polygonFenceRepo.GetByID(uid)
+	if err != nil {
+		return nil, s.translateRepoErr(err, "PolygonFence")
+	}
+
+	isInside, err := s.polygonFenceRepo.IsPointInOutdoorFence(uid, x, y)
+	if err != nil {
+		return nil, errs.ErrInternal.WithDetails(err.Error())
+	}
+
+	resp := &model.PointCheckResp{
+		IsInside: isInside,
+	}
+	if isInside {
+		resp.FenceID = fence.ID.String()
+		resp.FenceName = fence.FenceName
+	}
+
+	return resp, nil
+}
+
+// CheckPointInIndoorFences 检查点在哪些室内围栏内
+func (s *PolygonFenceService) CheckPointInIndoorFences(x, y float64) (*model.PointCheckResp, error) {
+	fences, err := s.polygonFenceRepo.FindIndoorFencesByPoint(x, y)
+	if err != nil {
+		return nil, errs.ErrInternal.WithDetails(err.Error())
+	}
+
+	resp := &model.PointCheckResp{
+		IsInside: len(fences) > 0,
+	}
+
+	if len(fences) > 0 {
+		resp.FenceID = fences[0].ID.String()
+		resp.FenceName = fences[0].FenceName
+		resp.FenceNames = make([]string, len(fences))
+		for i, f := range fences {
+			resp.FenceNames[i] = f.FenceName
+		}
+	}
+
+	return resp, nil
+}
+
+// CheckPointInOutdoorFences 检查点在哪些室外围栏内
+func (s *PolygonFenceService) CheckPointInOutdoorFences(x, y float64) (*model.PointCheckResp, error) {
+	fences, err := s.polygonFenceRepo.FindOutdoorFencesByPoint(x, y)
+	if err != nil {
+		return nil, errs.ErrInternal.WithDetails(err.Error())
+	}
+
+	resp := &model.PointCheckResp{
+		IsInside: len(fences) > 0,
+	}
+
+	if len(fences) > 0 {
+		resp.FenceID = fences[0].ID.String()
+		resp.FenceName = fences[0].FenceName
+		resp.FenceNames = make([]string, len(fences))
+		for i, f := range fences {
+			resp.FenceNames[i] = f.FenceName
+		}
+	}
+
+	return resp, nil
+}
+
+// IsPointInAnyIndoorFence 检查点是否在任意一个室内围栏内
+func (s *PolygonFenceService) IsPointInAnyIndoorFence(x, y float64) (bool, error) {
+	return s.polygonFenceRepo.IsPointInAnyIndoorFence(x, y)
+}
+
+// IsPointInAnyOutdoorFence 检查点是否在任意一个室外围栏内
+func (s *PolygonFenceService) IsPointInAnyOutdoorFence(x, y float64) (bool, error) {
+	return s.polygonFenceRepo.IsPointInAnyOutdoorFence(x, y)
+}
+
 /* ---------- 内部辅助函数 ---------- */
 
 // validatePolygon 验证多边形有效性
@@ -266,6 +384,7 @@ func (s *PolygonFenceService) wktToPoints(wkt string) []model.Point {
 func (s *PolygonFenceService) fenceToResp(fence *model.PolygonFence) *model.PolygonFenceResp {
 	return &model.PolygonFenceResp{
 		ID:          fence.ID.String(),
+		IsIndoor:    fence.IsIndoor,
 		FenceName:   fence.FenceName,
 		Points:      s.wktToPoints(fence.Geometry),
 		Description: fence.Description,
@@ -285,7 +404,3 @@ func (s *PolygonFenceService) translateRepoErr(err error, resource string) error
 	}
 	return errs.ErrInternal.WithDetails(err.Error())
 }
-
-
-
-

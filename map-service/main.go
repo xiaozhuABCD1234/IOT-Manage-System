@@ -63,32 +63,57 @@ func main() {
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 
-	// 基站相关路由
+	// ==================== 基站管理 ====================
 	station := v1.Group("/station")
-	station.Post("/", stationHandler.CreateStation)      // 创建
-	station.Get("/", stationHandler.ListStation)         // 全量列表（不分页）
-	station.Get("/:id", stationHandler.GetStation)       // 单条查询
-	station.Put("/:id", stationHandler.UpdateStation)    // 更新
-	station.Delete("/:id", stationHandler.DeleteStation) // 删除
+	{
+		// CRUD 操作
+		station.Post("/", stationHandler.CreateStation)      // 创建基站
+		station.Get("/", stationHandler.ListStation)         // 获取基站列表
+		station.Get("/:id", stationHandler.GetStation)       // 获取单个基站
+		station.Put("/:id", stationHandler.UpdateStation)    // 更新基站
+		station.Delete("/:id", stationHandler.DeleteStation) // 删除基站
+	}
 
-	// 自制地图相关路由
+	// ==================== 自定义地图管理 ====================
 	customMap := v1.Group("/custom-map")
-	customMap.Post("/", customMapHandler.CreateCustomMap)         // 创建（上传图片 + 配置）
-	customMap.Get("/", customMapHandler.ListCustomMaps)           // 全量列表
-	customMap.Get("/latest", customMapHandler.GetLatestCustomMap) // 获取最新地图
-	customMap.Get("/:id", customMapHandler.GetCustomMap)          // 单条查询
-	customMap.Put("/:id", customMapHandler.UpdateCustomMap)       // 更新
-	customMap.Delete("/:id", customMapHandler.DeleteCustomMap)    // 删除
+	{
+		// 特殊查询（放在参数路由之前）
+		customMap.Get("/latest", customMapHandler.GetLatestCustomMap) // 获取最新地图
 
-	// 多边形围栏相关路由
+		// CRUD 操作
+		customMap.Post("/", customMapHandler.CreateCustomMap)      // 创建地图（上传图片 + 配置）
+		customMap.Get("/", customMapHandler.ListCustomMaps)        // 获取地图列表
+		customMap.Get("/:id", customMapHandler.GetCustomMap)       // 获取单个地图
+		customMap.Put("/:id", customMapHandler.UpdateCustomMap)    // 更新地图
+		customMap.Delete("/:id", customMapHandler.DeleteCustomMap) // 删除地图
+	}
+
+	// ==================== 多边形围栏管理 ====================
 	polygonFence := v1.Group("/polygon-fence")
-	polygonFence.Post("/", polygonFenceHandler.CreatePolygonFence)             // 创建围栏
-	polygonFence.Get("/", polygonFenceHandler.ListPolygonFences)               // 获取围栏列表（支持 ?active_only=true）
-	polygonFence.Get("/:id", polygonFenceHandler.GetPolygonFence)              // 获取单个围栏
-	polygonFence.Put("/:id", polygonFenceHandler.UpdatePolygonFence)           // 更新围栏
-	polygonFence.Delete("/:id", polygonFenceHandler.DeletePolygonFence)        // 删除围栏
-	polygonFence.Post("/:id/check", polygonFenceHandler.CheckPointInFence)     // 检查点是否在指定围栏内
-	polygonFence.Post("/check-all", polygonFenceHandler.CheckPointInAllFences) // 检查点在哪些围栏内
+	{
+		// 通用查询（放在参数路由之前）
+		polygonFence.Post("/check-all", polygonFenceHandler.CheckPointInAllFences) // 检查点在哪些围栏内
+
+		// 室内围栏专用查询
+		polygonFence.Post("/check-indoor-all", polygonFenceHandler.CheckPointInIndoorFences) // 检查点在哪些室内围栏内
+		polygonFence.Post("/check-indoor-any", polygonFenceHandler.IsPointInAnyIndoorFence)  // 检查点是否在任意一个室内围栏内
+
+		// 室外围栏专用查询
+		polygonFence.Post("/check-outdoor-all", polygonFenceHandler.CheckPointInOutdoorFences) // 检查点在哪些室外围栏内
+		polygonFence.Post("/check-outdoor-any", polygonFenceHandler.IsPointInAnyOutdoorFence)  // 检查点是否在任意一个室外围栏内
+
+		// CRUD 操作
+		polygonFence.Post("/", polygonFenceHandler.CreatePolygonFence)      // 创建围栏
+		polygonFence.Get("/", polygonFenceHandler.ListPolygonFences)        // 获取围栏列表（支持 ?active_only=true）
+		polygonFence.Get("/:id", polygonFenceHandler.GetPolygonFence)       // 获取单个围栏
+		polygonFence.Put("/:id", polygonFenceHandler.UpdatePolygonFence)    // 更新围栏
+		polygonFence.Delete("/:id", polygonFenceHandler.DeletePolygonFence) // 删除围栏
+
+		// 围栏特定操作（需要围栏ID）
+		polygonFence.Post("/:id/check", polygonFenceHandler.CheckPointInFence)                // 检查点是否在指定围栏内
+		polygonFence.Post("/:id/check-indoor", polygonFenceHandler.CheckPointInIndoorFence)   // 检查点是否在指定室内围栏内
+		polygonFence.Post("/:id/check-outdoor", polygonFenceHandler.CheckPointInOutdoorFence) // 检查点是否在指定室外围栏内
+	}
 
 	// 启动服务器
 	port := utils.GetEnv("PORT", "8002")
