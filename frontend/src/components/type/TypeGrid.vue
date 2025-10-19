@@ -5,7 +5,7 @@
         <Layers class="h-5 w-5" />
         类型列表
       </CardTitle>
-      <CardDescription>查看所有标记类型及其默认安全距离</CardDescription>
+      <CardDescription>查看所有标记类型及其默认危险半径</CardDescription>
     </CardHeader>
     <CardContent
       class="grid gap-4"

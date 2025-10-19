@@ -95,9 +95,9 @@ const resetForm = () => {
       <DangerTypeSelect v-model="form.mark_type_id" />
     </div>
 
-    <!-- 安全距离 -->
+    <!-- 危险半径 -->
     <div class="mb-5">
-      <label for="safe-distance" class="mb-1 block text-sm font-medium"> 安全距离（米） </label>
+      <label for="safe-distance" class="mb-1 block text-sm font-medium"> 危险半径（米） </label>
       <Input
         id="safe-distance"
         :value="form.danger_zone_m ?? ''"

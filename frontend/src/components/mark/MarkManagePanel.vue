@@ -169,9 +169,9 @@ async function handleCreate() {
                     <TypeSelect v-model="createForm.mark_type_id" />
                   </div>
 
-                  <!-- 安全距离 -->
+                  <!-- 危险半径 -->
                   <div class="flex flex-col gap-2">
-                    <Label for="createDangerZone">安全距离（米）</Label>
+                    <Label for="createDangerZone">危险半径（米）</Label>
                     <Input
                       id="createDangerZone"
                       :value="createForm.danger_zone_m ?? ''"

@@ -12,7 +12,7 @@
 
     <FormField v-slot="{ componentField }" name="default_danger_zone_m">
       <FormItem>
-        <FormLabel>默认安全距离（米）</FormLabel>
+        <FormLabel>默认危险半径（米）</FormLabel>
         <FormControl>
           <Input type="number" step="0.1" placeholder="可选" v-bind="componentField" />
         </FormControl>

@@ -8,7 +8,7 @@
             {{ typeInfo.type_name }}
           </CardTitle>
           <CardDescription>
-            默认安全距离：{{
+            默认危险半径：{{
               typeInfo.default_danger_zone_m === -1 ? "-" : typeInfo.default_danger_zone_m + " m"
             }}
           </CardDescription>
@@ -45,9 +45,9 @@
             </span>
           </div>
 
-          <!-- 默认安全距离 -->
+          <!-- 默认危险半径 -->
           <div class="flex flex-col gap-2">
-            <Label for="editDangerZone">默认安全距离（米）</Label>
+            <Label for="editDangerZone">默认危险半径（米）</Label>
             <Input
               id="editDangerZone"
               :value="editForm.default_danger_zone_m ?? ''"

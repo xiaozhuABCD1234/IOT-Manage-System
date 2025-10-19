@@ -99,9 +99,9 @@ const handleSubmit = async () => {
           <DangerTypeSelect v-model="form.mark_type_id" />
         </div>
 
-        <!-- 安全距离 -->
+        <!-- 危险半径 -->
         <div class="mb-5">
-          <label class="mb-1 block text-sm font-medium">安全距离（米）</label>
+          <label class="mb-1 block text-sm font-medium">危险半径（米）</label>
           <Input
             v-model="form.danger_zone_m"
             type="number"
