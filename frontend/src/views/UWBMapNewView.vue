@@ -29,17 +29,10 @@ import { Plus, Loader2, Trash2 } from "lucide-vue-next";
 import MarkOnlineGrid from "@/components/device/MarkOnlineGrid.vue";
 import {
   PixelScaler,
-  drawBackgroundImage,
-  drawGrid,
-  drawAxisX,
-  drawAxisY,
-  drawStations,
-  drawPolygonFences,
   drawCurrentPolygon,
-  drawUWBDevices,
-  drawMap,
   DoubleBufferCanvas,
-  drawMapWithDoubleBuffer,
+  drawStaticLayerWithDoubleBuffer,
+  drawDynamicLayerWithDoubleBuffer,
 } from "@/utils/canvasDrawing";
 
 // 数据存储
@@ -67,32 +60,47 @@ const fenceToDelete = ref<{ id: string; name: string } | null>(null);
 const deletingFenceId = ref<string | null>(null);
 
 /**
- * 绘制整个地图 - 使用双缓冲技术避免闪动
+ * 绘制静态图层（底图/网格/坐标轴/围栏/基站）
  */
-async function drawMapWrapper() {
-  // 使用 requestAnimationFrame 确保在下一帧绘制，避免闪烁
+async function drawStaticLayer() {
   return new Promise<void>((resolve) => {
     requestAnimationFrame(async () => {
-      if (!doubleBufferCanvas) {
+      if (!staticDoubleBuffer) {
         resolve();
         return;
       }
-
-      // 调整Canvas尺寸（如果需要）
-      doubleBufferCanvas.resize();
-
-      await drawMapWithDoubleBuffer(
-        doubleBufferCanvas,
+      staticDoubleBuffer.resize();
+      await drawStaticLayerWithDoubleBuffer(
+        staticDoubleBuffer,
         mapData.value,
         stations.value,
         fences.value,
+      );
+      resolve();
+    });
+  });
+}
+
+/**
+ * 绘制动态图层（设备/正在绘制的多边形）
+ */
+async function drawDynamicLayer() {
+  return new Promise<void>((resolve) => {
+    requestAnimationFrame(async () => {
+      if (!dynamicDoubleBuffer) {
+        resolve();
+        return;
+      }
+      dynamicDoubleBuffer.resize();
+      await drawDynamicLayerWithDoubleBuffer(
+        dynamicDoubleBuffer,
+        mapData.value,
         deviceCoordinates.value,
         marksStore.markList,
         marksStore.deviceNames,
         currentPolygon.value,
         isDrawing.value,
       );
-
       resolve();
     });
   });
@@ -142,7 +150,8 @@ async function loadData() {
 
     // 加载完成后绘制地图
     console.log("准备绘制地图...");
-    await drawMapWrapper();
+    await drawStaticLayer();
+    await drawDynamicLayer();
   } catch (error) {
     console.error("❌ 加载数据时发生错误:", error);
   }
@@ -181,8 +190,8 @@ function initLocationMQTT() {
             deviceCoordinates.value.set(uwbData.id, uwbData);
             console.log(`📍 设备 ${uwbData.id} UWB 坐标: (${uwbData.x}, ${uwbData.y})`);
 
-            // 重新绘制地图以显示新的设备位置
-            drawMapWrapper();
+            // 重新绘制动态图层以显示新的设备位置
+            drawDynamicLayer();
           } catch (error) {
             // 如果解析 UWB 数据失败，可能是 RTK 数据，忽略
             console.log(`⚠️ 位置消息解析失败，可能是 RTK 数据: ${topic}`, error);
@@ -215,8 +224,9 @@ function initLocationMQTT() {
 // 位置数据 MQTT 客户端
 let locationMqttClient: any = null;
 
-// 双缓冲 Canvas 实例
-let doubleBufferCanvas: DoubleBufferCanvas | null = null;
+// 双缓冲 Canvas 实例：静态层 + 动态层
+let staticDoubleBuffer: DoubleBufferCanvas | null = null;
+let dynamicDoubleBuffer: DoubleBufferCanvas | null = null;
 
 /**
  * 处理canvas点击事件 - 添加多边形顶点
@@ -252,7 +262,7 @@ function handleCanvasClick(event: MouseEvent) {
   console.log("当前顶点数:", currentPolygon.value.length);
 
   // 重新绘制
-  drawMapWrapper();
+  drawDynamicLayer();
 
   // 滚动到底部以显示新添加的点
   setTimeout(() => {
@@ -280,7 +290,7 @@ function startDrawing() {
 function cancelDrawing() {
   isDrawing.value = false;
   currentPolygon.value = [];
-  drawMapWrapper();
+  drawDynamicLayer();
 }
 
 /**
@@ -288,7 +298,7 @@ function cancelDrawing() {
  */
 function removePoint(index: number) {
   currentPolygon.value.splice(index, 1);
-  drawMapWrapper();
+  drawDynamicLayer();
 }
 
 /**
@@ -299,7 +309,7 @@ function updatePoint(index: number, axis: "x" | "y", value: string) {
   if (!isNaN(numValue)) {
     currentPolygon.value[index][axis] = Math.round(numValue);
     console.log(`更新点 ${index + 1} 的 ${axis} 坐标为: ${Math.round(numValue)}`);
-    drawMapWrapper();
+    drawDynamicLayer();
   }
 }
 
@@ -334,8 +344,9 @@ async function confirmDeleteFence() {
       fences.value = fencesRes.data.data;
     }
 
-    // 重新绘制地图
-    await drawMapWrapper();
+    // 重新绘制静态层（围栏变化）与动态图层
+    await drawStaticLayer();
+    await drawDynamicLayer();
   } catch (error) {
     // 错误已在拦截器中处理
     console.error("Error deleting fence:", error);
@@ -405,14 +416,22 @@ let resizeObserver: ResizeObserver | null = null;
 onMounted(() => {
   console.log("Component mounted, loading data...");
 
-  // 初始化双缓冲Canvas
-  const displayCanvas = document.getElementById("uwb-map-canvas") as HTMLCanvasElement;
-  if (displayCanvas) {
-    doubleBufferCanvas = new DoubleBufferCanvas(displayCanvas);
-    console.log("✅ 双缓冲Canvas初始化成功");
-    console.log("🎯 使用双缓冲技术解决Canvas重绘闪动问题");
+  // 初始化双缓冲Canvas（静态层）
+  const baseCanvas = document.getElementById("uwb-map-canvas") as HTMLCanvasElement;
+  if (baseCanvas) {
+    staticDoubleBuffer = new DoubleBufferCanvas(baseCanvas);
+    console.log("✅ 静态层双缓冲Canvas初始化成功");
   } else {
-    console.error("❌ 无法找到Canvas元素");
+    console.error("❌ 无法找到静态层 Canvas 元素");
+  }
+
+  // 初始化双缓冲Canvas（动态图层，透明覆盖）
+  const animCanvas = document.getElementById("uwb-anim-canvas") as HTMLCanvasElement;
+  if (animCanvas) {
+    dynamicDoubleBuffer = new DoubleBufferCanvas(animCanvas);
+    console.log("✅ 动态层双缓冲Canvas初始化成功");
+  } else {
+    console.error("❌ 无法找到动态层 Canvas 元素");
   }
 
   loadData();
@@ -452,31 +471,45 @@ onMounted(() => {
     { deep: true },
   );
 
-  // 监听窗口大小变化，重新绘制
-  window.addEventListener("resize", drawMapWrapper);
+  // 监听窗口大小变化，分别重绘静态与动态层
+  window.addEventListener("resize", () => {
+    drawStaticLayer();
+    drawDynamicLayer();
+  });
 
   // 监听 canvas 容器大小变化（用于 Resizable 面板调整）
   const canvasElement = document.getElementById("uwb-map-canvas");
   if (canvasElement) {
     resizeObserver = new ResizeObserver(() => {
-      console.log("Canvas size changed, redrawing...");
-      // 使用 requestAnimationFrame 确保在下一帧重绘
+      console.log("Canvas size changed, redrawing static & dynamic layers...");
       requestAnimationFrame(() => {
-        drawMapWrapper();
+        drawStaticLayer();
+        drawDynamicLayer();
       });
     });
+    // 监听两个画布容器尺寸变化
     resizeObserver.observe(canvasElement);
+    const animElement = document.getElementById("uwb-anim-canvas");
+    if (animElement) resizeObserver.observe(animElement);
   }
 });
 
 // 组件卸载时清理
 onUnmounted(() => {
-  // 清理双缓冲Canvas
-  if (doubleBufferCanvas) {
-    console.log("正在清理双缓冲Canvas...");
-    doubleBufferCanvas.destroy();
-    doubleBufferCanvas = null;
-    console.log("✅ 双缓冲Canvas已清理");
+  // 清理静态层双缓冲Canvas
+  if (staticDoubleBuffer) {
+    console.log("正在清理静态层双缓冲Canvas...");
+    staticDoubleBuffer.destroy();
+    staticDoubleBuffer = null;
+    console.log("✅ 静态层双缓冲Canvas已清理");
+  }
+
+  // 清理动态层双缓冲Canvas
+  if (dynamicDoubleBuffer) {
+    console.log("正在清理动态层双缓冲Canvas...");
+    dynamicDoubleBuffer.destroy();
+    dynamicDoubleBuffer = null;
+    console.log("✅ 动态层双缓冲Canvas已清理");
   }
 
   // 断开位置数据 MQTT 连接
@@ -490,7 +523,7 @@ onUnmounted(() => {
   // 注意：不在这里停止 marks store 的 MQTT，因为其他组件可能也在使用
   // marksStore.stopMQTT(); // 如果需要完全停止，可以取消注释
 
-  window.removeEventListener("resize", drawMapWrapper);
+  // 事件已绑定匿名函数，此处无需移除专用回调
   if (resizeObserver) {
     resizeObserver.disconnect();
     resizeObserver = null;
@@ -503,16 +536,18 @@ onUnmounted(() => {
     <ResizablePanelGroup direction="horizontal" class="h-full rounded-lg border">
       <!-- 左侧：地图画布 -->
       <ResizablePanel :default-size="65" :min-size="30">
-        <div class="flex h-full items-center justify-center">
+        <div class="relative h-full w-full">
+          <!-- 背景层 -->
           <canvas
             id="uwb-map-canvas"
-            class="h-full w-full rounded-lg border-2 border-gray-300 shadow-lg"
+            class="absolute inset-0 h-full w-full rounded-lg border-2 border-gray-300 shadow-lg"
             :class="{ 'cursor-crosshair': isDrawing }"
             @click="handleCanvasClick"
           />
+          <!-- 动画层 -->
           <canvas
-            id="uwb-map-canvas"
-            class="h-full w-full rounded-lg border-2 border-gray-300 shadow-lg"
+            id="uwb-anim-canvas"
+            class="absolute inset-0 h-full w-full rounded-lg border-2 border-gray-300 shadow-lg"
             :class="{ 'cursor-crosshair': isDrawing }"
             @click="handleCanvasClick"
           />

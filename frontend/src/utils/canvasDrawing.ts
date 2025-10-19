@@ -939,6 +939,173 @@ export async function drawMapWithDoubleBuffer(
 }
 
 /**
+ * 使用双缓冲技术绘制静态图层
+ * 静态图层包含：底图、网格、坐标轴、电子围栏、基站
+ */
+export async function drawStaticLayerWithDoubleBuffer(
+  doubleBufferCanvas: DoubleBufferCanvas,
+  mapData: CustomMapResp | null,
+  stations: StationResp[],
+  fences: PolygonFenceResp[],
+): Promise<void> {
+  const { width: cssWidth, height: cssHeight } = doubleBufferCanvas.getSize();
+  const ctx = doubleBufferCanvas.getOffscreenContext();
+
+  // 清空离屏 Canvas（透明）
+  doubleBufferCanvas.clearOffscreen();
+
+  // 如果没有地图数据，显示提示
+  if (!mapData) {
+    ctx.fillStyle = "#999";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("正在加载地图...", cssWidth / 2, cssHeight / 2);
+    doubleBufferCanvas.swapBuffers();
+    return;
+  }
+
+  // 创建坐标转换器
+  const scaler = new PixelScaler(
+    cssWidth,
+    cssHeight,
+    mapData.x_min,
+    mapData.x_max,
+    mapData.y_min,
+    mapData.y_max,
+  );
+
+  try {
+    // 1. 绘制底图（作为最底层）
+    if (mapData.image_url) {
+      try {
+        await drawBackgroundImage(ctx, mapData.image_url, cssWidth, cssHeight);
+      } catch {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, cssWidth, cssHeight);
+      }
+    } else {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, cssWidth, cssHeight);
+    }
+
+    // 2. 绘制网格
+    const range = Math.max(mapData.x_max - mapData.x_min, mapData.y_max - mapData.y_min);
+    let gridSpacing = Math.pow(10, Math.floor(Math.log10(range / 15)));
+    if (range / gridSpacing > 25) gridSpacing *= 2;
+    if (range / gridSpacing > 25) gridSpacing *= 2.5;
+    drawGrid(ctx, scaler, gridSpacing, {
+      color: mapData.image_url ? "rgba(0, 0, 0, 0.15)" : "#e0e0e0",
+      lineWidth: 1,
+    });
+
+    // 3. 坐标轴
+    const axisFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
+    const axisColor = mapData.image_url ? "#000" : "#333";
+    const textColor = mapData.image_url ? "#000" : "#333";
+    drawAxisX(ctx, scaler, 10, {
+      color: axisColor,
+      lineWidth: 3,
+      font: `${axisFontSize}px Arial`,
+      textColor: textColor,
+      arrowSize: 15,
+    });
+    drawAxisY(ctx, scaler, 10, {
+      color: axisColor,
+      lineWidth: 3,
+      font: `${axisFontSize}px Arial`,
+      textColor: textColor,
+      arrowSize: 15,
+    });
+
+    // 4. 电子围栏
+    const fenceLineWidth = Math.max(2, Math.min(cssWidth, cssHeight) / 300);
+    const fenceFontSize = Math.max(12, Math.min(cssWidth, cssHeight) / 60);
+    drawPolygonFences(ctx, scaler, fences, {
+      strokeColor: "#3498db",
+      fillColor: "rgba(68, 68, 255, 0.15)",
+      lineWidth: fenceLineWidth,
+      font: `${fenceFontSize}px Arial`,
+    });
+
+    // 5. 基站
+    const baseSize = Math.max(16, Math.min(cssWidth, cssHeight) / 50);
+    const baseFontSize = Math.max(12, Math.min(cssWidth, cssHeight) / 60);
+    drawStations(ctx, scaler, stations, {
+      color: "#3498db",
+      size: baseSize,
+      font: `${baseFontSize}px Arial`,
+    });
+
+    // 交换缓冲区
+    doubleBufferCanvas.swapBuffers();
+  } catch (error) {
+    console.error("Error drawing static layer:", error);
+  }
+}
+
+/**
+ * 使用双缓冲技术绘制动态图层
+ * 动态图层包含：UWB 设备位置、正在绘制的多边形
+ */
+export async function drawDynamicLayerWithDoubleBuffer(
+  doubleBufferCanvas: DoubleBufferCanvas,
+  mapData: CustomMapResp | null,
+  deviceCoordinates: Map<string, UWBFix>,
+  onlineDevices: MarkOnline[],
+  deviceNames: Map<string, string>,
+  currentPolygon: Point[] = [],
+  isDrawing: boolean = false,
+): Promise<void> {
+  const { width: cssWidth, height: cssHeight } = doubleBufferCanvas.getSize();
+  const ctx = doubleBufferCanvas.getOffscreenContext();
+
+  // 清空离屏 Canvas（透明）
+  doubleBufferCanvas.clearOffscreen();
+
+  // 没有地图数据就不绘制（保持透明）
+  if (!mapData) {
+    doubleBufferCanvas.swapBuffers();
+    return;
+  }
+
+  // 坐标转换器
+  const scaler = new PixelScaler(
+    cssWidth,
+    cssHeight,
+    mapData.x_min,
+    mapData.x_max,
+    mapData.y_min,
+    mapData.y_max,
+  );
+
+  try {
+    // 设备
+    const deviceSize = Math.max(8, Math.min(cssWidth, cssHeight) / 150);
+    const deviceFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
+    drawUWBDevices(ctx, scaler, deviceCoordinates, onlineDevices, deviceNames, {
+      onlineColor: "#e74c3c",
+      offlineColor: "#95a5a6",
+      size: deviceSize,
+      font: `${deviceFontSize}px Arial`,
+      textColor: "#333",
+      showTrail: false,
+      trailLength: 10,
+    });
+
+    // 正在创建的多边形
+    if (isDrawing && currentPolygon.length > 0) {
+      drawCurrentPolygon(ctx, scaler, currentPolygon);
+    }
+
+    // 交换缓冲区
+    doubleBufferCanvas.swapBuffers();
+  } catch (error) {
+    console.error("Error drawing dynamic layer:", error);
+  }
+}
+
+/**
  * 绘制整个地图（保留原函数以兼容性）
  */
 export async function drawMap(
