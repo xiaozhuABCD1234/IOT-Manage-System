@@ -17,33 +17,32 @@ const plugin = Autoplay({ delay: 2000, stopOnMouseEnter: true, stopOnInteraction
     <CarouselContent class="h-[calc(100vh-3rem)]">
       <!-- 第 1 张 -->
       <CarouselItem class="relative h-full w-full">
-        <div class="h-full w-full bg-cover bg-center" style="background-image: url(/img/map.jpg)">
-          <div class="absolute inset-0 bg-black/30" />
-          <!-- 蒙层，可选 -->
+        <div class="h-full w-full bg-[url('@/assets/imgs/home-map.png')] bg-cover bg-center">
+          <div class="absolute inset-0 bg-black/10" />
           <div class="relative flex h-full items-center justify-center">
-            <h1 class="text-5xl font-bold text-white">地图</h1>
+            <h1 class="text-foreground text-8xl font-bold">地图总览</h1>
           </div>
         </div>
       </CarouselItem>
 
       <!-- 第 2 张 -->
       <CarouselItem class="relative h-full w-full">
-        <div class="h-full w-full bg-cover bg-center" style="background-image: url(/img/tags.jpg)">
-          <div class="absolute inset-0 bg-black/30" />
+        <div class="h-full w-full bg-[url('@/assets/imgs/home-loc.png')] bg-no-repeat bg-center">
+          <div class="absolute inset-0 bg-black/10" />
           <div class="relative flex h-full items-center justify-center">
-            <h1 class="text-5xl font-bold text-white">标签管理</h1>
+            <h1 class="text-background text-8xl font-bold">定位平台</h1>
           </div>
         </div>
       </CarouselItem>
 
-      <CarouselItem class="relative h-full w-full">
+      <!-- <CarouselItem class="relative h-full w-full">
         <div class="h-full w-full bg-cover bg-center" style="background-image: url(/img/tags.jpg)">
           <div class="absolute inset-0 bg-black/30" />
           <div class="relative flex h-full items-center justify-center">
             <h1 class="text-5xl font-bold text-white">实时报警</h1>
           </div>
         </div>
-      </CarouselItem>
+      </CarouselItem> -->
     </CarouselContent>
   </Carousel>
 </template>
