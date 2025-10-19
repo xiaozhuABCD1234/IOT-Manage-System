@@ -11,15 +11,13 @@ import (
 )
 
 func CustomErrorHandler(c *fiber.Ctx, err error) error {
-	// 默认 500
-	status := fiber.StatusInternalServerError
+	// 统一返回200状态码，通过响应体区分成功失败
 	code := "INTERNAL_ERROR"
 	message := err.Error()
 	var details any
 
 	// 如果是 *errs.AppError 则解析业务码
 	if appErr, ok := err.(*errs.AppError); ok {
-		status = appErr.Status
 		code = appErr.Code
 		message = appErr.Message
 		details = appErr.Details
@@ -27,7 +25,6 @@ func CustomErrorHandler(c *fiber.Ctx, err error) error {
 
 	// 如果是 *fiber.Error（用 fiber.NewError 创建）
 	if e, ok := err.(*fiber.Error); ok {
-		status = e.Code
 		message = e.Message
 	}
 
@@ -37,5 +34,6 @@ func CustomErrorHandler(c *fiber.Ctx, err error) error {
 		Error:     &utils.ErrorObj{Code: code, Message: message, Details: details},
 		Timestamp: time.Now(),
 	}
-	return c.Status(status).JSON(resp)
+	// 统一返回200状态码
+	return c.Status(200).JSON(resp)
 }

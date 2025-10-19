@@ -49,7 +49,7 @@ func SendSuccessResponse(c *gin.Context, data any, msg ...string) {
 
 // SendCreatedResponse 发送创建成功响应
 func SendCreatedResponse(c *gin.Context, data any, message string) {
-	c.JSON(http.StatusCreated, Response{
+	c.JSON(http.StatusOK, Response{
 		Success:   true,
 		Data:      data,
 		Message:   message,
@@ -87,7 +87,7 @@ func NewPagination(total int64, page, perPage int) *PaginationObj {
 
 // SendErrorResponse 发送错误响应
 func SendErrorResponse(c *gin.Context, statusCode int, message string) {
-	c.JSON(statusCode, Response{
+	c.JSON(http.StatusOK, Response{
 		Success:   false,
 		Message:   message,
 		Timestamp: time.Now(),
@@ -96,7 +96,7 @@ func SendErrorResponse(c *gin.Context, statusCode int, message string) {
 
 // SendErrorResponseWithData 发送带自定义数据的错误响应
 func SendErrorResponseWithData(c *gin.Context, statusCode int, message string, data any) {
-	c.JSON(statusCode, Response{
+	c.JSON(http.StatusOK, Response{
 		Success: false,
 		Message: message,
 		Data:    data,
@@ -118,7 +118,7 @@ func SendUnauthorized(c *gin.Context, msg ...any) {
 	if len(msg) > 0 {
 		message, _ = msg[0].(string)
 	}
-	c.JSON(http.StatusUnauthorized, Response{
+	c.JSON(http.StatusOK, Response{
 		Success:   false,
 		Message:   message,
 		Error:     newErrorObj("UNAUTHORIZED", "未认证"),
@@ -132,7 +132,7 @@ func SendForbidden(c *gin.Context, msg ...any) {
 	if len(msg) > 0 {
 		message, _ = msg[0].(string)
 	}
-	c.JSON(http.StatusForbidden, Response{
+	c.JSON(http.StatusOK, Response{
 		Success:   false,
 		Message:   message,
 		Error:     newErrorObj("FORBIDDEN", "权限不足"),
@@ -146,7 +146,7 @@ func SendNotFound(c *gin.Context, msg ...any) {
 	if len(msg) > 0 {
 		message, _ = msg[0].(string)
 	}
-	c.JSON(http.StatusNotFound, Response{
+	c.JSON(http.StatusOK, Response{
 		Success:   false,
 		Message:   message,
 		Error:     newErrorObj("NOT_FOUND", "资源不存在"),
@@ -160,7 +160,7 @@ func SendBadRequest(c *gin.Context, msg ...any) {
 	if len(msg) > 0 {
 		message, _ = msg[0].(string)
 	}
-	c.JSON(http.StatusBadRequest, Response{
+	c.JSON(http.StatusOK, Response{
 		Success:   false,
 		Message:   message,
 		Error:     newErrorObj("BAD_REQUEST", "请求参数有误"),
@@ -170,7 +170,7 @@ func SendBadRequest(c *gin.Context, msg ...any) {
 
 // 400 Bad Request 带自定义数据
 func SendBadRequestWithData(c *gin.Context, msg string, data any) {
-	c.JSON(http.StatusBadRequest, Response{
+	c.JSON(http.StatusOK, Response{
 		Success:   false,
 		Message:   msg,
 		Data:      data,
@@ -185,7 +185,7 @@ func SendConflict(c *gin.Context, msg ...any) {
 	if len(msg) > 0 {
 		message, _ = msg[0].(string)
 	}
-	c.JSON(http.StatusConflict, Response{
+	c.JSON(http.StatusOK, Response{
 		Success:   false,
 		Message:   message,
 		Error:     newErrorObj("CONFLICT", "数据冲突"),
@@ -196,7 +196,7 @@ func SendConflict(c *gin.Context, msg ...any) {
 // ========= 500 Internal Server Error =========
 // 版本 1：直接传入 error
 func SendInternalServerError(c *gin.Context, err error) {
-	c.JSON(http.StatusInternalServerError, Response{
+	c.JSON(http.StatusOK, Response{
 		Success:   false,
 		Message:   "服务器内部错误🥺",
 		Error:     newErrorObj("INTERNAL_SERVER_ERROR", err.Error()),

@@ -37,9 +37,9 @@ func (h *authHandler) Login(c *gin.Context) {
 	case nil:
 		utils.SendSuccessResponse(c, resp)
 	case service.ErrUserNotFound, service.ErrWrongPassword:
-		utils.SendErrorResponse(c, 401, "用户或用户名错误🤔")
+		utils.SendErrorResponse(c, 200, "用户或用户名错误🤔")
 	default:
-		utils.SendErrorResponse(c, 401, "Token生成失败")
+		utils.SendErrorResponse(c, 200, "Token生成失败")
 	}
 }
 
@@ -54,7 +54,7 @@ func (h *authHandler) Refresh(c *gin.Context) {
 	case nil:
 		utils.SendSuccessResponse(c, resp)
 	case service.ErrInvalidToken:
-		utils.SendErrorResponse(c, http.StatusUnauthorized, "无效Token")
+		utils.SendErrorResponse(c, http.StatusOK, "无效Token")
 	default:
 		utils.SendInternalServerError(c, err)
 	}

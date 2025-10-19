@@ -49,13 +49,13 @@ func SendSuccessResponse(c *fiber.Ctx, data any, msg ...string) error {
 	})
 }
 
-// SendCreatedResponse 201 Created
+// SendCreatedResponse 200 OK (统一返回200)
 func SendCreatedResponse(c *fiber.Ctx, data any, msg ...string) error {
 	message := "创建成功啦✌️"
 	if len(msg) > 0 {
 		message = msg[0]
 	}
-	return c.Status(http.StatusCreated).JSON(Response{
+	return c.Status(http.StatusOK).JSON(Response{
 		Success:   true,
 		Data:      data,
 		Message:   message,
@@ -81,21 +81,22 @@ func SendPaginatedResponse(c *fiber.Ctx, data any, total int64, page, perPage in
 
 /* ---------- 错误响应 ---------- */
 
-// SendErrorResponse 自定义状态码
+// SendErrorResponse 统一返回200状态码
 func SendErrorResponse(c *fiber.Ctx, statusCode int, message string) error {
-	return c.Status(statusCode).JSON(Response{
+	return c.Status(http.StatusOK).JSON(Response{
 		Success:   false,
 		Message:   message,
 		Timestamp: time.Now(),
 	})
 }
 
-// SendErrorResponseWithData 自定义状态码 + 数据
+// SendErrorResponseWithData 统一返回200状态码 + 数据
 func SendErrorResponseWithData(c *fiber.Ctx, statusCode int, message string, data any) error {
-	return c.Status(statusCode).JSON(Response{
-		Success: false,
-		Message: message,
-		Data:    data,
+	return c.Status(http.StatusOK).JSON(Response{
+		Success:   false,
+		Message:   message,
+		Data:      data,
+		Timestamp: time.Now(),
 	})
 }
 
