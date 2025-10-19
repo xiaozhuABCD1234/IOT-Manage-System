@@ -69,7 +69,7 @@ const resetForm = () => {
   form.persist_mqtt = false;
   form.danger_zone_m = null;
   form.mark_type_id = 1;
-  form.tags = undefined; // 或设为 [] 如果你希望清空标签但保留字段
+  form.tags = undefined; // 或设为 [] 如果你希望清空分组但保留字段
 };
 </script>
 
@@ -112,9 +112,9 @@ const resetForm = () => {
       />
     </div>
 
-    <!-- 标签输入 -->
+    <!-- 分组输入 -->
     <div class="mb-5">
-      <label class="mb-1 block text-sm font-medium">标签</label>
+      <label class="mb-1 block text-sm font-medium">分组</label>
       <TagsInput v-model="form.tags">
         <template v-if="form.tags && form.tags.length">
           <TagsInputItem v-for="tag in form.tags" :key="tag" :value="tag">
@@ -122,7 +122,7 @@ const resetForm = () => {
             <TagsInputItemDelete />
           </TagsInputItem>
         </template>
-        <TagsInputInput placeholder="输入标签后按 Enter 添加" />
+        <TagsInputInput placeholder="输入分组后按 Enter 添加" />
       </TagsInput>
     </div>
 

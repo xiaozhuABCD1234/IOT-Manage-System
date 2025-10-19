@@ -9,7 +9,7 @@
               <Ruler class="h-5 w-5" />
               距离设置管理
             </CardTitle>
-            <CardDescription>配置标记、标签和类型之间的安全距离</CardDescription>
+            <CardDescription>配置标记、分组和类型之间的安全距离</CardDescription>
           </div>
         </div>
       </CardHeader>

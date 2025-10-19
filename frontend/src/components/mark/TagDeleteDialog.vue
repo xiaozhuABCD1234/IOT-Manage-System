@@ -7,8 +7,8 @@
     </AlertDialogTrigger>
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle>确认删除标签？</AlertDialogTitle>
-        <AlertDialogDescription>你将永久删除该标签，此操作无法撤销。</AlertDialogDescription>
+        <AlertDialogTitle>确认删除分组？</AlertDialogTitle>
+        <AlertDialogDescription>你将永久删除该分组，此操作无法撤销。</AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>取消</AlertDialogCancel>

@@ -3,9 +3,9 @@
     <CardHeader>
       <CardTitle class="flex items-center gap-2">
         <Hash class="h-5 w-5" />
-        标签列表
+        分组列表
       </CardTitle>
-      <CardDescription>查看所有标记使用的标签</CardDescription>
+      <CardDescription>查看所有标记使用的分组</CardDescription>
     </CardHeader>
     <CardContent class="p-3 sm:p-6">
       <div class="flex flex-wrap gap-1.5 sm:gap-2">
@@ -27,7 +27,7 @@
         v-if="!tags || tags.length === 0"
         class="text-muted-foreground mt-2 text-center text-xs sm:text-sm"
       >
-        暂无标签
+        暂无分组
       </p>
     </CardContent>
   </Card>
@@ -51,7 +51,7 @@ onMounted(async () => {
     // 后端包在 data 里，直接取
     tags.value = res.data.data ?? [];
   } catch (e) {
-    console.error("加载标签失败", e);
+    console.error("加载分组失败", e);
   }
 });
 </script>

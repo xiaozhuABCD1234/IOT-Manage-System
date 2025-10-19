@@ -11,7 +11,7 @@
                 <TableHead>标记名称</TableHead>
                 <TableHead>类型</TableHead>
                 <TableHead>危险半径</TableHead>
-                <TableHead>标签</TableHead>
+                <TableHead>分组</TableHead>
                 <TableHead class="hidden md:table-cell">最后在线</TableHead>
                 <TableHead class="hidden lg:table-cell">创建时间</TableHead>
                 <TableHead class="hidden lg:table-cell">更新时间</TableHead>

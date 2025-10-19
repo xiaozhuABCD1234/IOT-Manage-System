@@ -7,15 +7,15 @@
           <div>
             <CardTitle class="flex items-center gap-2">
               <Hash class="h-5 w-5" />
-              所有标签
+              所有分组
             </CardTitle>
-            <CardDescription>查看和管理所有标签的详细信息</CardDescription>
+            <CardDescription>查看和管理所有分组的详细信息</CardDescription>
           </div>
         </div>
       </CardHeader>
     </Card>
 
-    <!-- 标签列表 -->
+    <!-- 分组列表 -->
     <TagTablePager :fetcher="listMarkTags" />
   </div>
 </template>

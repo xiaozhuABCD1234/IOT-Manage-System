@@ -40,7 +40,7 @@ import ThemeToggle from "./RightControlStrip.vue";
               <ul
                 class="grid w-full gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
               >
-                <li class="row-span-4">
+                <li class="row-span-5">
                   <NavigationMenuLink as-child>
                     <RouterLink
                       class="from-muted/50 to-muted flex h-full w-full flex-col rounded-md bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
@@ -82,7 +82,7 @@ import ThemeToggle from "./RightControlStrip.vue";
                 <li>
                   <NavigationMenuLink as-child>
                     <RouterLink
-                      to="/map/uwb"
+                      to="/map/settings/fence"
                       class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                     >
                       <div
@@ -124,7 +124,7 @@ import ThemeToggle from "./RightControlStrip.vue";
                   </NavigationMenuLink>
                 </li>
 
-                <li>
+                <!-- <li>
                   <NavigationMenuLink as-child>
                     <RouterLink
                       to="/map/settings/fence"
@@ -137,7 +137,7 @@ import ThemeToggle from "./RightControlStrip.vue";
                       </div>
                     </RouterLink>
                   </NavigationMenuLink>
-                </li>
+                </li> -->
 
                 <li>
                   <NavigationMenuLink as-child>

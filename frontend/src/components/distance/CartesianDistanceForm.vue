@@ -3,9 +3,11 @@
     <CardHeader>
       <CardTitle class="flex items-center gap-2">
         <Grid3x3 class="h-5 w-5" />
-        笛卡尔积距离设置
+        批量配对安全距离
       </CardTitle>
-      <CardDescription>为两组标记、标签或类型之间批量设置距离</CardDescription>
+      <CardDescription
+        >一次性为两组标记 / 分组 / 类型之间的「全部组合」设定安全距离</CardDescription
+      >
     </CardHeader>
     <CardContent>
       <form @submit.prevent="handleSubmit" class="space-y-6">
@@ -13,7 +15,7 @@
         <div class="bg-muted/50 space-y-3 rounded-lg p-4">
           <div class="mb-2 flex items-center gap-2">
             <Layers class="h-4 w-4" />
-            <Label class="text-base font-semibold">第一组</Label>
+            <Label class="text-base font-semibold">分组集合一</Label>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
@@ -24,9 +26,9 @@
                   <SelectValue placeholder="选择类型" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mark">标记名称 (Name)</SelectItem>
-                  <SelectItem value="tag">标签 (Tag)</SelectItem>
-                  <SelectItem value="type">类型 (Type)</SelectItem>
+                  <SelectItem value="mark">标记名称 (选择单个标记)</SelectItem>
+                  <SelectItem value="tag">分组 (选择所有分组一样的标记)</SelectItem>
+                  <SelectItem value="type">类型 (选择所有类型一样的标记)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -58,7 +60,7 @@
         <div class="bg-muted/50 space-y-3 rounded-lg p-4">
           <div class="mb-2 flex items-center gap-2">
             <Layers class="h-4 w-4" />
-            <Label class="text-base font-semibold">第二组</Label>
+            <Label class="text-base font-semibold">分组集合二</Label>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
@@ -69,9 +71,9 @@
                   <SelectValue placeholder="选择类型" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mark">标记名称 (Name)</SelectItem>
-                  <SelectItem value="tag">标签 (Tag)</SelectItem>
-                  <SelectItem value="type">类型 (Type)</SelectItem>
+                  <SelectItem value="mark">标记名称 (单个标记)</SelectItem>
+                  <SelectItem value="tag">分组 (选择所有分组一样的标记)</SelectItem>
+                  <SelectItem value="type">类型 (选择所有类型一样的标记)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -190,11 +192,11 @@ const isFormValid = computed(() => {
   return firstValid && secondValid && formData.value.distance >= 0;
 });
 
-// 辅助函数：获取类型标签
+// 辅助函数：获取类型分组
 const getKindLabel = (kind: IdentifierKind) => {
   const labels: Record<IdentifierKind, string> = {
     mark: "标记名称",
-    tag: "标签",
+    tag: "分组",
     type: "类型",
   };
   return labels[kind];

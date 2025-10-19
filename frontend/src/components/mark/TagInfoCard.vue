@@ -7,7 +7,7 @@
             <Hash class="h-5 w-5" />
             {{ tagInfo.tag_name }}
           </CardTitle>
-          <CardDescription>标签 ID: {{ tagInfo.id }}</CardDescription>
+          <CardDescription>分组 ID: {{ tagInfo.id }}</CardDescription>
         </div>
         <Button variant="outline" size="sm" @click="openEditDialog">
           <Pencil class="h-4 w-4" />
@@ -17,23 +17,23 @@
     </CardHeader>
   </Card>
 
-  <!-- 编辑标签对话框 -->
+  <!-- 编辑分组对话框 -->
   <Dialog v-model:open="editDialogOpen">
     <DialogContent class="sm:max-w-[500px]">
       <DialogHeader>
-        <DialogTitle>编辑标签</DialogTitle>
-        <DialogDescription>修改标签信息</DialogDescription>
+        <DialogTitle>编辑分组</DialogTitle>
+        <DialogDescription>修改分组信息</DialogDescription>
       </DialogHeader>
 
       <form @submit.prevent="handleUpdate">
         <div class="space-y-4 py-4">
-          <!-- 标签名称 -->
+          <!-- 分组名称 -->
           <div class="flex flex-col gap-2">
-            <Label for="editTagName">标签名称</Label>
+            <Label for="editTagName">分组名称</Label>
             <Input
               id="editTagName"
               v-model="editForm.tag_name"
-              placeholder="请输入标签名称"
+              placeholder="请输入分组名称"
               :class="{ 'border-destructive': editV$.tag_name.$error }"
             />
             <span v-if="editV$.tag_name.$error" class="text-destructive text-sm">
@@ -89,7 +89,7 @@ const editForm = reactive({
 });
 
 const editRules = {
-  tag_name: { required: helpers.withMessage("请输入标签名称", required) },
+  tag_name: { required: helpers.withMessage("请输入分组名称", required) },
 };
 
 const editV$ = useVuelidate(editRules, editForm);
@@ -118,13 +118,13 @@ async function handleUpdate() {
 
     await updateMarkTag(props.tagInfo.id, payload);
 
-    toast.success("标签更新成功");
+    toast.success("分组更新成功");
     editDialogOpen.value = false;
     emit("updated");
   } catch (e: any) {
     if (!e._handled) {
       const errorMsg = e.response?.data?.message || e.message || "更新失败";
-      toast.error("更新标签失败", { description: errorMsg });
+      toast.error("更新分组失败", { description: errorMsg });
     }
   } finally {
     isUpdating.value = false;

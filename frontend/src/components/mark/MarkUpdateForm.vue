@@ -115,9 +115,9 @@ const handleSubmit = async () => {
           />
         </div>
 
-        <!-- 标签 -->
+        <!-- 分组 -->
         <div class="mb-5">
-          <label class="mb-1 block text-sm font-medium">标签</label>
+          <label class="mb-1 block text-sm font-medium">分组</label>
           <TagsInput v-model="form.tags">
             <template v-if="form.tags && form.tags.length">
               <TagsInputItem v-for="tag in form.tags" :key="tag" :value="tag">
@@ -125,10 +125,10 @@ const handleSubmit = async () => {
                 <TagsInputItemDelete />
               </TagsInputItem>
             </template>
-            <TagsInputInput placeholder="输入标签后按 Enter 添加" />
+            <TagsInputInput placeholder="输入分组后按 Enter 添加" />
           </TagsInput>
           <p class="text-muted-foreground mt-1 text-xs">
-            留空表示不改动标签；删除全部后按保存可清空标签。
+            留空表示不改动分组；删除全部后按保存可清空分组。
           </p>
         </div>
 

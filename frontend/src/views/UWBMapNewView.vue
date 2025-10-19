@@ -510,6 +510,12 @@ onUnmounted(() => {
             :class="{ 'cursor-crosshair': isDrawing }"
             @click="handleCanvasClick"
           />
+          <canvas
+            id="uwb-map-canvas"
+            class="h-full w-full rounded-lg border-2 border-gray-300 shadow-lg"
+            :class="{ 'cursor-crosshair': isDrawing }"
+            @click="handleCanvasClick"
+          />
         </div>
       </ResizablePanel>
 

@@ -107,7 +107,6 @@ async function handleCreate() {
     isCreating.value = false;
   }
 }
-
 </script>
 
 <template>
@@ -188,9 +187,9 @@ async function handleCreate() {
                     />
                   </div>
 
-                  <!-- 标签 -->
+                  <!-- 分组 -->
                   <div class="flex flex-col gap-2">
-                    <Label>标签</Label>
+                    <Label>分组</Label>
                     <TagsInput v-model="createForm.tags">
                       <template v-if="createForm.tags && createForm.tags.length">
                         <TagsInputItem v-for="tag in createForm.tags" :key="tag" :value="tag">
@@ -198,7 +197,7 @@ async function handleCreate() {
                           <TagsInputItemDelete />
                         </TagsInputItem>
                       </template>
-                      <TagsInputInput placeholder="输入标签后按 Enter 添加" />
+                      <TagsInputInput placeholder="输入分组后按 Enter 添加" />
                     </TagsInput>
                   </div>
 

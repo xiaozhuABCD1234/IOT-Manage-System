@@ -41,6 +41,10 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { customMapApi } from "@/api";
 import type { CustomMapResp, CustomMapCreateReq, CustomMapUpdateReq } from "@/types/customMap";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 
 /* -------------------------------------------------- */
 /* 类型定义                                           */
@@ -219,7 +223,8 @@ async function handleCreate() {
     createDialogOpen.value = false;
     Object.assign(createForm, createFormInitial);
     createV$.value.$reset();
-    await loadCustomMaps();
+    // await loadCustomMaps();
+    router.push("/map/settings/fence")
   } catch (e: any) {
     if (!e._handled) {
       const errorMsg = e.response?.data?.message || e.message || "创建失败";
@@ -322,7 +327,8 @@ async function handleUpdate() {
     await customMapApi.updateCustomMap(editingMap.value.id, data);
     toast.success("地图更新成功");
     editDialogOpen.value = false;
-    await loadCustomMaps();
+    // await loadCustomMaps();
+    router.push("/map/settings/fence")
   } catch (e: any) {
     if (!e._handled) {
       const errorMsg = e.response?.data?.message || e.message || "更新失败";

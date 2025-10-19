@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full w-full flex-col gap-4 p-4">
-    <!-- 标签信息卡片 -->
+    <!-- 分组信息卡片 -->
     <TagInfoCard :tagInfo="tagData" @updated="loadTagData" />
 
     <!-- 标记列表 -->
@@ -30,7 +30,7 @@ const fetchByTag = (p: any) => getMarksByTagID(tagId.value, p);
 
 const tagData = ref<MarkTagResponse>({
   id: 1,
-  tag_name: "示例标签",
+  tag_name: "示例分组",
 });
 
 async function loadTagData() {

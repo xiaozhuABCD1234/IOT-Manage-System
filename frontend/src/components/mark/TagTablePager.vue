@@ -8,7 +8,7 @@
             <TableHeader>
               <TableRow>
                 <TableHead>ID</TableHead>
-                <TableHead>标签名称</TableHead>
+                <TableHead>分组名称</TableHead>
                 <TableHead class="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>

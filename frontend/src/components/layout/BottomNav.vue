@@ -30,7 +30,7 @@ const active = ref(0);
 const menu = [
   { icon: Home, label: "首页" },
   { icon: MapPin, label: "地图" },
-  { icon: Tag, label: "标签" },
+  { icon: Tag, label: "分组" },
   { icon: User, label: "用户" },
 ];
 </script>
