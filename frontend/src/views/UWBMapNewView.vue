@@ -396,6 +396,11 @@ async function finishDrawing() {
     if (fencesRes.data && fencesRes.data.data) {
       fences.value = fencesRes.data.data;
     }
+
+    // 重新绘制静态层（围栏变化）与动态图层
+    await drawStaticLayer();
+    await drawDynamicLayer();
+
     // 清空当前绘制
     cancelDrawing();
   } catch (error) {
@@ -532,7 +537,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="h-full w-full bg-gray-50 p-4">
+  <div class="h-[calc(100vh-3rem)] w-full bg-gray-50 p-4">
     <ResizablePanelGroup direction="horizontal" class="h-full rounded-lg border">
       <!-- 左侧：地图画布 -->
       <ResizablePanel :default-size="65" :min-size="30">
