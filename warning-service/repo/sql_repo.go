@@ -1,13 +1,14 @@
 package repo
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/goccy/go-json"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

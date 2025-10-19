@@ -88,6 +88,58 @@ func (r *PolygonFenceRepo) ListActive() ([]model.PolygonFence, error) {
 	return fences, err
 }
 
+// ListIndoor 获取所有室内围栏
+func (r *PolygonFenceRepo) ListIndoor() ([]model.PolygonFence, error) {
+	var fences []model.PolygonFence
+	err := r.db.Raw(`
+		SELECT id, is_indoor, fence_name, ST_AsText(geometry) as geometry,
+		       description, is_active, created_at, updated_at
+		FROM polygon_fences
+		WHERE is_indoor = true
+		ORDER BY created_at DESC
+	`).Scan(&fences).Error
+	return fences, err
+}
+
+// ListOutdoor 获取所有室外围栏
+func (r *PolygonFenceRepo) ListOutdoor() ([]model.PolygonFence, error) {
+	var fences []model.PolygonFence
+	err := r.db.Raw(`
+		SELECT id, is_indoor, fence_name, ST_AsText(geometry) as geometry,
+		       description, is_active, created_at, updated_at
+		FROM polygon_fences
+		WHERE is_indoor = false
+		ORDER BY created_at DESC
+	`).Scan(&fences).Error
+	return fences, err
+}
+
+// ListActiveIndoor 获取所有激活的室内围栏
+func (r *PolygonFenceRepo) ListActiveIndoor() ([]model.PolygonFence, error) {
+	var fences []model.PolygonFence
+	err := r.db.Raw(`
+		SELECT id, is_indoor, fence_name, ST_AsText(geometry) as geometry,
+		       description, is_active, created_at, updated_at
+		FROM polygon_fences
+		WHERE is_active = true AND is_indoor = true
+		ORDER BY created_at DESC
+	`).Scan(&fences).Error
+	return fences, err
+}
+
+// ListActiveOutdoor 获取所有激活的室外围栏
+func (r *PolygonFenceRepo) ListActiveOutdoor() ([]model.PolygonFence, error) {
+	var fences []model.PolygonFence
+	err := r.db.Raw(`
+		SELECT id, is_indoor, fence_name, ST_AsText(geometry) as geometry,
+		       description, is_active, created_at, updated_at
+		FROM polygon_fences
+		WHERE is_active = true AND is_indoor = false
+		ORDER BY created_at DESC
+	`).Scan(&fences).Error
+	return fences, err
+}
+
 // --------------------------------------------------
 // Update
 // --------------------------------------------------

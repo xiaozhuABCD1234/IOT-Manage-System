@@ -17,7 +17,7 @@ func main() {
 	app := fiber.New(fiber.Config{
 		Prefork:            false,
 		StrictRouting:      false,
-		AppName:            "地图数据服务 v0.0.2",
+		AppName:            "地图数据服务 v0.1.0",
 		CaseSensitive:      true,
 		DisableDefaultDate: true,
 		JSONEncoder:        json.Marshal,
@@ -101,6 +101,10 @@ func main() {
 		// 室外围栏专用查询
 		polygonFence.Post("/check-outdoor-all", polygonFenceHandler.CheckPointInOutdoorFences) // 检查点在哪些室外围栏内
 		polygonFence.Post("/check-outdoor-any", polygonFenceHandler.IsPointInAnyOutdoorFence)  // 检查点是否在任意一个室外围栏内
+
+		// 围栏列表查询（放在参数路由之前）
+		polygonFence.Get("/indoor", polygonFenceHandler.ListIndoorFences)   // 获取室内围栏（支持 ?active_only=true）
+		polygonFence.Get("/outdoor", polygonFenceHandler.ListOutdoorFences) // 获取室外围栏（支持 ?active_only=true）
 
 		// CRUD 操作
 		polygonFence.Post("/", polygonFenceHandler.CreatePolygonFence)      // 创建围栏

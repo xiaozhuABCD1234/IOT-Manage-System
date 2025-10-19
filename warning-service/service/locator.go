@@ -65,6 +65,11 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 			Lat:    rtkS.V[1],
 		})
 		// log.Printf("[DEBUG] 收到 RTK 定位消息  deviceID=%s  lon=%f  lat=%f", msg.ID, rtkS.V[0], rtkS.V[1])
+
+		// RTK 使用室外围栏检测
+		if l.FenceChecker != nil {
+			go l.checkFenceOutdoor(msg.ID, rtkS.V[0], rtkS.V[1])
+		}
 	}
 
 	// 写 UWB - UWB(0,0)是有效的，只有当RTK有效且UWB为(0,0)时才优先使用RTK
@@ -81,9 +86,9 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 		})
 		// log.Printf("[DEBUG] 收到 UWB 定位消息  deviceID=%s  x=%f  y=%f", msg.ID, uwbS.V[0], uwbS.V[1])
 
-		// 检查是否在电子围栏内（异步检查，避免阻塞）
+		// UWB 使用室内围栏检测（异步避免阻塞）
 		if l.FenceChecker != nil {
-			go l.checkFence(msg.ID, uwbS.V[0], uwbS.V[1])
+			go l.checkFenceIndoor(msg.ID, uwbS.V[0], uwbS.V[1])
 		}
 	} else if uwbIsZero && rtkValid {
 		// 只有当RTK有效且UWB为(0,0)时，才优先使用RTK，抛弃UWB
@@ -97,9 +102,9 @@ func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
 		})
 		// log.Printf("[DEBUG] RTK无效，使用UWB(0,0)定位，设备ID=%s", msg.ID)
 
-		// 检查是否在电子围栏内
+		// UWB 使用室内围栏检测
 		if l.FenceChecker != nil {
-			go l.checkFence(msg.ID, uwbS.V[0], uwbS.V[1])
+			go l.checkFenceIndoor(msg.ID, uwbS.V[0], uwbS.V[1])
 		}
 	}
 
@@ -116,20 +121,37 @@ func (l *Locator) Online(c mqtt.Client, m mqtt.Message) {
 }
 
 // checkFence 检查设备是否在围栏内
-func (l *Locator) checkFence(deviceID string, x, y float64) {
-	isInside, err := l.FenceChecker.CheckPoint(deviceID, x, y)
+func (l *Locator) checkFenceIndoor(deviceID string, x, y float64) {
+	isInside, err := l.FenceChecker.CheckPointIndoor(deviceID, x, y)
 	if err != nil {
-		log.Printf("[WARN] 检查围栏失败 deviceID=%s error=%v", deviceID, err)
+		log.Printf("[WARN] 检查室内围栏失败 deviceID=%s error=%v", deviceID, err)
 		return
 	}
 
-	// 使用新的持续报警逻辑
 	if l.FenceChecker.ShouldSendAlert(deviceID, isInside) {
 		if isInside {
-			log.Printf("[FENCE_ALERT] 设备 %s 在电子围栏内，发送警报", deviceID)
+			log.Printf("[FENCE_ALERT] 设备 %s 在室内电子围栏内，发送警报", deviceID)
 			SendWarning(deviceID, true)
 		} else {
-			log.Printf("[FENCE_ALERT] 设备 %s 离开电子围栏，取消警报", deviceID)
+			log.Printf("[FENCE_ALERT] 设备 %s 离开室内电子围栏，取消警报", deviceID)
+			SendWarning(deviceID, false)
+		}
+	}
+}
+
+func (l *Locator) checkFenceOutdoor(deviceID string, x, y float64) {
+	isInside, err := l.FenceChecker.CheckPointOutdoor(deviceID, x, y)
+	if err != nil {
+		log.Printf("[WARN] 检查室外围栏失败 deviceID=%s error=%v", deviceID, err)
+		return
+	}
+
+	if l.FenceChecker.ShouldSendAlert(deviceID, isInside) {
+		if isInside {
+			log.Printf("[FENCE_ALERT] 设备 %s 在室外围栏内，发送警报", deviceID)
+			SendWarning(deviceID, true)
+		} else {
+			log.Printf("[FENCE_ALERT] 设备 %s 离开室外围栏，取消警报", deviceID)
 			SendWarning(deviceID, false)
 		}
 	}

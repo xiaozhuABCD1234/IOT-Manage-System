@@ -64,6 +64,30 @@ func (h *PolygonFenceHandler) ListPolygonFences(c *fiber.Ctx) error {
 	return utils.SendSuccessResponse(c, list)
 }
 
+// ListIndoorFences 获取室内围栏
+func (h *PolygonFenceHandler) ListIndoorFences(c *fiber.Ctx) error {
+	activeOnly := c.QueryBool("active_only", false)
+
+	list, err := h.polygonFenceService.ListIndoorFences(activeOnly)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, list)
+}
+
+// ListOutdoorFences 获取室外围栏
+func (h *PolygonFenceHandler) ListOutdoorFences(c *fiber.Ctx) error {
+	activeOnly := c.QueryBool("active_only", false)
+
+	list, err := h.polygonFenceService.ListOutdoorFences(activeOnly)
+	if err != nil {
+		return err
+	}
+
+	return utils.SendSuccessResponse(c, list)
+}
+
 /* ---------- 4. 更新 ---------- */
 
 // UpdatePolygonFence 更新围栏

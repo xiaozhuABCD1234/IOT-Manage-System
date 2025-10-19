@@ -2,13 +2,14 @@ package service
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/goccy/go-json"
 
 	"IOT-Manage-System/warning-service/config"
 	"IOT-Manage-System/warning-service/model"
@@ -209,6 +210,114 @@ func (fc *FenceChecker) CheckPoint(deviceID string, x, y float64) (bool, error) 
 			// log.Printf("[FENCE] 设备 %s 离开围栏", deviceID)
 		}
 	}
+
+	return isInside, nil
+}
+
+// CheckPointIndoor 使用室内围栏接口检查点是否在任意室内围栏内
+func (fc *FenceChecker) CheckPointIndoor(deviceID string, x, y float64) (bool, error) {
+	// 限流检查
+	if !fc.rateLimiter.Allow(deviceID) {
+		fc.mu.RLock()
+		cachedStatus, exists := fc.statusCache[deviceID]
+		fc.mu.RUnlock()
+		if exists {
+			return cachedStatus, nil
+		}
+		return false, nil
+	}
+
+	reqBody := model.FenceCheckRequest{X: x, Y: y}
+	bodyBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		return false, fmt.Errorf("序列化请求失败: %w", err)
+	}
+
+	url := fc.baseURL + "/api/v1/polygon-fence/check-indoor-any"
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		return false, fmt.Errorf("创建请求失败: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := fc.client.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("请求map-service失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false, fmt.Errorf("读取响应失败: %w", err)
+	}
+
+	var fenceResp model.FenceCheckResponse
+	if err := json.Unmarshal(respBody, &fenceResp); err != nil {
+		return false, fmt.Errorf("解析响应失败: %w", err)
+	}
+	if !fenceResp.Success {
+		return false, fmt.Errorf("map-service返回错误: %s", fenceResp.Message)
+	}
+
+	isInside := fenceResp.Data.IsInside
+
+	fc.mu.Lock()
+	fc.statusCache[deviceID] = isInside
+	fc.mu.Unlock()
+
+	return isInside, nil
+}
+
+// CheckPointOutdoor 使用室外围栏接口检查点是否在任意室外围栏内
+func (fc *FenceChecker) CheckPointOutdoor(deviceID string, x, y float64) (bool, error) {
+	// 限流检查
+	if !fc.rateLimiter.Allow(deviceID) {
+		fc.mu.RLock()
+		cachedStatus, exists := fc.statusCache[deviceID]
+		fc.mu.RUnlock()
+		if exists {
+			return cachedStatus, nil
+		}
+		return false, nil
+	}
+
+	reqBody := model.FenceCheckRequest{X: x, Y: y}
+	bodyBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		return false, fmt.Errorf("序列化请求失败: %w", err)
+	}
+
+	url := fc.baseURL + "/api/v1/polygon-fence/check-outdoor-any"
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		return false, fmt.Errorf("创建请求失败: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := fc.client.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("请求map-service失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false, fmt.Errorf("读取响应失败: %w", err)
+	}
+
+	var fenceResp model.FenceCheckResponse
+	if err := json.Unmarshal(respBody, &fenceResp); err != nil {
+		return false, fmt.Errorf("解析响应失败: %w", err)
+	}
+	if !fenceResp.Success {
+		return false, fmt.Errorf("map-service返回错误: %s", fenceResp.Message)
+	}
+
+	isInside := fenceResp.Data.IsInside
+
+	fc.mu.Lock()
+	fc.statusCache[deviceID] = isInside
+	fc.mu.Unlock()
 
 	return isInside, nil
 }

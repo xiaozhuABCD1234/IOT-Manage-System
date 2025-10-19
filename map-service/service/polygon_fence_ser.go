@@ -91,6 +91,58 @@ func (s *PolygonFenceService) ListPolygonFences(activeOnly bool) ([]model.Polygo
 	return resp, nil
 }
 
+// ListIndoorFences 获取室内围栏
+func (s *PolygonFenceService) ListIndoorFences(activeOnly bool) ([]model.PolygonFenceResp, error) {
+	var fences []model.PolygonFence
+	var err error
+
+	if activeOnly {
+		fences, err = s.polygonFenceRepo.ListActiveIndoor()
+	} else {
+		fences, err = s.polygonFenceRepo.ListIndoor()
+	}
+
+	if err != nil {
+		return nil, s.translateRepoErr(err, "PolygonFence")
+	}
+
+	if len(fences) == 0 {
+		return []model.PolygonFenceResp{}, nil
+	}
+
+	resp := make([]model.PolygonFenceResp, 0, len(fences))
+	for i := range fences {
+		resp = append(resp, *s.fenceToResp(&fences[i]))
+	}
+	return resp, nil
+}
+
+// ListOutdoorFences 获取室外围栏
+func (s *PolygonFenceService) ListOutdoorFences(activeOnly bool) ([]model.PolygonFenceResp, error) {
+	var fences []model.PolygonFence
+	var err error
+
+	if activeOnly {
+		fences, err = s.polygonFenceRepo.ListActiveOutdoor()
+	} else {
+		fences, err = s.polygonFenceRepo.ListOutdoor()
+	}
+
+	if err != nil {
+		return nil, s.translateRepoErr(err, "PolygonFence")
+	}
+
+	if len(fences) == 0 {
+		return []model.PolygonFenceResp{}, nil
+	}
+
+	resp := make([]model.PolygonFenceResp, 0, len(fences))
+	for i := range fences {
+		resp = append(resp, *s.fenceToResp(&fences[i]))
+	}
+	return resp, nil
+}
+
 /* ---------- 更新 ---------- */
 
 // UpdatePolygonFence 更新围栏
