@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref, watch } from "vue";
 import { getLatestCustomMap } from "@/api/customMap";
 import { listStations } from "@/api/station";
-import { listPolygonFences, createPolygonFence, deletePolygonFence } from "@/api/polygonFence";
+import { listIndoorFences, createPolygonFence, deletePolygonFence } from "@/api/polygonFence";
 import type { CustomMapResp } from "@/types/customMap";
 import type { StationResp } from "@/types/station";
 import type { PolygonFenceResp, Point } from "@/types/polygonFence";
@@ -37,6 +37,9 @@ import {
   drawPolygonFences,
   drawCurrentPolygon,
   drawUWBDevices,
+  drawMap,
+  DoubleBufferCanvas,
+  drawMapWithDoubleBuffer,
 } from "@/utils/canvasDrawing";
 
 // 数据存储
@@ -55,6 +58,7 @@ const isDrawing = ref(false);
 const currentPolygon = ref<Point[]>([]);
 const fenceName = ref("");
 const fenceDescription = ref("");
+const isIndoor = ref(true); // 默认室内围栏
 const isSaving = ref(false);
 
 // 删除确认对话框状态
@@ -63,174 +67,35 @@ const fenceToDelete = ref<{ id: string; name: string } | null>(null);
 const deletingFenceId = ref<string | null>(null);
 
 /**
- * 绘制整个地图
+ * 绘制整个地图 - 使用双缓冲技术避免闪动
  */
-async function drawMap() {
-  const canvas = document.getElementById("uwb-map-canvas") as HTMLCanvasElement;
-  if (!canvas) return;
-
-  const rect = canvas.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
-
-  // 设置画布尺寸
-  canvas.width = Math.round(rect.width * dpr);
-  canvas.height = Math.round(rect.height * dpr);
-
-  const ctx = canvas.getContext("2d")!;
-  ctx.scale(dpr, dpr);
-
-  const cssWidth = rect.width;
-  const cssHeight = rect.height;
-
-  // 清空画布
-  ctx.clearRect(0, 0, cssWidth, cssHeight);
-
-  // 如果没有地图数据，显示提示
-  if (!mapData.value) {
-    ctx.fillStyle = "#999";
-    ctx.font = "16px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("正在加载地图...", cssWidth / 2, cssHeight / 2);
-    return;
-  }
-
-  // 创建坐标转换器
-  const scaler = new PixelScaler(
-    cssWidth,
-    cssHeight,
-    mapData.value.x_min,
-    mapData.value.x_max,
-    mapData.value.y_min,
-    mapData.value.y_max,
-  );
-
-  try {
-    // 1. 绘制底图（作为最底层）
-    if (mapData.value.image_url) {
-      try {
-        await drawBackgroundImage(ctx, mapData.value.image_url, cssWidth, cssHeight);
-        console.log("✅ 底图加载成功:", mapData.value.image_url);
-      } catch (error) {
-        console.warn("⚠️ 底图加载失败，使用白色背景:", error);
-        // 底图加载失败时使用白色背景
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, cssWidth, cssHeight);
+async function drawMapWrapper() {
+  // 使用 requestAnimationFrame 确保在下一帧绘制，避免闪烁
+  return new Promise<void>((resolve) => {
+    requestAnimationFrame(async () => {
+      if (!doubleBufferCanvas) {
+        resolve();
+        return;
       }
-    } else {
-      // 没有底图时使用白色背景
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, cssWidth, cssHeight);
-    }
 
-    // 2. 绘制网格 - 自动计算合适的网格间距
-    const range = Math.max(
-      mapData.value.x_max - mapData.value.x_min,
-      mapData.value.y_max - mapData.value.y_min,
-    );
-    // 根据范围自动计算网格间距（大约10-20个网格）
-    let gridSpacing = Math.pow(10, Math.floor(Math.log10(range / 15)));
-    if (range / gridSpacing > 25) gridSpacing *= 2;
-    if (range / gridSpacing > 25) gridSpacing *= 2.5;
-    console.log("网格间距:", gridSpacing, "坐标范围:", range);
+      // 调整Canvas尺寸（如果需要）
+      doubleBufferCanvas.resize();
 
-    // 在底图上使用更明显的网格颜色
-    drawGrid(ctx, scaler, gridSpacing, {
-      color: mapData.value.image_url ? "rgba(0, 0, 0, 0.15)" : "#e0e0e0",
-      lineWidth: 1,
-    });
-
-    // 3. 绘制坐标轴 - 在底图上使用更明显的颜色
-    const axisFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
-    const axisColor = mapData.value.image_url ? "#000" : "#333";
-    const textColor = mapData.value.image_url ? "#000" : "#333";
-
-    drawAxisX(ctx, scaler, 10, {
-      color: axisColor,
-      lineWidth: 3,
-      font: `${axisFontSize}px Arial`,
-      textColor: textColor,
-      arrowSize: 15,
-    });
-    drawAxisY(ctx, scaler, 10, {
-      color: axisColor,
-      lineWidth: 3,
-      font: `${axisFontSize}px Arial`,
-      textColor: textColor,
-      arrowSize: 15,
-    });
-    console.log("🎯 坐标轴绘制在: X轴 y=0, Y轴 x=0 (画布中心)");
-
-    // 4. 绘制电子围栏 - 根据地图范围自动调整
-    const fenceLineWidth = Math.max(2, Math.min(cssWidth, cssHeight) / 300);
-    const fenceFontSize = Math.max(12, Math.min(cssWidth, cssHeight) / 60);
-    drawPolygonFences(ctx, scaler, fences.value, {
-      strokeColor: "#3498db",
-      fillColor: "rgba(68, 68, 255, 0.15)",
-      lineWidth: fenceLineWidth,
-      font: `${fenceFontSize}px Arial`,
-    });
-
-    // 5. 绘制基站 - 根据地图范围自动调整大小
-    const baseSize = Math.max(16, Math.min(cssWidth, cssHeight) / 50);
-    const baseFontSize = Math.max(12, Math.min(cssWidth, cssHeight) / 60);
-    drawStations(ctx, scaler, stations.value, {
-      color: "#3498db",
-      size: baseSize,
-      font: `${baseFontSize}px Arial`,
-    });
-
-    // 6. 绘制 UWB 设备坐标
-    const deviceSize = Math.max(8, Math.min(cssWidth, cssHeight) / 150);
-    const deviceFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
-    drawUWBDevices(
-      ctx,
-      scaler,
-      deviceCoordinates.value,
-      marksStore.markList,
-      marksStore.deviceNames,
-      {
-        onlineColor: "#e74c3c",
-        offlineColor: "#95a5a6",
-        size: deviceSize,
-        font: `${deviceFontSize}px Arial`,
-        textColor: "#333",
-        showTrail: false, // 可以根据需要开启轨迹显示
-        trailLength: 10,
-      },
-    );
-
-    // 7. 绘制正在创建的多边形
-    if (isDrawing.value && currentPolygon.value.length > 0) {
-      drawCurrentPolygon(ctx, scaler, currentPolygon.value);
-    }
-
-    // 调试信息
-    console.log("✅ Map drawn successfully");
-    console.log("📊 Canvas size:", cssWidth, "x", cssHeight);
-    console.log("📍 Coordinate range:", {
-      x: [mapData.value.x_min, mapData.value.x_max],
-      y: [mapData.value.y_min, mapData.value.y_max],
-    });
-    console.log("🏢 Stations:", stations.value.length, "个");
-    stations.value.forEach((station) => {
-      const { px, py } = scaler.toPixel(station.coordinate_x, station.coordinate_y);
-      console.log(
-        `  - ${station.station_name}: 逻辑坐标(${station.coordinate_x}, ${station.coordinate_y}) → 像素(${px.toFixed(1)}, ${py.toFixed(1)})`,
+      await drawMapWithDoubleBuffer(
+        doubleBufferCanvas,
+        mapData.value,
+        stations.value,
+        fences.value,
+        deviceCoordinates.value,
+        marksStore.markList,
+        marksStore.deviceNames,
+        currentPolygon.value,
+        isDrawing.value,
       );
+
+      resolve();
     });
-    console.log("🚧 Fences:", fences.value.length, "个");
-    console.log("📱 UWB Devices:", deviceCoordinates.value.size, "个");
-    deviceCoordinates.value.forEach((uwbData, deviceId) => {
-      const { px, py } = scaler.toPixel(uwbData.x, uwbData.y);
-      const isOnline = marksStore.isDeviceOnline(deviceId);
-      console.log(
-        `  - ${deviceId}: UWB坐标(${uwbData.x}, ${uwbData.y}) → 像素(${px.toFixed(1)}, ${py.toFixed(1)}) [${isOnline ? "在线" : "离线"}]`,
-      );
-    });
-  } catch (error) {
-    console.error("Error drawing map:", error);
-  }
+  });
 }
 
 /**
@@ -244,7 +109,7 @@ async function loadData() {
     const [mapRes, stationsRes, fencesRes] = await Promise.all([
       getLatestCustomMap(),
       listStations(),
-      listPolygonFences(),
+      listIndoorFences(true), // 只获取激活的围栏
     ]);
 
     console.log("地图响应:", mapRes);
@@ -277,7 +142,7 @@ async function loadData() {
 
     // 加载完成后绘制地图
     console.log("准备绘制地图...");
-    await drawMap();
+    await drawMapWrapper();
   } catch (error) {
     console.error("❌ 加载数据时发生错误:", error);
   }
@@ -317,7 +182,7 @@ function initLocationMQTT() {
             console.log(`📍 设备 ${uwbData.id} UWB 坐标: (${uwbData.x}, ${uwbData.y})`);
 
             // 重新绘制地图以显示新的设备位置
-            drawMap();
+            drawMapWrapper();
           } catch (error) {
             // 如果解析 UWB 数据失败，可能是 RTK 数据，忽略
             console.log(`⚠️ 位置消息解析失败，可能是 RTK 数据: ${topic}`, error);
@@ -349,6 +214,9 @@ function initLocationMQTT() {
 
 // 位置数据 MQTT 客户端
 let locationMqttClient: any = null;
+
+// 双缓冲 Canvas 实例
+let doubleBufferCanvas: DoubleBufferCanvas | null = null;
 
 /**
  * 处理canvas点击事件 - 添加多边形顶点
@@ -384,7 +252,7 @@ function handleCanvasClick(event: MouseEvent) {
   console.log("当前顶点数:", currentPolygon.value.length);
 
   // 重新绘制
-  drawMap();
+  drawMapWrapper();
 
   // 滚动到底部以显示新添加的点
   setTimeout(() => {
@@ -403,6 +271,7 @@ function startDrawing() {
   currentPolygon.value = [];
   fenceName.value = "";
   fenceDescription.value = "";
+  isIndoor.value = true; // 重置为默认室内围栏
 }
 
 /**
@@ -411,7 +280,7 @@ function startDrawing() {
 function cancelDrawing() {
   isDrawing.value = false;
   currentPolygon.value = [];
-  drawMap();
+  drawMapWrapper();
 }
 
 /**
@@ -419,7 +288,7 @@ function cancelDrawing() {
  */
 function removePoint(index: number) {
   currentPolygon.value.splice(index, 1);
-  drawMap();
+  drawMapWrapper();
 }
 
 /**
@@ -430,7 +299,7 @@ function updatePoint(index: number, axis: "x" | "y", value: string) {
   if (!isNaN(numValue)) {
     currentPolygon.value[index][axis] = Math.round(numValue);
     console.log(`更新点 ${index + 1} 的 ${axis} 坐标为: ${Math.round(numValue)}`);
-    drawMap();
+    drawMapWrapper();
   }
 }
 
@@ -460,13 +329,13 @@ async function confirmDeleteFence() {
     });
 
     // 重新加载围栏列表
-    const fencesRes = await listPolygonFences();
+    const fencesRes = await listIndoorFences(true);
     if (fencesRes.data && fencesRes.data.data) {
       fences.value = fencesRes.data.data;
     }
 
     // 重新绘制地图
-    await drawMap();
+    await drawMapWrapper();
   } catch (error) {
     // 错误已在拦截器中处理
     console.error("Error deleting fence:", error);
@@ -501,6 +370,7 @@ async function finishDrawing() {
 
   try {
     const res = await createPolygonFence({
+      is_indoor: isIndoor.value,
       fence_name: fenceName.value,
       points: currentPolygon.value,
       description: fenceDescription.value,
@@ -511,7 +381,7 @@ async function finishDrawing() {
       description: `围栏"${fenceName.value}"已成功创建`,
     });
     // 重新加载围栏列表
-    const fencesRes = await listPolygonFences();
+    const fencesRes = await listIndoorFences(true);
     if (fencesRes.data && fencesRes.data.data) {
       fences.value = fencesRes.data.data;
     }
@@ -534,6 +404,17 @@ let resizeObserver: ResizeObserver | null = null;
 // 组件挂载时加载数据
 onMounted(() => {
   console.log("Component mounted, loading data...");
+
+  // 初始化双缓冲Canvas
+  const displayCanvas = document.getElementById("uwb-map-canvas") as HTMLCanvasElement;
+  if (displayCanvas) {
+    doubleBufferCanvas = new DoubleBufferCanvas(displayCanvas);
+    console.log("✅ 双缓冲Canvas初始化成功");
+    console.log("🎯 使用双缓冲技术解决Canvas重绘闪动问题");
+  } else {
+    console.error("❌ 无法找到Canvas元素");
+  }
+
   loadData();
 
   // 启动 marks store 的 MQTT 连接（处理在线状态）
@@ -572,24 +453,32 @@ onMounted(() => {
   );
 
   // 监听窗口大小变化，重新绘制
-  window.addEventListener("resize", drawMap);
+  window.addEventListener("resize", drawMapWrapper);
 
   // 监听 canvas 容器大小变化（用于 Resizable 面板调整）
-  const canvas = document.getElementById("uwb-map-canvas");
-  if (canvas) {
+  const canvasElement = document.getElementById("uwb-map-canvas");
+  if (canvasElement) {
     resizeObserver = new ResizeObserver(() => {
       console.log("Canvas size changed, redrawing...");
       // 使用 requestAnimationFrame 确保在下一帧重绘
       requestAnimationFrame(() => {
-        drawMap();
+        drawMapWrapper();
       });
     });
-    resizeObserver.observe(canvas);
+    resizeObserver.observe(canvasElement);
   }
 });
 
 // 组件卸载时清理
 onUnmounted(() => {
+  // 清理双缓冲Canvas
+  if (doubleBufferCanvas) {
+    console.log("正在清理双缓冲Canvas...");
+    doubleBufferCanvas.destroy();
+    doubleBufferCanvas = null;
+    console.log("✅ 双缓冲Canvas已清理");
+  }
+
   // 断开位置数据 MQTT 连接
   if (locationMqttClient) {
     console.log("正在断开位置数据 MQTT 连接...");
@@ -601,7 +490,7 @@ onUnmounted(() => {
   // 注意：不在这里停止 marks store 的 MQTT，因为其他组件可能也在使用
   // marksStore.stopMQTT(); // 如果需要完全停止，可以取消注释
 
-  window.removeEventListener("resize", drawMap);
+  window.removeEventListener("resize", drawMapWrapper);
   if (resizeObserver) {
     resizeObserver.disconnect();
     resizeObserver = null;
@@ -762,6 +651,8 @@ onUnmounted(() => {
                           <p class="font-semibold">{{ fence.fence_name }}</p>
                           <p class="text-muted-foreground text-xs">
                             {{ fence.points.length }} 个顶点
+                            <span v-if="fence.is_indoor" class="text-green-600">· 室内</span>
+                            <span v-else class="text-orange-600">· 室外</span>
                             <span v-if="fence.is_active" class="text-blue-600">· 已激活</span>
                             <span v-else class="text-gray-400">· 未激活</span>
                           </p>

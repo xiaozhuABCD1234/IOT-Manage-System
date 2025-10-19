@@ -8,6 +8,7 @@ export interface Point {
 
 /** 创建多边形围栏请求 */
 export interface PolygonFenceCreateReq {
+  is_indoor: boolean;
   fence_name: string;
   points: Point[];
   description?: string;
@@ -15,6 +16,7 @@ export interface PolygonFenceCreateReq {
 
 /** 更新多边形围栏请求 */
 export interface PolygonFenceUpdateReq {
+  is_indoor?: boolean;
   fence_name?: string;
   points?: Point[];
   description?: string;
@@ -24,6 +26,7 @@ export interface PolygonFenceUpdateReq {
 /** 多边形围栏响应 */
 export interface PolygonFenceResp {
   id: string;
+  is_indoor: boolean;
   fence_name: string;
   points: Point[];
   description: string;

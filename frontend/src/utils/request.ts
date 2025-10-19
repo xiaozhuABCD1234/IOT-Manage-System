@@ -33,10 +33,12 @@ const SILENT_404_URLS: string[] = [
 
 service.interceptors.response.use(
   <T>(response: AxiosResponse<ApiResponse<T>>) => {
-    const { success, message } = response.data;
+    const { success, message, error } = response.data;
     if (success) return response;
 
-    toast.error(message || "请求失败");
+    // 优先显示 error.message，然后是 message，最后是默认错误信息
+    const errorMessage = error?.message || message || "请求失败";
+    toast.error(errorMessage);
     (response as unknown as { _handled: boolean })._handled = true;
     return Promise.reject(response);
   },
@@ -58,9 +60,11 @@ service.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 其余错误
-    const msg = response?.data?.message || message || "网络异常";
-    toast.error(msg);
+    // 其余错误 - 优先显示后端返回的错误信息
+    const backendMessage = response?.data?.message;
+    const backendError = response?.data?.error?.message;
+    const errorMessage = backendError || backendMessage || message || "网络异常";
+    toast.error(errorMessage);
     (error as unknown as { _handled: boolean })._handled = true;
     return Promise.reject(error);
   },

@@ -1,6 +1,7 @@
 import type { StationResp } from "@/types/station";
 import type { PolygonFenceResp, Point } from "@/types/polygonFence";
 import type { UWBFix, MarkOnline } from "@/utils/mqtt";
+import type { CustomMapResp } from "@/types/customMap";
 
 /**
  * 像素坐标转换器
@@ -436,6 +437,15 @@ export function drawPolygonFences(
   fences.forEach((fence) => {
     if (fence.points.length < 3) return;
 
+    // 根据室内/室外设置不同颜色
+    const indoorStrokeColor = "#22c55e"; // 绿色 - 室内
+    const outdoorStrokeColor = "#f97316"; // 橙色 - 室外
+    const indoorFillColor = "rgba(34, 197, 94, 0.1)"; // 浅绿色
+    const outdoorFillColor = "rgba(249, 115, 22, 0.1)"; // 浅橙色
+
+    const currentStrokeColor = fence.is_indoor ? indoorStrokeColor : outdoorStrokeColor;
+    const currentFillColor = fence.is_indoor ? indoorFillColor : outdoorFillColor;
+
     // 绘制多边形
     ctx.beginPath();
     const firstPoint = scaler.toPixel(fence.points[0].x, fence.points[0].y);
@@ -448,18 +458,18 @@ export function drawPolygonFences(
     ctx.closePath();
 
     // 填充
-    ctx.fillStyle = fence.is_active ? fillColor : "rgba(150, 150, 150, 0.1)";
+    ctx.fillStyle = fence.is_active ? currentFillColor : "rgba(150, 150, 150, 0.1)";
     ctx.fill();
 
     // 描边
-    ctx.strokeStyle = fence.is_active ? strokeColor : "#999";
+    ctx.strokeStyle = fence.is_active ? currentStrokeColor : "#999";
     ctx.lineWidth = lineWidth;
     ctx.stroke();
 
     // 绘制顶点
     fence.points.forEach((point) => {
       const { px, py } = scaler.toPixel(point.x, point.y);
-      ctx.fillStyle = fence.is_active ? strokeColor : "#999";
+      ctx.fillStyle = fence.is_active ? currentStrokeColor : "#999";
       ctx.beginPath();
       ctx.arc(px, py, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -477,7 +487,7 @@ export function drawPolygonFences(
       centerY /= fence.points.length;
 
       const { px, py } = scaler.toPixel(centerX, centerY);
-      ctx.fillStyle = textColor;
+      ctx.fillStyle = fence.is_active ? currentStrokeColor : "#999";
       ctx.font = font;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -665,4 +675,435 @@ export function drawUWBDevices(
   });
 
   ctx.restore();
+}
+
+/**
+ * 双缓冲 Canvas 管理器
+ * 用于解决 Canvas 重绘时的闪动问题
+ */
+export class DoubleBufferCanvas {
+  private displayCanvas: HTMLCanvasElement;
+  private offscreenCanvas: HTMLCanvasElement;
+  private displayCtx: CanvasRenderingContext2D;
+  private offscreenCtx: CanvasRenderingContext2D;
+  private dpr: number;
+
+  constructor(displayCanvas: HTMLCanvasElement) {
+    this.displayCanvas = displayCanvas;
+    this.dpr = window.devicePixelRatio || 1;
+
+    // 创建离屏 Canvas
+    this.offscreenCanvas = document.createElement("canvas");
+    this.offscreenCanvas.style.display = "none"; // 隐藏离屏 Canvas
+
+    // 获取上下文
+    this.displayCtx = this.displayCanvas.getContext("2d")!;
+    this.offscreenCtx = this.offscreenCanvas.getContext("2d")!;
+
+    this.resize();
+
+    console.log("🔄 双缓冲Canvas管理器已创建");
+    console.log("📱 设备像素比:", this.dpr);
+  }
+
+  /**
+   * 调整 Canvas 尺寸
+   */
+  resize(): void {
+    const rect = this.displayCanvas.getBoundingClientRect();
+
+    // 设置显示 Canvas 尺寸
+    this.displayCanvas.width = Math.round(rect.width * this.dpr);
+    this.displayCanvas.height = Math.round(rect.height * this.dpr);
+
+    // 设置离屏 Canvas 尺寸
+    this.offscreenCanvas.width = this.displayCanvas.width;
+    this.offscreenCanvas.height = this.displayCanvas.height;
+
+    // 缩放上下文
+    this.displayCtx.scale(this.dpr, this.dpr);
+    this.offscreenCtx.scale(this.dpr, this.dpr);
+  }
+
+  /**
+   * 获取离屏 Canvas 的上下文，用于绘制
+   */
+  getOffscreenContext(): CanvasRenderingContext2D {
+    return this.offscreenCtx;
+  }
+
+  /**
+   * 获取显示 Canvas 的尺寸（CSS 像素）
+   */
+  getSize(): { width: number; height: number } {
+    const rect = this.displayCanvas.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  }
+
+  /**
+   * 将离屏 Canvas 的内容复制到显示 Canvas
+   * 这是双缓冲的核心：一次性渲染，避免闪动
+   */
+  swapBuffers(): void {
+    // 使用 putImageData 方法进行快速复制
+    const imageData = this.offscreenCtx.getImageData(
+      0,
+      0,
+      this.offscreenCanvas.width,
+      this.offscreenCanvas.height,
+    );
+    this.displayCtx.putImageData(imageData, 0, 0);
+    console.log("🔄 双缓冲交换完成，避免闪动");
+  }
+
+  /**
+   * 清空离屏 Canvas
+   */
+  clearOffscreen(): void {
+    const { width, height } = this.getSize();
+    this.offscreenCtx.clearRect(0, 0, width, height);
+  }
+
+  /**
+   * 销毁双缓冲 Canvas
+   */
+  destroy(): void {
+    // 清理资源
+    this.offscreenCanvas.remove();
+  }
+}
+
+/**
+ * 使用双缓冲技术绘制整个地图
+ * 解决重绘时的闪动问题
+ */
+export async function drawMapWithDoubleBuffer(
+  doubleBufferCanvas: DoubleBufferCanvas,
+  mapData: CustomMapResp | null,
+  stations: StationResp[],
+  fences: PolygonFenceResp[],
+  deviceCoordinates: Map<string, UWBFix>,
+  onlineDevices: MarkOnline[],
+  deviceNames: Map<string, string>,
+  currentPolygon: Point[] = [],
+  isDrawing: boolean = false,
+): Promise<void> {
+  const { width: cssWidth, height: cssHeight } = doubleBufferCanvas.getSize();
+  const ctx = doubleBufferCanvas.getOffscreenContext();
+
+  // 清空离屏 Canvas
+  doubleBufferCanvas.clearOffscreen();
+
+  // 如果没有地图数据，显示提示
+  if (!mapData) {
+    ctx.fillStyle = "#999";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("正在加载地图...", cssWidth / 2, cssHeight / 2);
+    // 立即交换缓冲区显示提示
+    doubleBufferCanvas.swapBuffers();
+    return;
+  }
+
+  // 创建坐标转换器
+  const scaler = new PixelScaler(
+    cssWidth,
+    cssHeight,
+    mapData.x_min,
+    mapData.x_max,
+    mapData.y_min,
+    mapData.y_max,
+  );
+
+  try {
+    // 1. 绘制底图（作为最底层）
+    if (mapData.image_url) {
+      try {
+        await drawBackgroundImage(ctx, mapData.image_url, cssWidth, cssHeight);
+        console.log("✅ 底图加载成功:", mapData.image_url);
+      } catch (error) {
+        console.warn("⚠️ 底图加载失败，使用白色背景:", error);
+        // 底图加载失败时使用白色背景
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, cssWidth, cssHeight);
+      }
+    } else {
+      // 没有底图时使用白色背景
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, cssWidth, cssHeight);
+    }
+
+    // 2. 绘制网格 - 自动计算合适的网格间距
+    const range = Math.max(mapData.x_max - mapData.x_min, mapData.y_max - mapData.y_min);
+    // 根据范围自动计算网格间距（大约10-20个网格）
+    let gridSpacing = Math.pow(10, Math.floor(Math.log10(range / 15)));
+    if (range / gridSpacing > 25) gridSpacing *= 2;
+    if (range / gridSpacing > 25) gridSpacing *= 2.5;
+    console.log("网格间距:", gridSpacing, "坐标范围:", range);
+
+    // 在底图上使用更明显的网格颜色
+    drawGrid(ctx, scaler, gridSpacing, {
+      color: mapData.image_url ? "rgba(0, 0, 0, 0.15)" : "#e0e0e0",
+      lineWidth: 1,
+    });
+
+    // 3. 绘制坐标轴 - 在底图上使用更明显的颜色
+    const axisFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
+    const axisColor = mapData.image_url ? "#000" : "#333";
+    const textColor = mapData.image_url ? "#000" : "#333";
+
+    drawAxisX(ctx, scaler, 10, {
+      color: axisColor,
+      lineWidth: 3,
+      font: `${axisFontSize}px Arial`,
+      textColor: textColor,
+      arrowSize: 15,
+    });
+    drawAxisY(ctx, scaler, 10, {
+      color: axisColor,
+      lineWidth: 3,
+      font: `${axisFontSize}px Arial`,
+      textColor: textColor,
+      arrowSize: 15,
+    });
+    console.log("🎯 坐标轴绘制在: X轴 y=0, Y轴 x=0 (画布中心)");
+
+    // 4. 绘制电子围栏 - 根据地图范围自动调整
+    const fenceLineWidth = Math.max(2, Math.min(cssWidth, cssHeight) / 300);
+    const fenceFontSize = Math.max(12, Math.min(cssWidth, cssHeight) / 60);
+    drawPolygonFences(ctx, scaler, fences, {
+      strokeColor: "#3498db",
+      fillColor: "rgba(68, 68, 255, 0.15)",
+      lineWidth: fenceLineWidth,
+      font: `${fenceFontSize}px Arial`,
+    });
+
+    // 5. 绘制基站 - 根据地图范围自动调整大小
+    const baseSize = Math.max(16, Math.min(cssWidth, cssHeight) / 50);
+    const baseFontSize = Math.max(12, Math.min(cssWidth, cssHeight) / 60);
+    drawStations(ctx, scaler, stations, {
+      color: "#3498db",
+      size: baseSize,
+      font: `${baseFontSize}px Arial`,
+    });
+
+    // 6. 绘制 UWB 设备坐标
+    const deviceSize = Math.max(8, Math.min(cssWidth, cssHeight) / 150);
+    const deviceFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
+    drawUWBDevices(ctx, scaler, deviceCoordinates, onlineDevices, deviceNames, {
+      onlineColor: "#e74c3c",
+      offlineColor: "#95a5a6",
+      size: deviceSize,
+      font: `${deviceFontSize}px Arial`,
+      textColor: "#333",
+      showTrail: false, // 可以根据需要开启轨迹显示
+      trailLength: 10,
+    });
+
+    // 7. 绘制正在创建的多边形
+    if (isDrawing && currentPolygon.length > 0) {
+      drawCurrentPolygon(ctx, scaler, currentPolygon);
+    }
+
+    // 调试信息
+    console.log("✅ Map drawn successfully with double buffer");
+    console.log("📊 Canvas size:", cssWidth, "x", cssHeight);
+    console.log("📍 Coordinate range:", {
+      x: [mapData.x_min, mapData.x_max],
+      y: [mapData.y_min, mapData.y_max],
+    });
+    console.log("🏢 Stations:", stations.length, "个");
+    stations.forEach((station) => {
+      const { px, py } = scaler.toPixel(station.coordinate_x, station.coordinate_y);
+      console.log(
+        `  - ${station.station_name}: 逻辑坐标(${station.coordinate_x}, ${station.coordinate_y}) → 像素(${px.toFixed(1)}, ${py.toFixed(1)})`,
+      );
+    });
+    console.log("🚧 Fences:", fences.length, "个");
+    console.log("📱 UWB Devices:", deviceCoordinates.size, "个");
+    deviceCoordinates.forEach((uwbData, deviceId) => {
+      const { px, py } = scaler.toPixel(uwbData.x, uwbData.y);
+      const isOnline = onlineDevices.some((device) => device.id === deviceId && device.online);
+      console.log(
+        `  - ${deviceId}: UWB坐标(${uwbData.x}, ${uwbData.y}) → 像素(${px.toFixed(1)}, ${py.toFixed(1)}) [${isOnline ? "在线" : "离线"}]`,
+      );
+    });
+
+    // 8. 关键步骤：一次性将离屏 Canvas 内容复制到显示 Canvas
+    // 这避免了直接清空和重绘导致的闪动
+    doubleBufferCanvas.swapBuffers();
+  } catch (error) {
+    console.error("Error drawing map with double buffer:", error);
+  }
+}
+
+/**
+ * 绘制整个地图（保留原函数以兼容性）
+ */
+export async function drawMap(
+  canvas: HTMLCanvasElement,
+  mapData: CustomMapResp | null,
+  stations: StationResp[],
+  fences: PolygonFenceResp[],
+  deviceCoordinates: Map<string, UWBFix>,
+  onlineDevices: MarkOnline[],
+  deviceNames: Map<string, string>,
+  currentPolygon: Point[] = [],
+  isDrawing: boolean = false,
+): Promise<void> {
+  if (!canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+
+  // 设置画布尺寸
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+
+  const ctx = canvas.getContext("2d")!;
+  ctx.scale(dpr, dpr);
+
+  const cssWidth = rect.width;
+  const cssHeight = rect.height;
+
+  // 清空画布
+  ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+  // 如果没有地图数据，显示提示
+  if (!mapData) {
+    ctx.fillStyle = "#999";
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("正在加载地图...", cssWidth / 2, cssHeight / 2);
+    return;
+  }
+
+  // 创建坐标转换器
+  const scaler = new PixelScaler(
+    cssWidth,
+    cssHeight,
+    mapData.x_min,
+    mapData.x_max,
+    mapData.y_min,
+    mapData.y_max,
+  );
+
+  try {
+    // 1. 绘制底图（作为最底层）
+    if (mapData.image_url) {
+      try {
+        await drawBackgroundImage(ctx, mapData.image_url, cssWidth, cssHeight);
+        console.log("✅ 底图加载成功:", mapData.image_url);
+      } catch (error) {
+        console.warn("⚠️ 底图加载失败，使用白色背景:", error);
+        // 底图加载失败时使用白色背景
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, cssWidth, cssHeight);
+      }
+    } else {
+      // 没有底图时使用白色背景
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, cssWidth, cssHeight);
+    }
+
+    // 2. 绘制网格 - 自动计算合适的网格间距
+    const range = Math.max(mapData.x_max - mapData.x_min, mapData.y_max - mapData.y_min);
+    // 根据范围自动计算网格间距（大约10-20个网格）
+    let gridSpacing = Math.pow(10, Math.floor(Math.log10(range / 15)));
+    if (range / gridSpacing > 25) gridSpacing *= 2;
+    if (range / gridSpacing > 25) gridSpacing *= 2.5;
+    console.log("网格间距:", gridSpacing, "坐标范围:", range);
+
+    // 在底图上使用更明显的网格颜色
+    drawGrid(ctx, scaler, gridSpacing, {
+      color: mapData.image_url ? "rgba(0, 0, 0, 0.15)" : "#e0e0e0",
+      lineWidth: 1,
+    });
+
+    // 3. 绘制坐标轴 - 在底图上使用更明显的颜色
+    const axisFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
+    const axisColor = mapData.image_url ? "#000" : "#333";
+    const textColor = mapData.image_url ? "#000" : "#333";
+
+    drawAxisX(ctx, scaler, 10, {
+      color: axisColor,
+      lineWidth: 3,
+      font: `${axisFontSize}px Arial`,
+      textColor: textColor,
+      arrowSize: 15,
+    });
+    drawAxisY(ctx, scaler, 10, {
+      color: axisColor,
+      lineWidth: 3,
+      font: `${axisFontSize}px Arial`,
+      textColor: textColor,
+      arrowSize: 15,
+    });
+    console.log("🎯 坐标轴绘制在: X轴 y=0, Y轴 x=0 (画布中心)");
+
+    // 4. 绘制电子围栏 - 根据地图范围自动调整
+    const fenceLineWidth = Math.max(2, Math.min(cssWidth, cssHeight) / 300);
+    const fenceFontSize = Math.max(12, Math.min(cssWidth, cssHeight) / 60);
+    drawPolygonFences(ctx, scaler, fences, {
+      strokeColor: "#3498db",
+      fillColor: "rgba(68, 68, 255, 0.15)",
+      lineWidth: fenceLineWidth,
+      font: `${fenceFontSize}px Arial`,
+    });
+
+    // 5. 绘制基站 - 根据地图范围自动调整大小
+    const baseSize = Math.max(16, Math.min(cssWidth, cssHeight) / 50);
+    const baseFontSize = Math.max(12, Math.min(cssWidth, cssHeight) / 60);
+    drawStations(ctx, scaler, stations, {
+      color: "#3498db",
+      size: baseSize,
+      font: `${baseFontSize}px Arial`,
+    });
+
+    // 6. 绘制 UWB 设备坐标
+    const deviceSize = Math.max(8, Math.min(cssWidth, cssHeight) / 150);
+    const deviceFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
+    drawUWBDevices(ctx, scaler, deviceCoordinates, onlineDevices, deviceNames, {
+      onlineColor: "#e74c3c",
+      offlineColor: "#95a5a6",
+      size: deviceSize,
+      font: `${deviceFontSize}px Arial`,
+      textColor: "#333",
+      showTrail: false, // 可以根据需要开启轨迹显示
+      trailLength: 10,
+    });
+
+    // 7. 绘制正在创建的多边形
+    if (isDrawing && currentPolygon.length > 0) {
+      drawCurrentPolygon(ctx, scaler, currentPolygon);
+    }
+
+    // 调试信息
+    console.log("✅ Map drawn successfully");
+    console.log("📊 Canvas size:", cssWidth, "x", cssHeight);
+    console.log("📍 Coordinate range:", {
+      x: [mapData.x_min, mapData.x_max],
+      y: [mapData.y_min, mapData.y_max],
+    });
+    console.log("🏢 Stations:", stations.length, "个");
+    stations.forEach((station) => {
+      const { px, py } = scaler.toPixel(station.coordinate_x, station.coordinate_y);
+      console.log(
+        `  - ${station.station_name}: 逻辑坐标(${station.coordinate_x}, ${station.coordinate_y}) → 像素(${px.toFixed(1)}, ${py.toFixed(1)})`,
+      );
+    });
+    console.log("🚧 Fences:", fences.length, "个");
+    console.log("📱 UWB Devices:", deviceCoordinates.size, "个");
+    deviceCoordinates.forEach((uwbData, deviceId) => {
+      const { px, py } = scaler.toPixel(uwbData.x, uwbData.y);
+      const isOnline = onlineDevices.some((device) => device.id === deviceId && device.online);
+      console.log(
+        `  - ${deviceId}: UWB坐标(${uwbData.x}, ${uwbData.y}) → 像素(${px.toFixed(1)}, ${py.toFixed(1)}) [${isOnline ? "在线" : "离线"}]`,
+      );
+    });
+  } catch (error) {
+    console.error("Error drawing map:", error);
+  }
 }

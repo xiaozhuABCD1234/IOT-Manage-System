@@ -41,6 +41,7 @@ onMounted(async () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("login_token_time");
+    useRouter().push("/login");
   }
   // 2. 登录失败
   if (!localStorage.getItem("access_token")) {
