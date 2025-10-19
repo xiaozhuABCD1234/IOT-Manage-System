@@ -1,4 +1,5 @@
 <template>
+  <div class="h-[calc(100vh-3rem)] p-4">
     <!-- 移动端垂直布局 -->
     <div class="flex h-full w-full flex-col gap-2 md:hidden">
       <div class="flex-1">
@@ -30,6 +31,7 @@
         </ResizablePanelGroup>
       </ResizablePanel>
     </ResizablePanelGroup>
+  </div>
 </template>
 
 <script setup lang="ts">

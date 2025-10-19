@@ -1,15 +1,19 @@
 <template>
   <Toaster />
   <div
-    class="flex min-h-screen flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100"
+    class="flex min-h-screen flex-col text-gray-900 dark:bg-gray-900 dark:text-gray-100"
   >
     <header class="sticky top-0 z-10 h-12 bg-blue-300 dark:bg-sky-800">
       <HomeHeader />
     </header>
 
-    <main class="h-[calc(100vh-3rem)] min-h-[calc(100vh-3rem)] bg-white dark:bg-gray-800">
+    <main class="min-h-[calc(100vh-3rem)] bg-white dark:bg-gray-800">
       <router-view />
     </main>
+        <!-- 页脚 -->
+    <footer class="h-12 bg-blue-400 dark:bg-sky-900">
+      <HomeFooter />
+    </footer>
   </div>
 </template>
 
@@ -21,6 +25,7 @@ import { userApi } from "@/api";
 import { Toaster } from "@/components/ui/sonner";
 import "vue-sonner/style.css"; // vue-sonner v2 requires this import
 import HomeHeader from "./components/layout/AppHeader.vue";
+
 
 onMounted(async () => {
   const refreshToken = localStorage.getItem("refresh_token");

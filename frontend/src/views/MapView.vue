@@ -1,17 +1,19 @@
 <template>
-  <!-- 动态方向：>=768px 时水平，<768px 时垂直 -->
-  <ResizablePanelGroup :direction="isMobile ? 'vertical' : 'horizontal'" class="h-full w-full">
-    <ResizablePanel>
-      <RealtimeMap />
-    </ResizablePanel>
+  <div class="h-[calc(100vh-3rem)]">
+    <!-- 动态方向：>=768px 时水平，<768px 时垂直 -->
+    <ResizablePanelGroup :direction="isMobile ? 'vertical' : 'horizontal'" class="h-full w-full">
+      <ResizablePanel>
+        <RealtimeMap />
+      </ResizablePanel>
 
-    <!-- 手机端隐藏拖拽条，更清爽 -->
-    <ResizableHandle v-if="!isMobile" with-handle />
+      <!-- 手机端隐藏拖拽条，更清爽 -->
+      <ResizableHandle v-if="!isMobile" with-handle />
 
-    <ResizablePanel>
-      <UWBLiveScatter />
-    </ResizablePanel>
-  </ResizablePanelGroup>
+      <ResizablePanel>
+        <UWBLiveScatter />
+      </ResizablePanel>
+    </ResizablePanelGroup>
+  </div>
 </template>
 
 <script setup lang="ts">
