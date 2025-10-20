@@ -12,7 +12,7 @@
     </main>
         <!-- 页脚 -->
     <footer class="h-12 bg-blue-400 dark:bg-sky-900">
-      <HomeFooter />
+      <SiteFooter />
     </footer>
   </div>
 </template>
@@ -25,7 +25,7 @@ import { userApi } from "@/api";
 import { Toaster } from "@/components/ui/sonner";
 import "vue-sonner/style.css"; // vue-sonner v2 requires this import
 import HomeHeader from "./components/layout/AppHeader.vue";
-
+import SiteFooter from "./components/layout/SiteFooter.vue";
 
 onMounted(async () => {
   const refreshToken = localStorage.getItem("refresh_token");
