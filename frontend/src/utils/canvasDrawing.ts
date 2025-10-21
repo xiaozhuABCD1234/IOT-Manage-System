@@ -1096,9 +1096,9 @@ export async function drawDynamicLayerWithDoubleBuffer(
     // 绘制设备之间的连线和距离
     const connectionFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 100);
     drawDeviceConnections(ctx, scaler, deviceCoordinates, onlineDevices, deviceNames, {
-      lineColor: "#3498db",
+      lineColor: "#003399",
       lineWidth: 2,
-      textColor: "#2c3e50",
+      textColor: "#cc3333",
       fontSize: `${connectionFontSize}px Arial`,
       backgroundColor: "rgba(255, 255, 255, 0.8)",
     });
