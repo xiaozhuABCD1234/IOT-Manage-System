@@ -135,7 +135,7 @@ export function formatTickLabel(value: number): string {
 export function drawGrid(
   ctx: CanvasRenderingContext2D,
   scaler: PixelScaler,
-  gridSpacing: number = 1,
+  gridSpacing: number = 60,
   options: {
     color?: string;
     lineWidth?: number;
@@ -147,8 +147,17 @@ export function drawGrid(
   ctx.strokeStyle = color;
   ctx.lineWidth = lineWidth;
 
+  // 计算网格起始位置，确保与坐标原点对齐
+  // 找到最接近 x_min 的网格线位置（60的倍数）
+  const startX = Math.floor(scaler.x_min / gridSpacing) * gridSpacing;
+  const endX = Math.ceil(scaler.x_max / gridSpacing) * gridSpacing;
+
+  // 找到最接近 y_min 的网格线位置（60的倍数）
+  const startY = Math.floor(scaler.y_min / gridSpacing) * gridSpacing;
+  const endY = Math.ceil(scaler.y_max / gridSpacing) * gridSpacing;
+
   // 垂直网格线
-  for (let x = Math.ceil(scaler.x_min); x <= scaler.x_max; x += gridSpacing) {
+  for (let x = startX; x <= endX; x += gridSpacing) {
     const { px } = scaler.toPixel(x, 0);
     ctx.beginPath();
     ctx.moveTo(px, 0);
@@ -157,7 +166,7 @@ export function drawGrid(
   }
 
   // 水平网格线
-  for (let y = Math.ceil(scaler.y_min); y <= scaler.y_max; y += gridSpacing) {
+  for (let y = startY; y <= endY; y += gridSpacing) {
     const { py } = scaler.toPixel(0, y);
     ctx.beginPath();
     ctx.moveTo(0, py);
@@ -834,13 +843,16 @@ export async function drawMapWithDoubleBuffer(
       ctx.fillRect(0, 0, cssWidth, cssHeight);
     }
 
-    // 2. 绘制网格 - 自动计算合适的网格间距
-    const range = Math.max(mapData.x_max - mapData.x_min, mapData.y_max - mapData.y_min);
-    // 根据范围自动计算网格间距（大约10-20个网格）
-    let gridSpacing = Math.pow(10, Math.floor(Math.log10(range / 15)));
-    if (range / gridSpacing > 25) gridSpacing *= 2;
-    if (range / gridSpacing > 25) gridSpacing *= 2.5;
-    console.log("网格间距:", gridSpacing, "坐标范围:", range);
+    // 2. 绘制网格 - 固定60坐标轴一格
+    const gridSpacing = 60;
+    console.log(
+      "网格间距:",
+      gridSpacing,
+      "坐标范围:",
+      mapData.x_max - mapData.x_min,
+      "x",
+      mapData.y_max - mapData.y_min,
+    );
 
     // 在底图上使用更明显的网格颜色
     drawGrid(ctx, scaler, gridSpacing, {
@@ -989,11 +1001,8 @@ export async function drawStaticLayerWithDoubleBuffer(
       ctx.fillRect(0, 0, cssWidth, cssHeight);
     }
 
-    // 2. 绘制网格
-    const range = Math.max(mapData.x_max - mapData.x_min, mapData.y_max - mapData.y_min);
-    let gridSpacing = Math.pow(10, Math.floor(Math.log10(range / 15)));
-    if (range / gridSpacing > 25) gridSpacing *= 2;
-    if (range / gridSpacing > 25) gridSpacing *= 2.5;
+    // 2. 绘制网格 - 固定60坐标轴一格
+    const gridSpacing = 60;
     drawGrid(ctx, scaler, gridSpacing, {
       color: mapData.image_url ? "rgba(0, 0, 0, 0.15)" : "#e0e0e0",
       lineWidth: 1,
@@ -1185,13 +1194,16 @@ export async function drawMap(
       ctx.fillRect(0, 0, cssWidth, cssHeight);
     }
 
-    // 2. 绘制网格 - 自动计算合适的网格间距
-    const range = Math.max(mapData.x_max - mapData.x_min, mapData.y_max - mapData.y_min);
-    // 根据范围自动计算网格间距（大约10-20个网格）
-    let gridSpacing = Math.pow(10, Math.floor(Math.log10(range / 15)));
-    if (range / gridSpacing > 25) gridSpacing *= 2;
-    if (range / gridSpacing > 25) gridSpacing *= 2.5;
-    console.log("网格间距:", gridSpacing, "坐标范围:", range);
+    // 2. 绘制网格 - 固定60坐标轴一格
+    const gridSpacing = 60;
+    console.log(
+      "网格间距:",
+      gridSpacing,
+      "坐标范围:",
+      mapData.x_max - mapData.x_min,
+      "x",
+      mapData.y_max - mapData.y_min,
+    );
 
     // 在底图上使用更明显的网格颜色
     drawGrid(ctx, scaler, gridSpacing, {

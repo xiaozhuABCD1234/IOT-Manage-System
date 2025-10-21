@@ -37,6 +37,7 @@ func NewLocator(db *gorm.DB, SafeDist *repo.SafeDist, DangerZone *repo.DangerZon
 
 // OnLocMsg 被 main 注册到 MQTT 回调
 func (l *Locator) OnLocMsg(c mqtt.Client, m mqtt.Message) {
+	log.Println("data: \v", string(m.Payload()))
 	var msg model.LocMsg
 	if err := json.Unmarshal(m.Payload(), &msg); err != nil {
 		log.Println("[WARN] json err:", err)
@@ -195,8 +196,8 @@ func (l *Locator) StartDistanceChecker() {
 		ticker := time.NewTicker(100 * time.Millisecond)
 		defer ticker.Stop()
 		for range ticker.C {
-			l.batchCheckRTK()
-			l.batchCheckUWB()
+			// l.batchCheckRTK()
+			// l.batchCheckUWB()
 		}
 	}()
 }
