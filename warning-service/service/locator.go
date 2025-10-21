@@ -196,8 +196,8 @@ func (l *Locator) StartDistanceChecker() {
 		ticker := time.NewTicker(100 * time.Millisecond)
 		defer ticker.Stop()
 		for range ticker.C {
-			// l.batchCheckRTK()
-			// l.batchCheckUWB()
+			l.batchCheckRTK()
+			l.batchCheckUWB()
 		}
 	}()
 }
