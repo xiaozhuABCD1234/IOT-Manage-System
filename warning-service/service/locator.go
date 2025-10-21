@@ -239,6 +239,7 @@ func (l *Locator) batchCheckRTK() {
 				// log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)
 				go SendWarning(a.ID, true)
 				go SendWarning(b.ID, true)
+				l.MemRepo.ClearRTK()
 			}
 			// 安全距离未设置时，检查危险区域
 			dangerZoneA, _ := l.MarkRepo.GetDangerZoneM(a.ID)
@@ -249,6 +250,7 @@ func (l *Locator) batchCheckRTK() {
 				// log.Printf("[DEBUG] 设备间距离 小于危险距离  deviceID1=%s  deviceID2=%s  distance=%f  danger_distance=%f", a.ID, b.ID, distance, dangerZone)
 				go SendWarning(a.ID, true)
 				go SendWarning(b.ID, true)
+				l.MemRepo.ClearRTK()
 			}
 		}
 	}
@@ -291,6 +293,7 @@ func (l *Locator) batchCheckUWB() {
 				// log.Printf("[DEBUG] 设备间距离 小于安全距离  deviceID1=%s  deviceID2=%s  distance=%f  safe_distance=%f", a.ID, b.ID, distance, safe)
 				go SendWarning(a.ID, true)
 				go SendWarning(b.ID, true)
+				l.MemRepo.ClearUWB()
 			}
 			// 安全距离未设置时，检查危险区域
 			dangerZoneA, _ := l.MarkRepo.GetDangerZoneM(a.ID)
@@ -301,6 +304,7 @@ func (l *Locator) batchCheckUWB() {
 				// log.Printf("[DEBUG] 设备间距离 小于危险距离  deviceID1=%s  deviceID2=%s  distance=%f  danger_distance=%f", a.ID, b.ID, distance, dangerZone)
 				go SendWarning(a.ID, true)
 				go SendWarning(b.ID, true)
+				l.MemRepo.ClearUWB()
 			}
 		}
 	}

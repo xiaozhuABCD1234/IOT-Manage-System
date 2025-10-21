@@ -30,22 +30,19 @@ func main() {
 	var err error
 
 	// 检查是否需要数据库连接（用于兼容模式）
-	if os.Getenv("USE_DATABASE") == "true" {
-		db, err = utils.InitDB()
-		if err != nil {
-			log.Fatalf("初始化数据库失败: %v", err)
-		}
-		defer func() {
-			if err := utils.CloseDB(db); err != nil {
-				log.Printf("关闭数据库失败: %v", err)
-			} else {
-				log.Println("数据库已正常关闭")
-			}
-		}()
-		log.Println("使用数据库模式")
-	} else {
-		log.Println("使用API模式，无需数据库连接")
+
+	db, err = utils.InitDB()
+	if err != nil {
+		log.Fatalf("初始化数据库失败: %v", err)
 	}
+	defer func() {
+		if err := utils.CloseDB(db); err != nil {
+			log.Printf("关闭数据库失败: %v", err)
+		} else {
+			log.Println("数据库已正常关闭")
+		}
+	}()
+	log.Println("使用数据库模式")
 
 	// 1. 创建缓存实例
 	safeDist := repo.NewSafeDist()

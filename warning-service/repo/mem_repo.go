@@ -89,6 +89,21 @@ func (m *MemRepo) UWBSnapshot() map[string]*model.UWBLoc {
 	return snap
 }
 
+// ClearRTK 清空 RTK 表
+func (m *MemRepo) ClearRTK() {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+	// 直接赋一个新的 map，旧数据交给 GC
+	m.rtk = make(map[string]model.RTKLoc)
+}
+
+// ClearUWB 清空 UWB 表
+func (m *MemRepo) ClearUWB() {
+	m.mtx.Lock()
+	defer m.mtx.Unlock()
+	m.uwb = make(map[string]model.UWBLoc)
+}
+
 /* ====== SafeDist ====== */
 
 type SafeDist struct {
