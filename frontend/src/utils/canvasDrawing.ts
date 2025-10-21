@@ -1093,6 +1093,16 @@ export async function drawDynamicLayerWithDoubleBuffer(
       trailLength: 10,
     });
 
+    // 绘制设备之间的连线和距离
+    const connectionFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 100);
+    drawDeviceConnections(ctx, scaler, deviceCoordinates, onlineDevices, deviceNames, {
+      lineColor: "#3498db",
+      lineWidth: 2,
+      textColor: "#2c3e50",
+      fontSize: `${connectionFontSize}px Arial`,
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+    });
+
     // 正在创建的多边形
     if (isDrawing && currentPolygon.length > 0) {
       drawCurrentPolygon(ctx, scaler, currentPolygon);
@@ -1273,4 +1283,120 @@ export async function drawMap(
   } catch (error) {
     console.error("Error drawing map:", error);
   }
+}
+
+/**
+ * 计算两点间距离（厘米，内部计算单位）
+ */
+export function calculateDistance(
+  point1: { x: number; y: number },
+  point2: { x: number; y: number },
+): number {
+  const dx = point2.x - point1.x;
+  const dy = point2.y - point1.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+/**
+ * 绘制设备之间的连线和距离
+ */
+export function drawDeviceConnections(
+  ctx: CanvasRenderingContext2D,
+  scaler: PixelScaler,
+  deviceCoordinates: Map<string, UWBFix>,
+  onlineDevices: MarkOnline[],
+  deviceNames: Map<string, string>,
+  options: {
+    lineColor?: string;
+    lineWidth?: number;
+    textColor?: string;
+    fontSize?: string;
+    backgroundColor?: string;
+  } = {},
+) {
+  const {
+    lineColor = "#3498db",
+    lineWidth = 2,
+    textColor = "#2c3e50",
+    fontSize = "12px Arial",
+    backgroundColor = "rgba(255, 255, 255, 0.8)",
+  } = options;
+
+  ctx.save();
+
+  // 获取所有在线的设备坐标
+  const onlineDeviceCoords: Array<{ id: string; x: number; y: number; name: string }> = [];
+
+  deviceCoordinates.forEach((uwbData, deviceId) => {
+    const isOnline = onlineDevices.some((device) => device.id === deviceId && device.online);
+    if (isOnline) {
+      const deviceName = deviceNames.get(deviceId) || "未知设备";
+      onlineDeviceCoords.push({
+        id: deviceId,
+        x: uwbData.x,
+        y: uwbData.y,
+        name: deviceName,
+      });
+    }
+  });
+
+  // 如果设备数量少于2个，不需要绘制连线
+  if (onlineDeviceCoords.length < 2) {
+    ctx.restore();
+    return;
+  }
+
+  // 绘制所有设备之间的连线
+  for (let i = 0; i < onlineDeviceCoords.length; i++) {
+    for (let j = i + 1; j < onlineDeviceCoords.length; j++) {
+      const device1 = onlineDeviceCoords[i];
+      const device2 = onlineDeviceCoords[j];
+
+      // 计算像素坐标
+      const { px: px1, py: py1 } = scaler.toPixel(device1.x, device1.y);
+      const { px: px2, py: py2 } = scaler.toPixel(device2.x, device2.y);
+
+      // 绘制连线
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = lineWidth;
+      ctx.setLineDash([5, 5]); // 虚线样式
+      ctx.beginPath();
+      ctx.moveTo(px1, py1);
+      ctx.lineTo(px2, py2);
+      ctx.stroke();
+      ctx.setLineDash([]); // 重置为实线
+
+      // 计算距离（米）
+      const distance = calculateDistance(device1, device2);
+      const distanceText = `${(distance / 100).toFixed(1)}m`;
+
+      // 计算中点位置用于显示距离文本
+      const midX = (px1 + px2) / 2;
+      const midY = (py1 + py2) / 2;
+
+      // 绘制距离文本背景
+      ctx.font = fontSize;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const textMetrics = ctx.measureText(distanceText);
+      const textWidth = textMetrics.width;
+      const textHeight = parseInt(fontSize) * 0.8;
+
+      // 绘制背景矩形
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(
+        midX - textWidth / 2 - 4,
+        midY - textHeight / 2 - 2,
+        textWidth + 8,
+        textHeight + 4,
+      );
+
+      // 绘制距离文本
+      ctx.fillStyle = textColor;
+      ctx.fillText(distanceText, midX, midY);
+    }
+  }
+
+  ctx.restore();
 }

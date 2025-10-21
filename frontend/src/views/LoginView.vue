@@ -118,7 +118,7 @@ async function onSubmit() {
       duration: 3000,
     });
 
-    document.title = "智慧监理平台";
+    document.title = "展示平台";
     router.replace("/");
     // router.push("/");
   } catch (e: unknown) {
