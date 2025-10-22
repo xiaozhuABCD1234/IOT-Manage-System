@@ -20,7 +20,7 @@ const plugin = Autoplay({ delay: 2000, stopOnMouseEnter: true, stopOnInteraction
         <div class="h-full w-full bg-[url('@/assets/imgs/home-map.png')] bg-cover bg-center">
           <div class="absolute inset-0 bg-black/10" />
           <div class="relative flex h-full items-center justify-center">
-            <h1 class="text-foreground text-8xl font-bold">地图总览</h1>
+            <h1 class="text-background text-8xl font-bold">地图总览</h1>
           </div>
         </div>
       </CarouselItem>
