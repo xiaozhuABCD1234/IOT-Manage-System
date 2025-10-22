@@ -3,7 +3,7 @@
     <CardHeader>
       <CardTitle class="flex items-center gap-2">
         <Grid3x3 class="h-5 w-5" />
-        批量配对安全距离
+        组群距离设置
       </CardTitle>
       <CardDescription
         >一次性为两组标记 / 分组 / 类型之间的「全部组合」设定安全距离</CardDescription
@@ -317,7 +317,7 @@ const handleSubmit = async () => {
   try {
     const response = await setCartesianDistance(formData.value);
     // 响应拦截器已经处理了错误，能到这里说明成功
-    toast.success("笛卡尔积距离设置成功");
+    toast.success("组群距离设置成功");
     handleReset();
   } catch (error: any) {
     console.error("设置距离失败:", error);

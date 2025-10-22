@@ -20,9 +20,9 @@
           <div class="space-y-2">
             <h3 class="text-sm font-semibold">功能说明</h3>
             <div class="text-muted-foreground space-y-1 text-xs sm:text-sm">
-              <p>• <strong>单对距离设置</strong>：为两个特定标记设置安全距离</p>
+              <p>• <strong>点对点距离设置</strong>：为两个特定标记设置安全距离</p>
               <p>• <strong>组合距离设置</strong>：为多个标记批量设置统一距离</p>
-              <p>• <strong>笛卡尔积距离设置</strong>：为两组不同类型的对象设置距离</p>
+              <p>• <strong>组群距离设置</strong>：为两组不同类型的对象设置距离</p>
               <p>• <strong>距离列表</strong>：查看、编辑和删除已设置的标记对距离</p>
             </div>
           </div>
@@ -61,7 +61,7 @@
       "
       class="grid grid-cols-1 gap-4 lg:grid-cols-[repeat(auto-fit,minmax(320px,1fr))] xl:grid-cols-[repeat(auto-fit,minmax(320px,1fr))]"
     >
-      <!-- 单对距离设置 -->
+      <!-- 点对点距离设置 -->
       <div v-if="selectedDisplays.includes('pair')" class="flex flex-col">
         <PairDistanceForm class="flex-1" />
       </div>
@@ -71,7 +71,7 @@
         <CombinationsDistanceForm class="flex-1" />
       </div>
 
-      <!-- 笛卡尔积距离设置 -->
+      <!-- 组群距离设置 -->
       <div
         v-if="selectedDisplays.includes('cartesian')"
         class="flex flex-col lg:col-span-2 xl:col-span-1"

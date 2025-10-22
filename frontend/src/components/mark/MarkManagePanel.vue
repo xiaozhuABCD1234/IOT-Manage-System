@@ -120,7 +120,7 @@ async function handleCreate() {
               <Tag class="h-5 w-5" />
               标记管理
             </CardTitle>
-            <CardDescription>管理所有标记的信息</CardDescription>
+            <CardDescription>管理所有标记的信息（地图上进行分类和区分，为后续的安全管理提供数据支持）</CardDescription>
           </div>
 
           <!-- 创建标记对话框 -->

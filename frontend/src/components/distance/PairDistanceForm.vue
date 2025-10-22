@@ -3,7 +3,7 @@
     <CardHeader>
       <CardTitle class="flex items-center gap-2">
         <Link2 class="h-5 w-5" />
-        单对距离设置
+        点对点距离设置
       </CardTitle>
       <CardDescription>为两个标记之间设置安全距离</CardDescription>
     </CardHeader>
