@@ -309,3 +309,12 @@ func (l *Locator) batchCheckUWB() {
 		}
 	}
 }
+
+// MultiHandler 把多个 mqtt.MessageHandler 串成一次调用。
+func MultiHandler(handlers ...mqtt.MessageHandler) mqtt.MessageHandler {
+	return func(c mqtt.Client, m mqtt.Message) {
+		for _, h := range handlers {
+			h(c, m)
+		}
+	}
+}

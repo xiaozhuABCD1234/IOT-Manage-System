@@ -59,15 +59,21 @@ func main() {
 	locator := service.NewLocator(db, safeDist, dangerZone, markRepo, fenceChecker)
 	locator.StartDistanceChecker()
 
-	token := utils.MQTTClient.Subscribe("online/#", 0, locator.Online)
-	if token.Wait() && token.Error() != nil {
-		log.Fatalf("[FATAL] 订阅 online/# 失败: %v", token.Error())
-	}
+	// token := utils.MQTTClient.Subscribe("online/#", 0, locator.Online)
+	// if token.Wait() && token.Error() != nil {
+	// 	log.Fatalf("[FATAL] 订阅 online/# 失败: %v", token.Error())
+	// }
 
-	token = utils.MQTTClient.Subscribe(LocTopic, 0, locator.OnLocMsg)
+	// token = utils.MQTTClient.Subscribe(LocTopic, 0, locator.OnLocMsg)
+	// if token.Wait() && token.Error() != nil {
+	// 	log.Fatalf("[FATAL] 订阅 location/# 失败: %v", token.Error())
+	// }
+
+	token := utils.MQTTClient.Subscribe(LocTopic, 0, service.MultiHandler(locator.OnLocMsg, locator.Online))
 	if token.Wait() && token.Error() != nil {
 		log.Fatalf("[FATAL] 订阅 location/# 失败: %v", token.Error())
 	}
+
 	log.Println("warning-service started")
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)

@@ -5,7 +5,7 @@ import gcoord from "gcoord";
 
 const MQTT_URL = MQTT_CONFIG.MQTT_URL;
 // const MQTT_URL = "tcp://localhost:1883/mqtt";
-export const TOPIC_ONLINE = "online/#";
+export const TOPIC_ONLINE = "location/#";
 
 const MQTT_OPTS = {
   clientId: MQTT_CONFIG.clientId,
@@ -130,17 +130,35 @@ export const parseUWBMessage = (topic: string, payload: Buffer): UWBFix => {
   return { id: data.id, x, y };
 };
 
+// export const parseOnlineMessage = (topic: string, payload: Buffer): MarkOnline => {
+//   // 1. 先尝试从 topic 里截
+//   let idFromTopic = topic.replace("online", "");
+//   idFromTopic = idFromTopic.replace(/^\/+|\/+$/g, "");
+//   // 2. 解析 payload
+//   let data: MarkOnlineMsg | undefined;
+//   try {
+//     data = JSON.parse(payload.toString()) as MarkOnlineMsg;
+//   } catch {
+//     data = undefined; // 解析失败就当成空对象
+//   }
+
+//   // 3. 优先 data.id，没有再回退到 topic 截取的
+//   const id = data?.id?.trim() || idFromTopic;
+
+//   // 4. 如果两条路都拿不到，给一个兜底（也可以直接 throw）
+//   if (!id) {
+//     // throw new Error(`无法从 topic:${topic} 或 payload 中解析出设备 id`);
+//     return { id: "unknown", online: true, topic };
+//   }
+
+//   return { id, online: true, topic };
+// };
+
 export const parseOnlineMessage = (topic: string, payload: Buffer): MarkOnline => {
+  const data = JSON.parse(payload.toString()) as Msg;
   // 1. 先尝试从 topic 里截
-  let idFromTopic = topic.replace("online", "");
+  let idFromTopic = topic.replace("location", "");
   idFromTopic = idFromTopic.replace(/^\/+|\/+$/g, "");
-  // 2. 解析 payload
-  let data: MarkOnlineMsg | undefined;
-  try {
-    data = JSON.parse(payload.toString()) as MarkOnlineMsg;
-  } catch {
-    data = undefined; // 解析失败就当成空对象
-  }
 
   // 3. 优先 data.id，没有再回退到 topic 截取的
   const id = data?.id?.trim() || idFromTopic;
@@ -150,9 +168,9 @@ export const parseOnlineMessage = (topic: string, payload: Buffer): MarkOnline =
     // throw new Error(`无法从 topic:${topic} 或 payload 中解析出设备 id`);
     return { id: "unknown", online: true, topic };
   }
-
   return { id, online: true, topic };
 };
+
 
 // Client.on("message", (topic, payload) => {
 //   const data = parseOnlineMessage(topic, payload);
