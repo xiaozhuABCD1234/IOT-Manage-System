@@ -3,6 +3,7 @@ export const MAP_CONFIG = {
   securityJsCode: import.meta.env.VITE_AMAP_SECURITY_CODE,
   version: "2.0",
   plugins: ["AMap.Scale"] as const,
-  defaultCenter: [121.891751, 30.902079] as [number, number],
+  // defaultCenter: [121.891751, 30.902079] as [number, number],
+  defaultCenter: [121.509852,31.23098] as [number, number],
   defaultZoom: 17,
 };
