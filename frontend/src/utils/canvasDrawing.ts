@@ -865,20 +865,20 @@ export async function drawMapWithDoubleBuffer(
     const axisColor = mapData.image_url ? "#000" : "#333";
     const textColor = mapData.image_url ? "#000" : "#333";
 
-    drawAxisX(ctx, scaler, 10, {
-      color: axisColor,
-      lineWidth: 3,
-      font: `${axisFontSize}px Arial`,
-      textColor: textColor,
-      arrowSize: 15,
-    });
-    drawAxisY(ctx, scaler, 10, {
-      color: axisColor,
-      lineWidth: 3,
-      font: `${axisFontSize}px Arial`,
-      textColor: textColor,
-      arrowSize: 15,
-    });
+    // drawAxisX(ctx, scaler, 10, {
+    //   color: axisColor,
+    //   lineWidth: 3,
+    //   font: `${axisFontSize}px Arial`,
+    //   textColor: textColor,
+    //   arrowSize: 15,
+    // });
+    // drawAxisY(ctx, scaler, 10, {
+    //   color: axisColor,
+    //   lineWidth: 3,
+    //   font: `${axisFontSize}px Arial`,
+    //   textColor: textColor,
+    //   arrowSize: 15,
+    // });
     console.log("🎯 坐标轴绘制在: X轴 y=0, Y轴 x=0 (画布中心)");
 
     // 4. 绘制电子围栏 - 根据地图范围自动调整
@@ -1008,24 +1008,24 @@ export async function drawStaticLayerWithDoubleBuffer(
       lineWidth: 1,
     });
 
-    // 3. 坐标轴
-    const axisFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
-    const axisColor = mapData.image_url ? "#000" : "#333";
-    const textColor = mapData.image_url ? "#000" : "#333";
-    drawAxisX(ctx, scaler, 10, {
-      color: axisColor,
-      lineWidth: 3,
-      font: `${axisFontSize}px Arial`,
-      textColor: textColor,
-      arrowSize: 15,
-    });
-    drawAxisY(ctx, scaler, 10, {
-      color: axisColor,
-      lineWidth: 3,
-      font: `${axisFontSize}px Arial`,
-      textColor: textColor,
-      arrowSize: 15,
-    });
+    // // 3. 坐标轴
+    // const axisFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
+    // const axisColor = mapData.image_url ? "#000" : "#333";
+    // const textColor = mapData.image_url ? "#000" : "#333";
+    // drawAxisX(ctx, scaler, 10, {
+    //   color: axisColor,
+    //   lineWidth: 3,
+    //   font: `${axisFontSize}px Arial`,
+    //   textColor: textColor,
+    //   arrowSize: 15,
+    // });
+    // drawAxisY(ctx, scaler, 10, {
+    //   color: axisColor,
+    //   lineWidth: 3,
+    //   font: `${axisFontSize}px Arial`,
+    //   textColor: textColor,
+    //   arrowSize: 15,
+    // });
 
     // 4. 电子围栏
     const fenceLineWidth = Math.max(2, Math.min(cssWidth, cssHeight) / 300);
@@ -1211,25 +1211,25 @@ export async function drawMap(
       lineWidth: 1,
     });
 
-    // 3. 绘制坐标轴 - 在底图上使用更明显的颜色
-    const axisFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
-    const axisColor = mapData.image_url ? "#000" : "#333";
-    const textColor = mapData.image_url ? "#000" : "#333";
+    // // 3. 绘制坐标轴 - 在底图上使用更明显的颜色
+    // const axisFontSize = Math.max(10, Math.min(cssWidth, cssHeight) / 80);
+    // const axisColor = mapData.image_url ? "#000" : "#333";
+    // const textColor = mapData.image_url ? "#000" : "#333";
 
-    drawAxisX(ctx, scaler, 10, {
-      color: axisColor,
-      lineWidth: 3,
-      font: `${axisFontSize}px Arial`,
-      textColor: textColor,
-      arrowSize: 15,
-    });
-    drawAxisY(ctx, scaler, 10, {
-      color: axisColor,
-      lineWidth: 3,
-      font: `${axisFontSize}px Arial`,
-      textColor: textColor,
-      arrowSize: 15,
-    });
+    // drawAxisX(ctx, scaler, 10, {
+    //   color: axisColor,
+    //   lineWidth: 3,
+    //   font: `${axisFontSize}px Arial`,
+    //   textColor: textColor,
+    //   arrowSize: 15,
+    // });
+    // drawAxisY(ctx, scaler, 10, {
+    //   color: axisColor,
+    //   lineWidth: 3,
+    //   font: `${axisFontSize}px Arial`,
+    //   textColor: textColor,
+    //   arrowSize: 15,
+    // });
     console.log("🎯 坐标轴绘制在: X轴 y=0, Y轴 x=0 (画布中心)");
 
     // 4. 绘制电子围栏 - 根据地图范围自动调整
