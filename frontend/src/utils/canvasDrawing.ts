@@ -1380,7 +1380,7 @@ export function drawDeviceConnections(
 
       // 计算距离（米）
       const distance = calculateDistance(device1, device2);
-      const distanceText = `${(distance / 100).toFixed(1)}m`;
+      const distanceText = `${(distance / 100).toFixed(2)}m`;
 
       // 计算中点位置用于显示距离文本
       const midX = (px1 + px2) / 2;
