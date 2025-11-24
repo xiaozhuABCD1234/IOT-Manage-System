@@ -8,6 +8,7 @@ import { onMounted, onUnmounted, ref, defineEmits, defineExpose } from "vue";
 import { MAP_CONFIG } from "@/config/map";
 import { connectMQTT, disconnectMQTT } from "@/utils/mqtt";
 import { updateDevicePosition } from "@/utils/map";
+import { clearDeviceCircles } from "@/utils/map";
 import { parseMessage } from "@/utils/mqtt";
 import type { Device } from "@/utils/mqtt";
 import type { MqttClient } from "mqtt";
@@ -73,6 +74,7 @@ onUnmounted(() => {
   devices.value = [];
   fencePolygons.forEach((p) => p.setMap(null as unknown as AMap.Map));
   if (tempPolygon) tempPolygon.setMap(null as unknown as AMap.Map);
+  clearDeviceCircles(map!);
   map?.destroy();
 });
 

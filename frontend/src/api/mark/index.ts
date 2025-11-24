@@ -21,7 +21,7 @@ export async function createMark(data: MarkCreateRequest) {
 
 /* 根据 ID 获取标记 */
 export async function getMarkByID(id: string, preload = false) {
-  return request.get<ApiResponse<MarkResponse>>(`${URLS.marks}/${id}`, {
+  return request.get<ApiResponse<MarkResponse>>(`${URLS.marks}${id}`, {
     params: { preload },
   });
 }
