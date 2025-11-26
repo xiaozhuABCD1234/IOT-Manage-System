@@ -32,11 +32,11 @@ export function createDeviceStateMachine(marks: Ref<MarkOnline[]>) {
 
     timerMap.set(
       data.id,
-      window.setTimeout(() => setOnlineFalse(data.id), 3000),
+      window.setTimeout(() => setOnlineFalse(data.id), 10000),// 修改为10s掉线
     );
     offlineTimerMap.set(
       data.id,
-      window.setTimeout(() => removeDevice(data.id), 30_000),
+      window.setTimeout(() => removeDevice(data.id), 60_000),
     ); // 从30秒改为60秒
 
     sortMarks(marks.value); // 即时排序
