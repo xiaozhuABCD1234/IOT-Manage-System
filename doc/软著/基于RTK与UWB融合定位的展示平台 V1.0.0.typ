@@ -11,9 +11,10 @@
     if here().page() >= 1 {
       // 正文页码从第 1 页开始才显示页眉
       set text(size: 10.5pt, font: "SimSun")
-      "基于RTK与UWB融合定位的物联网管理前端系统 V1.0.0"
+      "基于RTK与UWB融合定位的展示平台 V1.0.0"
       h(1fr)
       "第 " + str(counter(page).at(here()).first()) + " 页"
+      line(length: 100%, stroke: 0.5pt)
     }
   },
   numbering: none,
