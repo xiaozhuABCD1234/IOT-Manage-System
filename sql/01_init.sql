@@ -1,3 +1,10 @@
+-- 确保 PostGIS 扩展已安装
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS postgis_topology;
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
+
+
 CREATE TABLE IF NOT EXISTS mark_types
 (
     id                      SERIAL           NOT NULL,
@@ -135,8 +142,8 @@ COMMENT ON COLUMN custom_maps.description IS '地图描述（可选）';
 COMMENT ON COLUMN custom_maps.created_at IS '创建时间';
 COMMENT ON COLUMN custom_maps.updated_at IS '更新时间';
 
--- 启用 PostGIS 扩展（如果还没有）
-CREATE EXTENSION IF NOT EXISTS postgis;
+
+
 
 -- 创建多边形围栏表
 CREATE TABLE polygon_fences
