@@ -5,6 +5,12 @@
 
 #set heading(numbering: "1.1.1") //设置标题格式
 
+#import "@preview/codly:1.3.0": *
+#import "@preview/codly-languages:0.1.1": *
+#show: codly-init.with()
+
+#codly(languages: codly-languages,zebra-fill: none)
+
 // ---------- 页眉函数 ----------
 #let soft-header() = context {
   set text(size: 10.5pt, font: ("SimSun", "Songti SC", "serif"))
@@ -182,16 +188,72 @@
 
 = 软件功能
 == 用户认证与管理功能
-+ 用户登录认证：通过API网关提供统一的JWT认证服务，支持7天登录有效期和Token自动刷新
-+ 权限控制：基于用户类型（Root、Admin、User）的角色权限管理
-+ 用户信息管理：支持用户信息的增删改查操作
++ 用户登录认证：通过API网关提供统一的JWT认证服务，支持7天登录有效期和Token自动刷新，如@登录界面 所示
++ 权限控制：基于用户类型（Root、Admin、User）的角色权限管理如@权限管理 所示
++ 用户信息管理：支持用户信息的增删改查操作@权限管理
 + 多级权限管理：Root（超级管理员）、Admin（管理员）、User（普通用户）
+#grid(
+  columns: (1fr, 1fr),
+  gutter: 2em,
+
+  [
+    #figure(
+      image("assets/7a03ad4f50bc580707c076a7a9fcab44.png", height: 10cm),
+      caption: [登录界面],
+    ) <登录界面>
+  ],
+
+  [
+    #figure(
+      image("assets/image-13.png", height: 10cm),
+      caption: [用户管理],
+    ) <权限管理>
+  ],
+)
+
+== 登录安全
+- JWT令牌认证，有效期7天
+- 自动令牌刷新机制
+- 路由守卫保护未授权访问
+- 密码加密传输与存储
+
 == 设备标记管理功能
-+ 标记创建：支持创建带有设备ID的电子标记，包括标记名称、类型、标签等信息
-+ 标签分类：通过标签对设备进行分类管理，支持标签的增删改查
-+ 类型定义：通过类型定义设备的属性和行为，支持类型的增删改查
++ 标记创建：如@录入电子标记 所示支持录入带有设备ID的电子标记，包括标记名称、类型、标签等信息
++ 标签分类：通过标签对设备进行分类管理，支持标签的增删改查，如@修改电子标记 所示
++ 类型定义：通过类型定义设备的属性和行为，支持类型的增删改查，如@新增电子标记类型 所示
 + 距离管理：管理设备间的安全距离和告警距离，支持全局/类型/设备对三级距离配置
-+ 设备在线状态：实时更新设备最后在线时间，监控设备在线状态
++ 设备在线状态：实时更新设备最后在线时间，监控设备在线状态如@标记列表
+#grid(
+  columns: (1fr, 1fr),
+  gutter: 2em,
+
+  [
+    #figure(
+      image("assets/764f88444e406165df014ca03e3d83c2.png", height: 8cm),
+      caption: [录入电子标记],
+    ) <录入电子标记>
+  ],
+
+  [
+    #figure(
+      image("assets/1533a0022c72c24351c0eda6bf4b2884.png", height: 8cm),
+      caption: [修改电子标记],
+    ) <修改电子标记>
+  ],
+
+  [
+    #figure(
+      image("assets/506882daeaa4a7945dda3be2a96903cb.png", height: 8cm),
+      caption: [新增电子标记类型],
+    ) <新增电子标记类型>
+  ],
+  [
+    #figure(
+      image("assets/af29357c5374bccf53ad2026ee96c9b4.png", height: 8cm),
+      caption: [标记列表],
+    ) <标记列表>
+  ],
+)
 == 地图与基站管理功能
 + 自定义地图：支持上传和管理自定义地图图片（PNG/JPG/GIF/WEBP格式）
 + 基站配置：管理定位基站的位置和状态，支持基站的增删改查
@@ -209,6 +271,466 @@
 + 配置数据持久化：将系统配置、用户信息、设备信息等存储到PostgreSQL
 + 数据备份与恢复：支持关键数据的备份和恢复
 
-= 部署于配置指南
+= 部署与配置指南
 == 系统部署
-==
+=== 前置要求
+- Docker >= 20.10
+- Docker Compose >= 2.0
+- Git
+
+=== 一键部署步骤
+1. 克隆项目代码：
+```bash
+git clone https://github.com/your-username/IOT-Manage-System.git
+cd IOT-Manage-System
+```
+
+2. 配置环境变量（可选）：
+创建 `.env` 文件用于前端构建：
+```bash
+# 高德地图配置（可选）
+VITE_AMAP_KEY=your-amap-key
+VITE_AMAP_SECURITY_CODE=your-security-code
+
+# MQTT WebSocket地址
+VITE_MQTT_URL=ws://localhost:8083
+```
+
+3. 启动所有服务：
+```bash
+docker-compose up -d
+```
+
+4. 访问系统：
+- 前端界面：http://localhost (或 http://localhost:3000)
+- API 网关：http://localhost:8000
+- 默认账户：用户名 `admin`，密码 `admin`
+
+=== 服务端口说明
+#table(
+  align: center,
+  columns: (1fr, 1fr, 2fr),
+  [服务], [端口], [说明],
+  [Frontend], [80, 3000], [Web 界面],
+  [API Gateway], [8000], [统一网关],
+  [User Service], [8001], [用户服务（内部）],
+  [Map Service], [8002], [地图服务],
+  [MQTT Watch], [8003], [MQTT 监控（内部）],
+  [Mark Service], [8004], [标记服务（内部）],
+  [PostgreSQL], [5433], [数据库],
+  [MongoDB], [27018], [NoSQL 数据库],
+  [Mosquitto MQTT], [1883], [MQTT TCP],
+  [Mosquitto WebSocket], [8083], [MQTT WebSocket],
+)
+
+== 环境配置
+=== 数据库配置
+PostgreSQL配置：
+```yaml
+POSTGRES_DB: iot_manager_db
+POSTGRES_USER: postgres
+POSTGRES_PASSWORD: password
+TZ: Asia/Shanghai
+```
+
+MongoDB配置：
+```yaml
+MONGO_INITDB_ROOT_USERNAME: admin
+MONGO_INITDB_ROOT_PASSWORD: admin
+```
+
+=== MQTT配置
+Mosquitto MQTT配置：
+- 配置文件：`config/mosquitto.conf`
+- 密码文件：`config/mosquitto.passwd`
+- 默认用户：`admin` / `admin`
+
+=== 微服务通用配置
+```yaml
+# 数据库连接
+DB_HOST: postgres
+DB_PORT: 5432
+DB_NAME: iot_manager_db
+DB_USER: postgres
+DB_PASSWORD: password
+
+# JWT密钥
+JWT_SECRET: your-secret-key
+
+# 时区
+TZ: Asia/Shanghai
+```
+
+=== 特殊配置
+Map Service配置：
+```yaml
+DB_MAX_OPEN_CONNS: 10
+DB_MAX_IDLE_CONNS: 20
+DB_MAX_LIFETIME: 1h
+```
+
+MQTT Watch配置：
+```yaml
+MQTT_BROKER: ws://mosquitto:8083
+MQTT_USERNAME: admin
+MQTT_PASSWORD: admin
+MONGO_HOST: mongo
+MONGO_PORT: 27017
+```
+
+Warning Service配置：
+```yaml
+MAP_SERVICE_HOST: map-service
+MAP_SERVICE_PORT: 8002
+```
+
+Frontend配置：
+```yaml
+VITE_AMAP_KEY: ${VITE_AMAP_KEY}
+VITE_AMAP_SECURITY_CODE: ${VITE_AMAP_SECURITY_CODE}
+VITE_MQTT_URL: ${VITE_MQTT_URL}
+```
+
+= API接口文档
+== 统一响应格式
+成功响应：
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": { ... }
+}
+```
+
+错误响应：
+```json
+{
+  "code": 400,
+  "message": "参数错误",
+  "details": "具体错误信息"
+}
+```
+
+== 主要API接口
+
+=== 用户服务接口
+
+`POST /api/v1/users/register` - 用户注册
+
+`POST /api/v1/users/login` - 用户登录
+
+`GET /api/v1/users/profile` - 获取当前用户信息
+
+`PUT /api/v1/users/profile` - 更新用户信息
+
+`GET /api/v1/users` - 获取用户列表（管理员）
+
+`DELETE /api/v1/users/:id` - 删除用户（管理员）
+
+=== 标记服务接口
+
+- 标记管理：
+
+  `POST /api/v1/marks` - 创建标记
+
+  `GET /api/v1/marks` - 获取标记列表（分页）
+
+  `GET /api/v1/marks/:id` - 获取单个标记
+
+  `PUT /api/v1/marks/:id` - 更新标记
+
+  `DELETE /api/v1/marks/:id` - 删除标记
+
+  `GET /api/v1/marks/device/:device_id` - 根据设备ID获取
+
+- 标签管理：
+
+  `POST /api/v1/tags` - 创建标签
+
+  `GET /api/v1/tags` - 获取标签列表
+
+  `GET /api/v1/tags/:tag_id` - 获取标签详情
+
+  `PUT /api/v1/tags/:tag_id` - 更新标签
+
+  `DELETE /api/v1/tags/:tag_id` - 删除标签
+
+- 类型管理：
+
+  `POST /api/v1/types` - 创建类型
+
+  `GET /api/v1/types` - 获取类型列表
+
+  `GET /api/v1/types/:type_id` - 获取类型详情
+
+  `PUT /api/v1/types/:type_id` - 更新类型
+
+  `DELETE /api/v1/types/:type_id` - 删除类型
+
+- 距离配置：
+
+  `POST /api/v1/pairs/distance` - 设置设备对距离
+
+  `POST /api/v1/pairs/combinations` - 批量设置距离
+
+  `POST /api/v1/pairs/cartesian` - 笛卡尔积设置
+
+  `GET /api/v1/pairs/distance/:m1/:m2` - 查询距离
+
+  `DELETE /api/v1/pairs/distance/:m1/:m2` - 删除距离配置
+
+=== 地图服务接口
+
+- 基站管理：
+
+  `POST /api/v1/station` - 创建基站
+
+  `GET /api/v1/station` - 获取基站列表
+
+  `GET /api/v1/station/:id` - 获取基站详情
+
+  `PUT /api/v1/station/:id` - 更新基站
+
+  `DELETE /api/v1/station/:id` - 删除基站
+
+- 地图管理：
+
+  `POST /api/v1/custom-map` - 创建地图
+
+  `GET /api/v1/custom-map` - 获取地图列表
+
+  `GET /api/v1/custom-map/latest` - 获取最新地图
+
+  `GET /api/v1/custom-map/:id` - 获取地图详情
+
+  `PUT /api/v1/custom-map/:id` - 更新地图
+
+  `DELETE /api/v1/custom-map/:id` - 删除地图
+
+- 围栏管理：
+
+  `POST /api/v1/polygon-fence` - 创建围栏
+
+  `GET /api/v1/polygon-fence` - 获取围栏列表
+
+  `GET /api/v1/polygon-fence/:id` - 获取围栏详情
+
+  `PUT /api/v1/polygon-fence/:id` - 更新围栏
+
+  `DELETE /api/v1/polygon-fence/:id` - 删除围栏
+
+  `POST /api/v1/polygon-fence/:id/check` - 检查点是否在围栏内
+
+  `POST /api/v1/polygon-fence/check-all` - 检查点在哪些围栏内
+
+=== 常用API调用示例
+用户登录示例：
+```bash
+curl -X POST http://localhost:8000/api/v1/users/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "admin"
+  }'
+```
+
+创建设备标记示例：
+```bash
+curl -X POST http://localhost:8000/api/v1/marks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "device_id": "device-001",
+    "mark_name": "移动设备1",
+    "mark_type_id": 1
+  }'
+```
+
+创建电子围栏示例：
+```bash
+curl -X POST http://localhost:8000/api/v1/polygon-fence \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "fence_name": "安全区域",
+    "points": [
+      {"x": 0, "y": 0},
+      {"x": 100, "y": 0},
+      {"x": 100, "y": 50},
+      {"x": 0, "y": 50}
+    ],
+    "description": "核心安全区域"
+  }'
+```
+
+发布设备位置（MQTT）示例：
+```bash
+# 使用mosquitto_pub工具
+mosquitto_pub -h localhost -p 1883 \
+  -u admin -P admin \
+  -t "location/device-001" \
+  -m '{
+    "id": "device-001",
+    "sens": [
+      {
+        "n": "UWB",
+        "u": "cm",
+        "v": [5000, 2500]
+      }
+    ]
+  }'
+```
+
+= 故障排查与维护
+== 常见问题及解决方案
+=== 服务无法启动
+检查步骤：
+```bash
+# 查看服务状态
+docker-compose ps
+
+# 查看服务日志
+docker-compose logs service-name
+
+# 检查端口占用
+netstat -ano | findstr :8000
+```
+
+=== 数据库连接失败
+解决方案：
+- 确认 PostgreSQL 健康检查通过
+- 检查数据库连接配置
+- 查看数据库日志：
+```bash
+docker-compose logs postgres
+```
+
+=== MQTT 连接失败
+检查项目：
+- Mosquitto 是否正常运行
+- 用户名密码是否正确
+- 防火墙/端口是否开放
+- 测试MQTT连接：
+```bash
+mosquitto_pub -h localhost -p 1883 -u admin -P admin -t "test" -m "hello"
+```
+
+=== 前端无法访问 API
+检查项目：
+- API Gateway 是否启动
+- CORS 配置是否正确
+- JWT Token 是否有效
+
+=== 围栏检查不工作
+排查方法：
+- 检查 PostGIS 扩展是否安装：
+```bash
+docker exec iot_postgres psql -U postgres -d iot_manager_db -c "SELECT PostGIS_Version();"
+```
+- 确认 Map Service 可访问
+- 查看 Warning Service 日志
+
+== 系统监控
+=== 服务健康检查
+```bash
+# 检查所有服务
+docker-compose ps
+
+# 检查服务健康状态
+docker inspect --format='{{.State.Health.Status}}' iot_user-service
+```
+
+=== 资源使用监控
+```bash
+# 查看容器资源使用
+docker stats
+
+# 查看磁盘使用
+docker system df
+```
+
+=== 数据库状态监控
+```bash
+# PostgreSQL连接数
+docker exec iot_postgres psql -U postgres -c "SELECT count(*) FROM pg_stat_activity;"
+
+# MongoDB状态
+docker exec iot_mongo mongosh --username admin --password admin --eval "db.serverStatus()"
+```
+
+== 日志管理
+```bash
+# 查看所有服务日志
+docker-compose logs
+
+# 查看特定服务日志
+docker-compose logs -f api-gateway
+
+# 查看最近100行日志
+docker-compose logs --tail=100
+
+# 实时跟踪日志
+docker-compose logs -f --tail=50
+```
+
+== 数据备份与恢复
+=== PostgreSQL 备份
+```bash
+# 导出数据
+docker exec iot_postgres pg_dump -U postgres iot_manager_db > backup.sql
+
+# 恢复数据
+docker exec -i iot_postgres psql -U postgres iot_manager_db < backup.sql
+```
+
+=== MongoDB 备份
+```bash
+# 导出数据
+docker exec iot_mongo mongodump --username admin --password admin --out /backup
+
+# 恢复数据
+docker exec iot_mongo mongorestore --username admin --password admin /backup
+```
+
+= 安全建议
+== 生产环境配置
++ 修改默认密码：
+  - PostgreSQL: `POSTGRES_PASSWORD`
+  - MongoDB: `MONGO_INITDB_ROOT_PASSWORD`
+  - MQTT: `config/mosquitto.passwd`
+  - 管理员账户密码
+
++ 使用强 JWT 密钥：
+  ```bash
+  JWT_SECRET=$(openssl rand -hex 32)
+  ```
+
++ 启用 HTTPS：
+  - 使用 Nginx 反向代理
+  - 配置 SSL 证书
+  - 强制 HTTPS 重定向
+
++ 网络隔离：
+  - 内部服务不暴露端口
+  - 使用 Docker 网络隔离
+
++ 日志审计：
+  - 启用操作日志
+  - 定期备份日志
+  - 监控异常访问
+
+= 附录
+
+== 术语解释
+- *RTK*：实时动态载波相位差分技术，提供厘米级室外定位精度
+- *UWB*：超宽带技术，提供分米级室内定位精度
+- *电子围栏*：虚拟的地理边界，用于检测设备进出特定区域
+- *MQTT*：消息队列遥测传输协议，轻量级的发布/订阅消息传输协议
+
+== 版本历史
+#table(
+  columns: (auto, auto, 1fr),
+  align: center,
+  [*版本*], [*日期*], [*更新内容*],
+  [V1.0.0], [2025-12-22], [初始版本发布，包含基本定位展示和设备管理功能],
+)
