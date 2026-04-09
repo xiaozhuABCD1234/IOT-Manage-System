@@ -38,4 +38,5 @@ dist
 set_env.sh
 set-env.*
 
+.kilo
 .VSCodeCounter/

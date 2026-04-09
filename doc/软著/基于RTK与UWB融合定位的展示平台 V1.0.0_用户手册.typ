@@ -137,14 +137,14 @@
 
   [
     #figure(
-      image("assets/7a03ad4f50bc580707c076a7a9fcab44.png", height: 5cm),
+      image("assets/登录界面.png", height: 5cm),
       caption: [登录界面],
     ) <登录界面>
   ],
 
   [
     #figure(
-      image("assets/image-14.png", height: 5cm),
+      image("assets/用户主页.png", height: 5cm),
       caption: [用户主页],
     ) <用户主页>
   ],
@@ -155,9 +155,9 @@
 
 顶栏有“地图”、“电子标记”、“关于”和“切换夜间/日渐模式”等按钮
 
-#figure(image("./assets/image.png"), caption: [主页])<主页>
+#figure(image("assets/主页.png"), caption: [主页])<主页>
 #figure(
-  image("assets/image-17.png"),
+  image("assets/黑夜模式示例.png"),
   caption: [黑夜模式示例],
 )
 + 地图的子菜单如@地图子菜单 所示,有以下子菜单:
@@ -176,14 +176,14 @@
 
   [
     #figure(
-      image("assets/image-16.png", height: 7cm),
+      image("assets/地图子菜单.png", height: 7cm),
       caption: [地图子菜单],
     ) <地图子菜单>
   ],
 
   [
     #figure(
-      image("assets/image-15.png", height: 7cm),
+      image("assets/电子标记子菜单.png", height: 7cm),
       caption: [电子标记子菜单],
     ) <电子标记子菜单>
   ],
@@ -197,19 +197,19 @@
 + *地图操作*：缩放、平移、定位等基本操作
 + *设备显示*：实时显示设备位置，不同设备类型使用不同图标
 + *电子围栏显示*：显示电子围栏
-#figure(image("assets/image-2.png"), caption: [室外RTK地图])<室外RTK地图>
+#figure(image("assets/室外RTK地图.png"), caption: [室外RTK地图])<室外RTK地图>
 
 === UWB地图（室内定位）
 使用自定义平面图作为底图，展示UWB设备的室内定位信息：
 + *实时散点图*：在Canvas上实时显示设备位置，不同设备类型使用不同图标
 + *基站显示*：显示UWB定位基站位置
 + *电子围栏显示*：显示电子围栏
-#figure(image("assets/image-3.png"), caption: [室内UWB地图])<室内UWB地图>
+#figure(image("assets/室内UWB地图.png"), caption: [室内UWB地图])<室内UWB地图>
 
 == 设备管理
 === 设备状态监控
 实时显示所有设备的在线状态、最后在线时间、当前位置等信息，支持按类型和标签过滤。
-#figure(image("assets/image-18.png"), caption: [设备状态监控])<设备状态监控>
+#figure(image("assets/设备状态监控.png"), caption: [设备状态监控])<设备状态监控>
 
 === 设备标记管理
 提供设备的CRUD（创建、读取、更新、删除）功能：
@@ -217,7 +217,7 @@
 + *设备列表*：分页展示所有设备，支持搜索和筛选
 + *设备编辑*：修改设备基本信息，如@修改标记
 + *设备删除*：移除不需要的设备记录
-#figure(image("assets/image-4.png"), caption: [设备标记管理])<设备标记管理>
+#figure(image("assets/设备标记管理.png"), caption: [设备标记管理])<设备标记管理>
 #grid(
   columns: (1fr, 1fr),
   gutter: 2em,
@@ -236,12 +236,12 @@
 + *标签管理*：管理设备标签，用于设备分类
   - *标签创建*：设备的标签创建在创建设备时一起创建，如@创建标记
   - *列出标签相同的设备*: 
-    #figure(image("assets/image-21.png"), caption: [标签相同的设备列表])
+    #figure(image("assets/标签相同的设备列表.png"), caption: [标签相同的设备列表])
 + *类型管理*：管理设备类型，定义类型间的默认安全距离
   - *类型创建*：创建新类型，需要设置“类型名称”和”默认危险半径（可选）“，如@创建设备的类型
-#figure(image("assets/image-20.png"),caption: [创建设备的类型])<创建设备的类型>
+#figure(image("assets/创建设备的类型.png"),caption: [创建设备的类型])<创建设备的类型>
   - *列出标签相同的设备*: 
-    #figure(image("assets/image-22.png"), caption: [按标签筛选的设备列表])
+    #figure(image("assets/按标签筛选的设备列表.png"), caption: [按标签筛选的设备列表])
 
 == 距离监控与安全设置
 === 设备对距离配置
@@ -252,7 +252,7 @@
 1. *组合设置*：选择多个设备，统一设置安全距离
 2. *笛卡尔积设置*：为两组设备间的所有组合设置相同距离
 3. *类型默认距离*：设置同类型设备间的默认安全距离
-#figure(image("assets/image-6.png"), caption: [批量距离设置界面])<批量距离设置界面>
+#figure(image("assets/批量距离设置界面.png"), caption: [批量距离设置界面])<批量距离设置界面>
 
 === 实时距离监控
 系统实时计算设备间距离，并在超过安全距离时：
@@ -265,8 +265,8 @@
 1. *绘制围栏*：在地图上点击绘制多边形围栏
 2. *围栏属性*：设置围栏名称、描述、激活状态
 3. *围栏类型*：区分室内围栏和室外围栏
-#figure(image("assets/image-8.png"), caption: [围栏属性设置界面])<围栏属性设置界面>
-#figure(image("assets/image-9.png"), caption: [电子围栏创建界面])<电子围栏创建界面>
+#figure(image("assets/围栏属性设置界面.png"), caption: [围栏属性设置界面])<围栏属性设置界面>
+#figure(image("assets/电子围栏创建界面.png"), caption: [电子围栏创建界面])<电子围栏创建界面>
 === 围栏检测
 系统实时检测设备是否进入或离开电子围栏：
 1. *实时检测*：设备位置更新时自动检测围栏状态
@@ -281,7 +281,7 @@
 2. *基站列表*：展示所有基站信息
 3. *基站编辑*：修改基站配置
 4. *基站删除*：移除不需要的基站
-#figure(image("assets/image-7.png"), caption: [UWB基站配置界面])
+#figure(image("assets/UWB基站配置界面.png"), caption: [UWB基站配置界面])
 
 === 基站可视化
 在地图上显示基站位置，支持基站状态监控。
@@ -292,7 +292,7 @@
 
 === 密码修改
 提供密码修改功能，确保账户安全。
-#figure(image("assets/image-23.png"), caption: [用户密码修改界面])
+#figure(image("assets/用户密码修改界面.png"), caption: [用户密码修改界面])
 
 == 实时通信
 === MQTT连接
