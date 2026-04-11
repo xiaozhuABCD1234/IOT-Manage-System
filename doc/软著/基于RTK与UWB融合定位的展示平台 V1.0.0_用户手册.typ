@@ -223,11 +223,11 @@
   gutter: 2em,
 
   [
-    #figure(image("assets/image-5.png", height: 10cm), caption: [创建标记])<创建标记>
+    #figure(image("assets/创建标记.png", height: 10cm), caption: [创建标记])<创建标记>
   ],
 
   [
-    #figure(image("assets/image-19.png", height: 10cm), caption: [修改标记])<修改标记>
+    #figure(image("assets/修改标记.png", height: 10cm), caption: [修改标记])<修改标记>
   ],
 )
 
