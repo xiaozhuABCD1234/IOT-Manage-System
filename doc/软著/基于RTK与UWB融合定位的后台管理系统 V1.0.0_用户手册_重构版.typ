@@ -131,7 +131,7 @@
 
 + 进入主界面
 
-  #figure(image("assets/主页.png", width: 80%), caption: [步骤6：登录成功进入主界面，标注各功能区])
+  #figure(image("assets/主页.png", width: 80%), caption: [登录成功进入主界面])
 
   *主界面布局说明：*
 
@@ -587,7 +587,7 @@
 
 + 选择围栏类型
 
-  #figure(image("assets/围栏属性设置界面.png", width: 80%), caption: [步骤3：围栏属性设置（新增室外围栏）])
+  #figure(image("assets/围栏属性设置界面.png", width: 80%), caption: [步骤3：围栏属性设置（新增室内围栏）])
 
   *选择说明：*
   #table(
