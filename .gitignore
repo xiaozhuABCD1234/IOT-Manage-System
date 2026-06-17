@@ -40,3 +40,7 @@ set-env.*
 
 .kilo
 .VSCodeCounter/
+
+# Generated JavaScript (TypeScript/Vue compilation output)
+*.vue.js
+frontend/src/**/*.js

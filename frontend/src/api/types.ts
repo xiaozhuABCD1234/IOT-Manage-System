@@ -13,5 +13,5 @@ export interface ListParams {
 /** 用户分页查询参数 */
 export interface UserListParams {
   page?: number;
-  per_page?: number;
+  limit?: number;
 }

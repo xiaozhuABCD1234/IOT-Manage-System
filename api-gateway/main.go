@@ -26,6 +26,8 @@ func main() {
 	log.Printf("用户 服务地址: %s", userServiceURL)
 	log.Printf("标记 服务地址: %s", markServiceUrl)
 
+	// bare /api/v1/users (list) + /api/v1/users/* (detail, me, etc.)
+	r.Any("/api/v1/users", createProxyHandler(userServiceURL))
 	r.Any("/api/v1/users/*proxyPath", createProxyHandler(userServiceURL))
 
 	r.Any("/api/v1/marks/*proxyPath", createProxyHandler(markServiceUrl))

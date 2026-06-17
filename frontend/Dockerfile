@@ -9,12 +9,12 @@ ARG VITE_MQTT_URL
 # 设置工作目录
 WORKDIR /app
 
-ENV VITE_AMAP_KEY=d345dbe66fd01f5c41ce3cf7e063597b \
-    VITE_AMAP_SECURITY_CODE=f8444fa686115a25ea60c937cd6a6ab9 \
-    VITE_MQTT_URL=ws://8.133.17.175:8083/mqtt 
+ENV VITE_AMAP_KEY=${VITE_AMAP_KEY} \
+    VITE_AMAP_SECURITY_CODE=${VITE_AMAP_SECURITY_CODE} \
+    VITE_MQTT_URL=${VITE_MQTT_URL} 
 
 # 安装pnpm + 设置国内镜像
-RUN npm install -g pnpm \
+RUN npm install -g pnpm@9 \
     && pnpm config set registry https://registry.npmmirror.com \
     && pnpm config set store-dir /tmp/.pnpm-store
 

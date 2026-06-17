@@ -47,10 +47,14 @@ export const useMarksStore = defineStore("marks", () => {
     }
   };
 
+  // MQTT引用计数，支持多个组件共享连接
+  let mqttRefCount = 0;
+
   // 启动MQTT连接
   const startMQTT = () => {
-    if (mqttClient) {
-      console.log("MQTT已连接，跳过重复连接");
+    mqttRefCount++;
+    if (mqttRefCount > 1) {
+      console.log(`MQTT已连接，引用计数: ${mqttRefCount}`);
       return;
     }
 
@@ -110,8 +114,14 @@ export const useMarksStore = defineStore("marks", () => {
     }
   };
 
-  // 停止MQTT连接
+  // 停止MQTT连接（引用计数递减）
   const stopMQTT = () => {
+    mqttRefCount--;
+    if (mqttRefCount > 0) {
+      console.log(`MQTT仍有 ${mqttRefCount} 个引用，保持连接`);
+      return;
+    }
+
     if (mqttClient) {
       disconnectMQTT(mqttClient);
       mqttClient = null;

@@ -21,6 +21,11 @@ useDark({
 const pinia = createPinia();
 const app = createApp(App);
 
+// 全局错误处理，防止组件崩溃导致白屏
+app.config.errorHandler = (err, _instance, info) => {
+  console.error(`[Vue error] ${info}:`, err);
+};
+
 app.use(pinia);
 app.use(router);
 

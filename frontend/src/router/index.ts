@@ -83,6 +83,34 @@ const routes: RouteRecordRaw[] = [
     name: "w",
     component: () => import("@/views/WarningView.vue"),
   },
+  // Admin routes with own layout
+  {
+    path: "/admin",
+    component: () => import("@/views/admin/AdminLayout.vue"),
+    meta: { requiresAdmin: true },
+    children: [
+      {
+        path: "",
+        name: "admin-dashboard",
+        component: () => import("@/views/admin/DashboardView.vue"),
+      },
+      {
+        path: "users",
+        name: "admin-users",
+        component: () => import("@/views/admin/UserManageView.vue"),
+      },
+      {
+        path: "devices",
+        name: "admin-devices",
+        component: () => import("@/views/admin/DeviceManageView.vue"),
+      },
+      {
+        path: "status",
+        name: "admin-status",
+        component: () => import("@/views/admin/DeviceStatusView.vue"),
+      },
+    ],
+  },
 ];
 
 const router = createRouter({
@@ -94,17 +122,14 @@ const router = createRouter({
 const LOGIN_PATH = "/login";
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
-router.beforeEach((to) => {
-  // 登录页本身无需守卫
+router.beforeEach(async (to) => {
   if (to.path === LOGIN_PATH) return true;
 
   const token = localStorage.getItem("access_token");
   const loginTime = Number(localStorage.getItem("refresh_token_time") || 0);
 
-  // 1. 未登录
   if (!token) return { path: LOGIN_PATH, query: { redirect: to.fullPath } };
 
-  // 2. 登录已超 7 天
   if (Date.now() - loginTime >= SEVEN_DAYS) {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -112,7 +137,20 @@ router.beforeEach((to) => {
     return { path: LOGIN_PATH, query: { redirect: to.fullPath } };
   }
 
-  // 3. 放行
+  if (to.meta.requiresAdmin) {
+    const { userApi } = await import("@/api");
+    const { UserType } = await import("@/api/user");
+    try {
+      const res = await userApi.getMe();
+      const userType = res.data.data.user_type;
+      if (userType !== UserType.Root && userType !== UserType.Admin) {
+        return { path: "/" };
+      }
+    } catch {
+      return { path: LOGIN_PATH, query: { redirect: to.fullPath } };
+    }
+  }
+
   return true;
 });
 
