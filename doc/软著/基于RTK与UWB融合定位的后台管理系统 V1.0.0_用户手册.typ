@@ -81,9 +81,9 @@
 
 == 系统架构
 
-#figure(image("assets/image-10.png"), caption: [总体架构设计])
+#figure(image("assets/系统分层架构图-四层.png"), caption: [总体架构设计])
 
-#figure(image("/assets/image-2.png"), caption: [微服务交互图])
+#figure(image("assets/微服务交互架构图.png"), caption: [微服务交互图])
 
 == 服务端口
 
@@ -145,14 +145,14 @@
   - 功能：距离告警、区域告警、安全距离检查、智能限流
   - 技术：MQTT、GORM、内存缓存
 
-#figure(image("assets/image-10.png"), caption: [总体架构设计])
+#figure(image("assets/系统分层架构图-四层.png"), caption: [总体架构设计])
 
-#figure(image("assets/image-11.png"), caption: [数据流图])
+#figure(image("assets/数据流时序图-位置与警报.png"), caption: [数据流图])
 
 === 数据模型
 系统采用PostgreSQL数据库存储持久化数据，主要数据表结构如下：
 
-#figure(image("assets/image-12.png"), caption: [数据库实体关系图])
+#figure(image("assets/数据库ER图-详细字段.png"), caption: [数据库实体关系图])
 
 = 用户认证
 
@@ -367,7 +367,7 @@
 
 #pagebreak()
 *页面截图：*
-#figure(image("/assets/image-1.png"), caption: [地图设置页面])
+#figure(image("assets/新建地图配置表单.png"), caption: [地图设置页面])
 
 == 创建地图
 
@@ -406,7 +406,7 @@
 == 坐标系说明
 
 UWB 定位使用平面直角坐标系：
-#image("assets/test.png")
+#image("assets/地图占位区域.png")
 
 - X 坐标：从左到右增加
 - Y 坐标：从下到上增加
@@ -457,7 +457,7 @@ UWB 定位使用平面直角坐标系：
 
 4. 在地图上绘制围栏边界
 5. 点击"保存"
-#image("/assets/image.png")
+#image("assets/室外围栏创建表单.png")
 
 == 绘制围栏
 
