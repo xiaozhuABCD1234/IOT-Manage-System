@@ -19,6 +19,7 @@ import {
   Podcast,
   Settings,
   Ruler,
+  Shield,
 } from "lucide-vue-next";
 
 import HomeButton from "@/components/layout/HomeLogo.vue";
@@ -203,6 +204,14 @@ import ThemeToggle from "./RightControlStrip.vue";
                 </li>
               </ul>
             </NavigationMenuContent>
+          </NavigationMenuItem>
+          <NavigationMenuItem class="hidden md:flex">
+            <NavigationMenuLink :class="navigationMenuTriggerStyle()">
+              <RouterLink to="/admin" class="flex flex-row items-center space-x-2">
+                <Shield class="h-4 w-4" />
+                <span>管理后台</span>
+              </RouterLink>
+            </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem class="hidden md:flex">
             <NavigationMenuLink :class="navigationMenuTriggerStyle()">

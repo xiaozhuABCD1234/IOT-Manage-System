@@ -125,6 +125,9 @@ const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 router.beforeEach(async (to) => {
   if (to.path === LOGIN_PATH) return true;
 
+  const PUBLIC_PATHS: string[] = ["/", "/about"];
+  if (PUBLIC_PATHS.includes(to.path)) return true;
+
   const token = localStorage.getItem("access_token");
   const loginTime = Number(localStorage.getItem("refresh_token_time") || 0);
 
@@ -134,6 +137,7 @@ router.beforeEach(async (to) => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("refresh_token_time");
+    localStorage.removeItem("login_token_time");
     return { path: LOGIN_PATH, query: { redirect: to.fullPath } };
   }
 

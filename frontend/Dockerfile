@@ -1,5 +1,5 @@
 # 构建阶段
-FROM docker.io/library/node:trixie-slim AS builder
+FROM docker.io/library/node:22.23.0-trixie-slim AS builder
 
 ARG VITE_API_BASE
 ARG VITE_AMAP_KEY
@@ -33,7 +33,7 @@ RUN pnpm run build
 
 
 # 运行阶段
-FROM docker.io/library/nginx:alpine
+FROM docker.io/library/nginx:stable-alpine3.23
 
 COPY nginx.conf /etc/nginx/nginx.conf
 

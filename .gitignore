@@ -41,6 +41,17 @@ set-env.*
 .kilo
 .VSCodeCounter/
 
+# OpenCode agent workspace
+.omo/
+
+# Playwright test artifacts
+.playwright-cli/
+
+# Root-level screenshots
+/*.png
+/*.jpg
+/*.jpeg
+
 # Generated JavaScript (TypeScript/Vue compilation output)
 *.vue.js
 frontend/src/**/*.js

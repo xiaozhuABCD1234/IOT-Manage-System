@@ -1,166 +1,166 @@
-name: CI-CD 部署 IoT 系统
-
-on:
-  push:
-    branches: ["main"]
-
-jobs:
-  # 检测哪些服务发生了变化
-  detect-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      api-gateway: ${{ steps.filter.outputs.api-gateway }}
-      user-service: ${{ steps.filter.outputs.user-service }}
-      map-service: ${{ steps.filter.outputs.map-service }}
-      mqtt-watch: ${{ steps.filter.outputs.mqtt-watch }}
-      mark-service: ${{ steps.filter.outputs.mark-service }}
-      frontend: ${{ steps.filter.outputs.frontend }}
-      warning-service: ${{ steps.filter.outputs.warning-service }}
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
-      - name: 检测变化的服务
-        uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            api-gateway:
-              - 'api-gateway/**'
-            user-service:
-              - 'user-service/**'
-            map-service:
-              - 'map-service/**'
-            mqtt-watch:
-              - 'mqtt-watch/**'
-            mark-service:
-              - 'mark-service/**'
-            frontend:
-              - 'frontend/**'
-            warning-service:
-              - 'warning-service/**'
-
-  build-and-push:
-    needs: detect-changes
-    runs-on: ubuntu-latest
-    # 只有至少一个服务有变化时才运行
-    if: |
-      needs.detect-changes.outputs.api-gateway == 'true' ||
-      needs.detect-changes.outputs.user-service == 'true' ||
-      needs.detect-changes.outputs.map-service == 'true' ||
-      needs.detect-changes.outputs.mqtt-watch == 'true' ||
-      needs.detect-changes.outputs.mark-service == 'true' ||
-      needs.detect-changes.outputs.frontend == 'true' ||
-      needs.detect-changes.outputs.warning-service == 'true'
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
-      - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
-
-      # 只构建有变化的服务
-      - name: 构建 API Gateway
-        if: needs.detect-changes.outputs.api-gateway == 'true'
-        run: docker compose build api-gateway
-
-      - name: 构建 User Service
-        if: needs.detect-changes.outputs.user-service == 'true'
-        run: docker compose build user-service
-
-      - name: 构建 Map Service
-        if: needs.detect-changes.outputs.map-service == 'true'
-        run: docker compose build map-service
-
-      - name: 构建 MQTT Watch
-        if: needs.detect-changes.outputs.mqtt-watch == 'true'
-        run: docker compose build mqtt-watch
-
-      - name: 构建 Mark Service
-        if: needs.detect-changes.outputs.mark-service == 'true'
-        run: docker compose build mark-service
-
-      - name: 构建 Frontend
-        if: needs.detect-changes.outputs.frontend == 'true'
-        run: docker compose build frontend
-        env:
-          VITE_AMAP_KEY: ${{ secrets.VITE_AMAP_KEY }}
-          VITE_AMAP_SECURITY_CODE: ${{ secrets.VITE_AMAP_SECURITY_CODE }}
-          VITE_MQTT_URL: ${{ secrets.VITE_MQTT_URL }}
-
-      - name: 构建 Warning Service
-        if: needs.detect-changes.outputs.warning-service == 'true'
-        run: docker compose build warning-service
-
-      # 只推送有变化的服务
-      - name: 推送 API Gateway
-        if: needs.detect-changes.outputs.api-gateway == 'true'
-        run: docker compose push api-gateway
-
-      - name: 推送 User Service
-        if: needs.detect-changes.outputs.user-service == 'true'
-        run: docker compose push user-service
-
-      - name: 推送 Map Service
-        if: needs.detect-changes.outputs.map-service == 'true'
-        run: docker compose push map-service
-
-      - name: 推送 MQTT Watch
-        if: needs.detect-changes.outputs.mqtt-watch == 'true'
-        run: docker compose push mqtt-watch
-
-      - name: 推送 Mark Service
-        if: needs.detect-changes.outputs.mark-service == 'true'
-        run: docker compose push mark-service
-
-      - name: 推送 Frontend
-        if: needs.detect-changes.outputs.frontend == 'true'
-        run: docker compose push frontend
-
-      - name: 推送 Warning Service
-        if: needs.detect-changes.outputs.warning-service == 'true'
-        run: docker compose push warning-service
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
-      - name: 生成 .env 文件
-        run: |
-          cat > .env <<EOF
-          VITE_AMAP_KEY=${{ secrets.VITE_AMAP_KEY }}
-          VITE_AMAP_SECURITY_CODE=${{ secrets.VITE_AMAP_SECURITY_CODE }}
-          VITE_MQTT_URL=${{ secrets.VITE_MQTT_URL }}
-          EOF
-
-      - name: 同步部署文件（含 .env）到服务器
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.Server_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml,.env,config,sql"
-          target: "~/iot-manage"
-          strip_components: 0
-
-      - name: 远程 docker compose up
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.Server_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            set -e
-            echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            cd ~/iot-manage
-            docker compose pull
-            docker compose down --remove-orphans
-            docker compose up -d
-            docker compose ps
+# name: CI-CD 部署 IoT 系统
+# 
+# on:
+#   push:
+#     branches: ["main"]
+# 
+# jobs:
+#   # 检测哪些服务发生了变化
+#   detect-changes:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       api-gateway: ${{ steps.filter.outputs.api-gateway }}
+#       user-service: ${{ steps.filter.outputs.user-service }}
+#       map-service: ${{ steps.filter.outputs.map-service }}
+#       mqtt-watch: ${{ steps.filter.outputs.mqtt-watch }}
+#       mark-service: ${{ steps.filter.outputs.mark-service }}
+#       frontend: ${{ steps.filter.outputs.frontend }}
+#       warning-service: ${{ steps.filter.outputs.warning-service }}
+#     steps:
+#       - name: 检出代码
+#         uses: actions/checkout@v4
+# 
+#       - name: 检测变化的服务
+#         uses: dorny/paths-filter@v2
+#         id: filter
+#         with:
+#           filters: |
+#             api-gateway:
+#               - 'api-gateway/**'
+#             user-service:
+#               - 'user-service/**'
+#             map-service:
+#               - 'map-service/**'
+#             mqtt-watch:
+#               - 'mqtt-watch/**'
+#             mark-service:
+#               - 'mark-service/**'
+#             frontend:
+#               - 'frontend/**'
+#             warning-service:
+#               - 'warning-service/**'
+# 
+#   build-and-push:
+#     needs: detect-changes
+#     runs-on: ubuntu-latest
+#     # 只有至少一个服务有变化时才运行
+#     if: |
+#       needs.detect-changes.outputs.api-gateway == 'true' ||
+#       needs.detect-changes.outputs.user-service == 'true' ||
+#       needs.detect-changes.outputs.map-service == 'true' ||
+#       needs.detect-changes.outputs.mqtt-watch == 'true' ||
+#       needs.detect-changes.outputs.mark-service == 'true' ||
+#       needs.detect-changes.outputs.frontend == 'true' ||
+#       needs.detect-changes.outputs.warning-service == 'true'
+#     steps:
+#       - name: 检出代码
+#         uses: actions/checkout@v4
+# 
+#       - name: 登录 GitHub Container Registry
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GHCR_TOKEN }}
+# 
+#       # 只构建有变化的服务
+#       - name: 构建 API Gateway
+#         if: needs.detect-changes.outputs.api-gateway == 'true'
+#         run: docker compose build api-gateway
+# 
+#       - name: 构建 User Service
+#         if: needs.detect-changes.outputs.user-service == 'true'
+#         run: docker compose build user-service
+# 
+#       - name: 构建 Map Service
+#         if: needs.detect-changes.outputs.map-service == 'true'
+#         run: docker compose build map-service
+# 
+#       - name: 构建 MQTT Watch
+#         if: needs.detect-changes.outputs.mqtt-watch == 'true'
+#         run: docker compose build mqtt-watch
+# 
+#       - name: 构建 Mark Service
+#         if: needs.detect-changes.outputs.mark-service == 'true'
+#         run: docker compose build mark-service
+# 
+#       - name: 构建 Frontend
+#         if: needs.detect-changes.outputs.frontend == 'true'
+#         run: docker compose build frontend
+#         env:
+#           VITE_AMAP_KEY: ${{ secrets.VITE_AMAP_KEY }}
+#           VITE_AMAP_SECURITY_CODE: ${{ secrets.VITE_AMAP_SECURITY_CODE }}
+#           VITE_MQTT_URL: ${{ secrets.VITE_MQTT_URL }}
+# 
+#       - name: 构建 Warning Service
+#         if: needs.detect-changes.outputs.warning-service == 'true'
+#         run: docker compose build warning-service
+# 
+#       # 只推送有变化的服务
+#       - name: 推送 API Gateway
+#         if: needs.detect-changes.outputs.api-gateway == 'true'
+#         run: docker compose push api-gateway
+# 
+#       - name: 推送 User Service
+#         if: needs.detect-changes.outputs.user-service == 'true'
+#         run: docker compose push user-service
+# 
+#       - name: 推送 Map Service
+#         if: needs.detect-changes.outputs.map-service == 'true'
+#         run: docker compose push map-service
+# 
+#       - name: 推送 MQTT Watch
+#         if: needs.detect-changes.outputs.mqtt-watch == 'true'
+#         run: docker compose push mqtt-watch
+# 
+#       - name: 推送 Mark Service
+#         if: needs.detect-changes.outputs.mark-service == 'true'
+#         run: docker compose push mark-service
+# 
+#       - name: 推送 Frontend
+#         if: needs.detect-changes.outputs.frontend == 'true'
+#         run: docker compose push frontend
+# 
+#       - name: 推送 Warning Service
+#         if: needs.detect-changes.outputs.warning-service == 'true'
+#         run: docker compose push warning-service
+# 
+#   deploy:
+#     needs: build-and-push
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: 检出代码
+#         uses: actions/checkout@v4
+# 
+#       - name: 生成 .env 文件
+#         run: |
+#           cat > .env <<EOF
+#           VITE_AMAP_KEY=${{ secrets.VITE_AMAP_KEY }}
+#           VITE_AMAP_SECURITY_CODE=${{ secrets.VITE_AMAP_SECURITY_CODE }}
+#           VITE_MQTT_URL=${{ secrets.VITE_MQTT_URL }}
+#           EOF
+# 
+#       - name: 同步部署文件（含 .env）到服务器
+#         uses: appleboy/scp-action@v0.1.7
+#         with:
+#           host: ${{ secrets.Server_IP }}
+#           username: ${{ secrets.SERVER_USER }}
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           source: "docker-compose.yml,.env,config,sql"
+#           target: "~/iot-manage"
+#           strip_components: 0
+# 
+#       - name: 远程 docker compose up
+#         uses: appleboy/ssh-action@v1.0.0
+#         with:
+#           host: ${{ secrets.Server_IP }}
+#           username: ${{ secrets.SERVER_USER }}
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           script: |
+#             set -e
+#             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+#             cd ~/iot-manage
+#             docker compose pull
+#             docker compose down --remove-orphans
+#             docker compose up -d
+#             docker compose ps

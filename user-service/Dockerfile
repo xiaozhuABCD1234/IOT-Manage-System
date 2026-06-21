@@ -1,4 +1,4 @@
-FROM docker.io/library/golang:alpine AS builder
+FROM docker.io/library/golang:1.24.13-alpine3.23 AS builder
 
 # 设置国内 Go 代理
 ENV GOPROXY=https://goproxy.cn,direct
@@ -27,7 +27,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -a -installsuffix cgo \
     -o main .
 # 运行阶段
-FROM docker.io/library/alpine:latest
+FROM docker.io/library/alpine:3.23
 
 # 安装运行时依赖
 RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories &&\
